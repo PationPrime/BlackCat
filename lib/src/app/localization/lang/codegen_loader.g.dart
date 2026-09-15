@@ -1,0 +1,93 @@
+// DO NOT EDIT. This is code generated via package:easy_localization/generate.dart
+
+// ignore_for_file: prefer_single_quotes, avoid_renaming_method_parameters, constant_identifier_names
+
+import 'dart:ui';
+
+import 'package:easy_localization/easy_localization.dart' show AssetLoader;
+
+class CodegenLoader extends AssetLoader{
+  const CodegenLoader();
+
+  @override
+  Future<Map<String, dynamic>?> load(String path, Locale locale) {
+    return Future.value(mapLocales[locale.toString()]);
+  }
+
+  static const Map<String,dynamic> _ru_RU = {
+  "app": {
+    "title": "YT Download",
+    "common": {
+      "file_size": {
+        "bytes": "{value} Б",
+        "kilobytes": "{value} КБ",
+        "megabytes": "{value} МБ",
+        "gigabytes": "{value} ГБ"
+      }
+    },
+    "authorization": {
+      "sign_in": "Войти в YouTube",
+      "checking": "Проверяем вход…",
+      "waiting": "Ждём вход…",
+      "signed_in": "Аккаунт подключён",
+      "sign_out": "Выйти",
+      "window_title": "Вход в YouTube"
+    },
+    "downloader": {
+      "url_hint": "https://www.youtube.com/watch?v=...",
+      "buttons": {
+        "search": "Найти",
+        "searching": "Ищем…",
+        "download": "Скачать",
+        "show_in_folder": "Показать в папке",
+        "sign_in_and_retry": "Войти в YouTube и повторить",
+        "refresh_sign_in_and_retry": "Обновить вход и повторить"
+      },
+      "video": {
+        "views": "{count} просмотров",
+        "quality": "Качество",
+        "audio_only": "Только звук",
+        "audio_only_m4a": "Только звук (M4A)"
+      },
+      "progress": {
+        "downloading": "Скачивание {percent}%",
+        "speed": "{value}/с",
+        "eta": "осталось {value}",
+        "processing": "Склеиваем видео и звук…",
+        "done": "Готово, файл в «Загрузках»"
+      }
+    },
+    "errors": {
+      "unknown": "Что-то пошло не так: {error}",
+      "network": {
+        "no_connection": "Нет соединения с YouTube.",
+        "timeout": "YouTube слишком долго не отвечает.",
+        "canceled": "Загрузка отменена.",
+        "forbidden": "YouTube отклонил запрос (403). Попробуйте ещё раз: ссылки на потоки могли устареть.",
+        "rate_limited": "YouTube временно ограничил запросы (429). Подождите немного.",
+        "http_status": "YouTube ответил ошибкой {status}.",
+        "unexpected": "Ошибка сети: {error}"
+      },
+      "video": {
+        "not_youtube_url": "Это не ссылка на YouTube-видео.",
+        "player_config": "YouTube изменил страницу плеера: не удалось прочитать её настройки.",
+        "unplayable": "YouTube не отдаёт это видео ({status}).",
+        "streams_unavailable": "YouTube не дал прямых ссылок на потоки этого видео.",
+        "player_parse": "Не удалось разобрать плеер YouTube: {error}",
+        "challenge": "Не удалось решить проверку YouTube ({type}): {error}",
+        "quality_unavailable": "Выбранное качество больше недоступно. Обновите информацию о видео.",
+        "unknown_quality": "Неизвестное качество: {quality}",
+        "mux": "Не удалось собрать файл: {error}",
+        "stream_interrupted": "YouTube обрывает загрузку потока. Попробуйте ещё раз.",
+        "web_view_runtime": "Для скачивания нужен Microsoft Edge WebView2 Runtime.",
+        "js_engine": "Встроенный JavaScript-движок (WebView2) вернул ошибку: {error}"
+      },
+      "authentication": {
+        "web_view_runtime": "Для входа нужен Microsoft Edge WebView2 Runtime.",
+        "session_not_issued": "Вход не завершён: YouTube не выдал cookies аккаунта. Попробуйте ещё раз."
+      }
+    }
+  }
+};
+static const Map<String, Map<String,dynamic>> mapLocales = {"ru_RU": _ru_RU};
+}
