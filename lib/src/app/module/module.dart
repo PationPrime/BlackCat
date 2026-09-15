@@ -5,18 +5,22 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_web_auth_2_platform_interface/flutter_web_auth_2_platform_interface.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 import '../api/api.dart';
 import '../data_sources/data_sources.dart';
 import '../design_system/design_system.dart';
 import '../localization/lang/locale_keys.g.dart';
 import '../logger/app_logger.dart';
+import '../models/models.dart';
 import '../repositories/repositories.dart';
 import '../router/app_router.dart';
 import '../runner_app.dart';
 import '../services/services.dart';
 import '../session/session_store.dart';
 import '../shared_controllers/shared_controllers.dart';
+import '../storage/database/database.dart';
+import '../storage/database/providers/providers.dart';
 
 final class AppModule {
   AppModule._();
@@ -27,9 +31,15 @@ final class AppModule {
 
   static late final ApiProvider _apiProvider;
   static late final FileSystemService _fileSystemService;
+  static late final DownloadTaskTableProvider _downloadTaskTableProvider;
   static late final AuthenticationRepositoryInterface _authenticationRepository;
   static late final VideoRepositoryInterface _videoRepository;
+  static late final SettingsRepositoryInterface _settingsRepository;
+  static late final DownloadQueueRepositoryInterface _downloadQueueRepository;
   static late final AuthorizationController _authorizationController;
+  static late final SettingsController _settingsController;
+  static late final AppWindowController _appWindowController;
+  static late final SystemTrayController _systemTrayController;
   static late final AppRouter _appRouter;
 
   Future<void> initApp(List<String> args) async {
@@ -65,7 +75,7 @@ final class AppModule {
           windowTitle: LocaleKeys.app_authorization_window_title.tr,
         );
 
-        /// flutter_web_auth_2 на Windows работает через эту реализацию
+        /// flutter_web_auth_2 on Windows works through this implementation
         FlutterWebAuth2Platform.instance = signInWebViewPlatform;
 
         _authenticationRepository = AuthenticationRepository(
@@ -102,9 +112,46 @@ final class AppModule {
           sessionStore: sessionStore,
         );
 
+        _settingsRepository = SettingsRepository(
+          localSettingsDataSource: LocalSettingsDataSourceImpl(),
+          directoryPickerService: const DirectoryPickerServiceImpl(),
+          fileSystemService: _fileSystemService,
+        );
+
+        _downloadQueueRepository = DownloadQueueRepository(
+          downloadTaskTableProvider: _downloadTaskTableProvider,
+          remoteThumbnailDataSource: RemoteThumbnailDataSourceImpl(
+            apiProvider: _apiProvider,
+          ),
+          fileSystemService: _fileSystemService,
+        );
+
         _authorizationController = AuthorizationController(
           authenticationRepository: _authenticationRepository,
         );
+
+        /// The first frame is drawn in the saved language right away
+        final initialLanguage =
+            (await _settingsRepository.getLanguage()).data ??
+            AppLanguageModel.fallback;
+
+        _settingsController = SettingsController(
+          settingsRepository: _settingsRepository,
+          initialLanguage: initialLanguage,
+        )..loadSettings();
+
+        /// The app title bar and the tray icon are ready before the first frame:
+        /// the window never shows the system title bar
+        _appWindowController = AppWindowController(
+          appWindowService: AppWindowServiceImpl(),
+        );
+        await _appWindowController.initialize();
+
+        _systemTrayController = SystemTrayController(
+          systemTrayService: SystemTrayServiceImpl(),
+          appWindowController: _appWindowController,
+        );
+        await _systemTrayController.initialize();
 
         _appRouter = AppRouter();
 
@@ -115,7 +162,13 @@ final class AppModule {
             fileSystemService: _fileSystemService,
             authenticationRepository: _authenticationRepository,
             videoRepository: _videoRepository,
+            settingsRepository: _settingsRepository,
+            downloadQueueRepository: _downloadQueueRepository,
             authorizationController: _authorizationController,
+            settingsController: _settingsController,
+            appWindowController: _appWindowController,
+            systemTrayController: _systemTrayController,
+            initialLanguage: initialLanguage,
           ),
         );
       },
@@ -132,6 +185,8 @@ final class AppModule {
     try {
       WidgetsFlutterBinding.ensureInitialized();
       await EasyLocalization.ensureInitialized();
+      await initializeDateFormatting();
+      await _initializeDriftDatabase();
     } catch (error, stackTrace) {
       Error.throwWithStackTrace(
         Exception('Failed to configure dependencies: $error'),
@@ -140,7 +195,18 @@ final class AppModule {
     }
   }
 
+  Future<void> _initializeDriftDatabase() async {
+    final databaseIsolate = await AppDatabase.connectIsolateDatabase();
+
+    _downloadTaskTableProvider = DownloadTaskTableProvider(
+      databaseInstance: databaseIsolate.database,
+    );
+  }
+
   Future<void> dispose() async {
     await _authorizationController.close();
+    await _settingsController.close();
+    await _systemTrayController.close();
+    await _appWindowController.close();
   }
 }

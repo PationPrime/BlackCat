@@ -5,10 +5,10 @@ import '../../operation_result/operation_result.dart';
 import '../../tools/tools.dart';
 import 'authentication_repository_interface.dart';
 
-/// Вход в YouTube: окно WebView2 с постоянным профилем. «Возврат» входа —
-/// последний редирект на youtube.com; к этому моменту Google выставил cookies
-/// сессии, и они сохраняются как cookies.txt. Профиль хранит сессию Google,
-/// поэтому при следующих запусках вход подхватывается без окна
+/// YouTube sign-in: a WebView2 window with a persistent profile. The sign-in
+/// "callback" is the last redirect to youtube.com; by then Google has set the
+/// session cookies, and they are saved as cookies.txt. The profile keeps the Google
+/// session, so on later launches the sign-in is picked up without a window
 final class AuthenticationRepository
     implements AuthenticationRepositoryInterface {
   static const _appLogger = AppLogger(where: 'AuthenticationRepository');
@@ -35,8 +35,8 @@ final class AuthenticationRepository
         return ok(true);
       }
 
-      /// Файла нет или сессия в нём истекла, но профиль окна входа
-      /// ещё может хранить аккаунт (например, окно закрыли сразу после входа)
+      /// The file is missing or its session has expired, but the sign-in window profile
+      /// may still hold the account (e.g. the window was closed right after signing in)
       if (!await _localDataSource.signInProfileExists()) {
         return ok(false);
       }
@@ -93,7 +93,7 @@ final class AuthenticationRepository
     try {
       await _localDataSource.deleteCookies();
 
-      /// Иначе следующий вход (или запуск) молча подхватит сессию Google
+      /// Otherwise the next sign-in (or launch) silently picks up the Google session
       await _localDataSource.deleteSignInProfile();
 
       return ok(null);

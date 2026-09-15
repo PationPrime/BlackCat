@@ -7,16 +7,16 @@ import '../../errors/errors.dart';
 import '../../session/session_store.dart';
 import 'local_player_data_source.dart';
 
-/// Запросы, которые делает встроенный веб-плеер YouTube
+/// Requests made by the YouTube embedded web player
 abstract interface class RemoteYouTubeDataSource {
-  /// Настройки страницы встроенного плеера
+  /// Embedded player page settings
   Future<EmbedConfigDto> getEmbedConfig(String videoId);
 
-  /// JavaScript плеера (из кэша, если он уже скачивался)
+  /// Player JavaScript (from the cache if it was downloaded before)
   Future<String> getPlayerJs(String playerId);
 
-  /// `/youtubei/v1/player` от имени встроенного плеера.
-  /// Бросает [VideoException], если видео не воспроизводится
+  /// `/youtubei/v1/player` on behalf of the embedded player.
+  /// Throws [VideoException] if the video cannot be played
   Future<PlayerResponseDto> getPlayer(
     String videoId,
     EmbedConfigDto config, {
@@ -33,7 +33,7 @@ final class RemoteYouTubeDataSourceImpl implements RemoteYouTubeDataSource {
   final SessionStore _sessionStore;
   final LocalPlayerDataSource _localPlayerDataSource;
 
-  /// Уже прочитанные плееры: разбирать 3 МБ с диска на каждый запрос незачем
+  /// Players already read: no need to parse 3 MB from disk on every request
   final _players = <String, String>{};
 
   RemoteYouTubeDataSourceImpl({
@@ -148,7 +148,7 @@ final class RemoteYouTubeDataSourceImpl implements RemoteYouTubeDataSource {
     return player;
   }
 
-  /// Номер плеера — signatureTimestamp из его кода
+  /// Player version: signatureTimestamp from its code
   static int? signatureTimestampOf(String playerJs) => int.tryParse(
     RegExp(
           r'(?:signatureTimestamp|sts)\s*:\s*(\d{5})',

@@ -4,8 +4,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../shared_controllers/shared_controllers.dart';
 
-/// Запускает тихую проверку сохранённого входа в YouTube.
-/// Приложение работает и без входа, поэтому экраны открываются сразу
+/// Starts a silent check of the saved YouTube sign-in.
+/// The app works without signing in, so screens open right away
 @RoutePage(name: 'AuthorizationWrapperRouter')
 class AuthorizationWrapperRouterPage extends StatefulWidget {
   const AuthorizationWrapperRouterPage({super.key});

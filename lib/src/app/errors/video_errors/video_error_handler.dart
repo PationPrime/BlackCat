@@ -45,6 +45,9 @@ class VideoErrorHandler extends ErrorHandler<VideoErrorCodes> {
       'stream_interrupted' => LocaleKeys.app_errors_video_stream_interrupted,
       'web_view_runtime' => LocaleKeys.app_errors_video_web_view_runtime,
       'js_engine' => LocaleKeys.app_errors_video_js_engine,
+      'destination_unavailable' =>
+        LocaleKeys.app_errors_video_destination_unavailable,
+      'canceled' => LocaleKeys.app_errors_network_canceled,
       _ => LocaleKeys.app_errors_unknown,
     };
 

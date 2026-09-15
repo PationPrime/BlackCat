@@ -3,11 +3,11 @@ import 'package:flutter/material.dart';
 import '../../design_system/design_system.dart';
 import '../app_buttons/app_buttons.dart';
 
-/// Вариант выбора из группы: подпись и приглушённое пояснение справа
+/// Option from a group: a title and a muted hint on the right
 class AppSelectableChip extends StatelessWidget {
   final String title;
 
-  /// Например, примерный размер файла
+  /// E.g. the approximate file size
   final String? subtitle;
   final bool selected;
   final VoidCallback? onPressed;

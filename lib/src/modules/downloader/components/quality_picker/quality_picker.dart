@@ -6,12 +6,12 @@ import 'package:youtube_downloader/src/app/models/models.dart';
 import 'package:youtube_downloader/src/app/tools/tools.dart';
 import 'package:youtube_downloader/src/app/widgets/widgets.dart';
 
-/// Выбор качества: разрешения и «Только звук» с примерным размером
+/// Quality selection: resolutions and "Audio only" with the approximate size
 class QualityPicker extends StatelessWidget {
   final List<QualityModel> qualities;
   final String selectedQualityId;
 
-  /// Во время загрузки качество не меняется
+  /// The quality does not change during a download
   final bool enabled;
   final ValueChanged<String>? onSelected;
 
@@ -23,7 +23,8 @@ class QualityPicker extends StatelessWidget {
     this.onSelected,
   });
 
-  String _titleOf(QualityModel quality) => switch (quality.kind) {
+  /// Quality label: resolution or "Audio only"
+  static String titleOf(QualityModel quality) => switch (quality.kind) {
     QualityKind.video => quality.label,
     QualityKind.audio when quality.isAac =>
       LocaleKeys.app_downloader_video_audio_only_m4a.tr(),
@@ -45,7 +46,7 @@ class QualityPicker extends StatelessWidget {
         children: [
           for (final quality in qualities)
             AppSelectableChip(
-              title: _titleOf(quality),
+              title: titleOf(quality),
               subtitle: switch (AppFileSize.format(quality.size)) {
                 final size? => '~$size',
                 null => null,

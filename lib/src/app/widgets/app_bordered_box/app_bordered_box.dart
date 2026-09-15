@@ -2,7 +2,7 @@ import 'package:flutter/widgets.dart';
 
 import '../../design_system/design_system.dart';
 
-/// Карточка со скруглением и рамкой. Содержимое обрезается по скруглению
+/// Card with rounded corners and a border. Content is clipped to the corners
 class AppBorderedBox extends StatelessWidget {
   final BorderRadius borderRadius;
   final Color? borderColor;

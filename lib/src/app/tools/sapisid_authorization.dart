@@ -4,10 +4,10 @@ import 'package:crypto/crypto.dart';
 
 import '../constants/constants.dart';
 
-/// Заголовок `Authorization` веб-клиента YouTube для запросов с cookies
+/// YouTube web client `Authorization` header for requests with cookies
 abstract final class SapisidAuthorization {
   /// `SAPISIDHASH <ts>_<sha1("[u ]ts sapisid origin")>[_u]`
-  /// и варианты 1P/3P через пробел. `null`, если cookies SAPISID нет
+  /// and the 1P/3P variants separated by spaces. `null` if there is no SAPISID cookie
   static String? build({
     String? sapisid,
     String? sapisid1p,

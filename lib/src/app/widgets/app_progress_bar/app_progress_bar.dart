@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 
 import '../../design_system/design_system.dart';
 
-/// Полоса прогресса. [pulsing]: мигает, пока длится неопределённый этап
+/// Progress bar. [pulsing]: blinks while an indeterminate stage lasts
 class AppProgressBar extends StatefulWidget {
-  /// От 0 до 1
+  /// From 0 to 1
   final double value;
   final bool pulsing;
   final double height;
@@ -22,7 +22,7 @@ class AppProgressBar extends StatefulWidget {
 
 class _AppProgressBarState extends State<AppProgressBar>
     with SingleTickerProviderStateMixin {
-  /// Как `animate-pulse` в Tailwind: прозрачность 1 → 0.5 → 1 за 2 секунды
+  /// Like Tailwind `animate-pulse`: opacity 1 → 0.5 → 1 over 2 seconds
   late final _pulseController = AnimationController(
     vsync: this,
     duration: const Duration(seconds: 1),

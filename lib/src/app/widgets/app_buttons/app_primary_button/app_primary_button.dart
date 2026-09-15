@@ -3,12 +3,12 @@ import 'package:flutter/material.dart';
 import '../../../design_system/design_system.dart';
 import '../app_pressable/app_pressable.dart';
 
-/// Кнопка со скруглением. Недоступная кнопка полупрозрачна
+/// Rounded button. A disabled button is semi-transparent
 class AppPrimaryButton extends StatelessWidget {
   final String title;
   final VoidCallback? onPressed;
 
-  /// По умолчанию — акцентная кнопка
+  /// Defaults to the accent button
   final Color? buttonColor;
   final Color? hoverColor;
   final Color? titleColor;

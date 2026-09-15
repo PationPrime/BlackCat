@@ -32,7 +32,7 @@ void main() {
 
     expect(await controller.signIn(), isTrue);
 
-    /// События стрима доставляются асинхронно
+    /// Stream events are delivered asynchronously
     await Future<void>.delayed(Duration.zero);
     await subscription.cancel();
     expect(states, [const AuthorizationInProgress(), const Authorized()]);

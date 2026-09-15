@@ -1,7 +1,7 @@
 part of 'authorization_controller.dart';
 
 sealed class AuthorizationState extends Equatable {
-  /// Ошибка последней попытки входа или выхода
+  /// Error of the last sign-in or sign-out attempt
   final Failure? failure;
 
   const AuthorizationState({this.failure});
@@ -10,12 +10,12 @@ sealed class AuthorizationState extends Equatable {
   List<Object?> get props => [failure];
 }
 
-/// Сохранённая сессия ещё проверяется
+/// The saved session is still being checked
 final class AuthorizationInitial extends AuthorizationState {
   const AuthorizationInitial();
 }
 
-/// Открыто окно входа
+/// The sign-in window is open
 final class AuthorizationInProgress extends AuthorizationState {
   const AuthorizationInProgress();
 }
@@ -33,6 +33,6 @@ extension AuthorizationStateX on AuthorizationState {
   bool get isInProgress => this is AuthorizationInProgress;
   bool get isAuthorized => this is Authorized;
 
-  /// Идёт проверка или вход: кнопки входа недоступны
+  /// Checking or signing in: sign-in buttons are unavailable
   bool get isBusy => isChecking || isInProgress;
 }

@@ -7,7 +7,7 @@ import '../../logger/app_logger.dart';
 import '../api/api_errors.dart';
 import '../app_error_handler/error_codes.dart';
 
-/// Базовый класс для преобразования ошибок в [Failure]
+/// Base class for converting errors into [Failure]
 abstract class ErrorHandler<T extends ErrorCodes> {
   static const _appLogger = AppLogger(where: 'ErrorHandler');
 
@@ -15,11 +15,11 @@ abstract class ErrorHandler<T extends ErrorCodes> {
 
   const ErrorHandler({required this.errorCodes});
 
-  /// Ответы с этими HTTP-статусами превращаются в свои [Failure]
+  /// Responses with these HTTP statuses turn into their own [Failure]
   Map<String, Failure Function(ApiError)> get errorCodeToFailure;
 
-  /// Исключения своей предметной области (не сетевые).
-  /// `null` — исключение не относится к домену обработчика
+  /// Exceptions of the handler's own domain (not network ones).
+  /// `null`: the exception does not belong to the handler's domain
   Failure? handleDomainException(Object error, StackTrace? stackTrace) => null;
 
   Failure handleError(Object error, {StackTrace? stackTrace}) {
@@ -106,7 +106,7 @@ abstract class ErrorHandler<T extends ErrorCodes> {
     };
   }
 
-  /// Код ошибки [DioException] — HTTP-статус ответа
+  /// [DioException] error code: the response HTTP status
   ApiError _extractError(DioException error, [StackTrace? stackTrace]) =>
       ApiError(
         code: '${error.response?.statusCode}',

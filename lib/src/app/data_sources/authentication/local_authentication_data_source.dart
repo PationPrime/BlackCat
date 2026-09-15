@@ -7,24 +7,24 @@ import '../../models/models.dart';
 import '../../services/services.dart';
 import '../../tools/tools.dart';
 
-/// cookies.txt аккаунта и профиль WebView2 окна входа на диске
+/// Account cookies.txt and the sign-in window WebView2 profile on disk
 abstract interface class LocalAuthenticationDataSource {
   Future<String> cookiesFilePath();
 
-  /// `null`, если файла cookies нет
+  /// `null` if there is no cookies file
   Future<List<BrowserCookieModel>?> readCookies();
 
   Future<void> writeCookies(List<BrowserCookieModel> cookies);
 
   Future<void> deleteCookies();
 
-  /// Папка данных WebView2 окна входа
+  /// WebView2 data folder of the sign-in window
   Future<String> signInProfileFolder();
 
-  /// Профиль окна входа уже создавался: в нём может быть сессия Google
+  /// The sign-in window profile has been created before: it may hold a Google session
   Future<bool> signInProfileExists();
 
-  /// Стирает профиль окна входа вместе с сессией Google
+  /// Wipes the sign-in window profile together with the Google session
   Future<void> deleteSignInProfile();
 }
 
@@ -86,7 +86,7 @@ final class LocalAuthenticationDataSourceImpl
       try {
         await profile.delete(recursive: true);
       } on FileSystemException {
-        /// WebView2 отпускает файлы не сразу после закрытия последнего окна
+        /// WebView2 does not release files right after the last window closes
         await Future<void>.delayed(const Duration(seconds: 1));
       }
     }

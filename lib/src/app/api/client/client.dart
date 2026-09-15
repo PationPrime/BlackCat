@@ -3,13 +3,13 @@ import 'package:dio/dio.dart';
 import '../../constants/constants.dart';
 import 'base_client.dart';
 
-/// Страницы и API YouTube
+/// YouTube pages and API
 final class YouTubeApiClient extends ApiClient {
   YouTubeApiClient({super.interceptors})
     : super(headers: const {'User-Agent': YouTubeConstants.browserUserAgent});
 }
 
-/// Потоки видео и звука с googlevideo.com
+/// Video and audio streams from googlevideo.com
 final class MediaApiClient extends ApiClient {
   MediaApiClient({super.interceptors})
     : super(

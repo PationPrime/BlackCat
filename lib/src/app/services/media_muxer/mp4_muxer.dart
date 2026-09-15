@@ -1,12 +1,12 @@
 part of 'media_muxer_service.dart';
 
-/// Переписывает фрагментированные DASH-потоки YouTube (по дорожке в файле) в обычный MP4 —
-/// как `ffmpeg -c copy`: `ftyp`, `moov` с полными таблицами сэмплов, один `mdat`.
-/// Сэмплы копируются байт в байт, ничего не перекодируется.
+/// Rewrites YouTube fragmented DASH streams (one track per file) into a regular MP4,
+/// like `ffmpeg -c copy`: `ftyp`, `moov` with full sample tables, a single `mdat`.
+/// Samples are copied byte for byte, nothing is re-encoded.
 ///
-/// Во фрагментированном файле размеры, длительности и смещения сэмплов лежат в каждом `moof`;
-/// многие плееры плохо понимают несколько таких дорожек в одном файле, поэтому они
-/// собираются обратно в `stts`/`stsz`/`stco`…
+/// In a fragmented file sample sizes, durations and offsets live in every `moof`;
+/// many players handle several such tracks in one file poorly, so they are
+/// assembled back into `stts`/`stsz`/`stco`…
 Future<void> _muxToMp4({required List<String> inputs, required String outputPath, bool audioOnly = false}) async {
   final opened = <_Input>[];
 
@@ -41,7 +41,7 @@ class _BoxRef {
   int get bodyStart => offset + headerSize;
 }
 
-/// Подряд идущие сэмплы одного `trun`: лежат вместе, поэтому становятся одним чанком
+/// Consecutive samples of one `trun`: they lie together, so they become one chunk
 class _Chunk {
   _Chunk(this.track, this.fileOffset, this.firstSample, this.sampleCount, this.byteSize, this.startTime);
 
@@ -70,7 +70,7 @@ class _Track {
   Uint8List? dinf;
   int editMediaTime = 0;
 
-  /// Значения по умолчанию из `trex`
+  /// Defaults from `trex`
   int defaultDuration = 0;
   int defaultSize = 0;
   int defaultFlags = 0;
@@ -78,7 +78,7 @@ class _Track {
   final sizes = <int>[];
   final durations = <int>[];
   final compositionOffsets = <int>[];
-  final syncSamples = <int>[]; // с единицы
+  final syncSamples = <int>[]; // starting from one
   final chunks = <_Chunk>[];
 
   int get mediaDuration => durations.fold(0, (sum, duration) => sum + duration);
@@ -247,7 +247,7 @@ class _Input {
           ? track.mediaDuration
           : (moof[tfdt.offset + 8] == 1 ? data.getUint64(tfdt.offset + 12) : data.getUint32(tfdt.offset + 12));
 
-      /// Сэмплы адресуются от начала moof; trun без смещения продолжает предыдущий
+      /// Samples are addressed from the start of moof; a trun without an offset continues the previous one
       var dataPosition = moofOffset;
       var decodeTime = baseTime;
 
@@ -305,8 +305,8 @@ Future<void> _write(List<_Track> tracks, String outputPath, {required bool audio
   final ftyp = _ftyp(audioOnly: audioOnly);
   final mdatPayload = chunks.fold<int>(0, (sum, chunk) => sum + chunk.byteSize);
 
-  /// moov идёт первым, поэтому его размер нужен до смещений чанков: собираем его
-  /// с заглушками (той же ширины), затем с настоящими смещениями
+  /// moov goes first, so its size is needed before the chunk offsets: build it
+  /// with placeholders (of the same width), then with the real offsets
   final wide = ftyp.length + mdatPayload + 16 + 64 * 1024 * 1024 > 0xFFFFFFFF;
   var moov = _moov(tracks, wide64: wide);
   final mdatHeader = _mdatHeader(mdatPayload);
@@ -371,7 +371,7 @@ Uint8List _trak(_Track track, {required bool wide64}) {
   ]);
 }
 
-// region: боксы
+// region: boxes
 
 Uint8List _box(String type, List<Uint8List> children) {
   final size = 8 + children.fold<int>(0, (sum, child) => sum + child.length);
@@ -387,7 +387,7 @@ Uint8List _box(String type, List<Uint8List> children) {
   return bytes;
 }
 
-/// Полный бокс: версия, флаги и тело размером [size], которое заполняет [write]
+/// Full box: version, flags and a body of [size] bytes filled by [write]
 Uint8List _fullBox(String type, int size, void Function(ByteData data) write, {int version = 0, int flags = 0}) {
   final bytes = Uint8List(12 + size);
   ByteData.sublistView(bytes)
@@ -419,8 +419,8 @@ Uint8List _mvhd(int duration, {required int nextTrackId}) => _fullBox('mvhd', 96
   data
     ..setUint32(8, _movieTimescale)
     ..setUint32(12, duration)
-    ..setUint32(16, 0x00010000) // скорость 1.0
-    ..setUint16(20, 0x0100); // громкость 1.0
+    ..setUint32(16, 0x00010000) // rate 1.0
+    ..setUint16(20, 0x0100); // volume 1.0
   for (final (index, value) in _identityMatrix.indexed) {
     data.setUint32(32 + 4 * index, value);
   }
@@ -432,13 +432,13 @@ Uint8List _tkhd(_Track track, int duration) {
   final width = source.getUint32(track.tkhd.length - 8);
   final height = source.getUint32(track.tkhd.length - 4);
 
-  /// Тело v0: creation, modification, track_ID, reserved, duration, reserved(8), layer,
+  /// v0 body: creation, modification, track_ID, reserved, duration, reserved(8), layer,
   /// alternate_group, volume, reserved(2), matrix(36), width, height
   return _fullBox('tkhd', 80, (data) {
     data
       ..setUint32(8, track.id)
       ..setUint32(16, duration)
-      ..setUint16(30, track.isVideo ? 0 : 1) // alternate_group: звуковые дорожки — группа 1, как у ffmpeg
+      ..setUint16(30, track.isVideo ? 0 : 1) // alternate_group: audio tracks are group 1, as in ffmpeg
       ..setUint16(32, track.isVideo ? 0 : 0x0100);
     for (final (index, value) in _identityMatrix.indexed) {
       data.setUint32(36 + 4 * index, value);
@@ -479,7 +479,7 @@ Uint8List _mdhd(_Track track) {
   });
 }
 
-/// Пары (количество, значение) подряд идущих одинаковых значений
+/// (count, value) pairs of consecutive equal values
 List<(int, int)> _runs(List<int> values) {
   final runs = <(int, int)>[];
   for (final value in values) {
@@ -573,7 +573,7 @@ Uint8List _mdatHeader(int payload) {
   return bytes..setAll(4, 'mdat'.codeUnits);
 }
 
-// region: разбор
+// region: parsing
 
 Iterable<_BoxRef> _children(Uint8List bytes, _BoxRef parent) sync* {
   final data = ByteData.sublistView(bytes);

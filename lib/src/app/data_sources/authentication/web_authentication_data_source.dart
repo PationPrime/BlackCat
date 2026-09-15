@@ -7,12 +7,12 @@ import '../../models/models.dart';
 import '../../services/services.dart';
 import 'local_authentication_data_source.dart';
 
-/// Вход в YouTube через flutter_web_auth_2 и cookies профиля WebView2
+/// YouTube sign-in via flutter_web_auth_2 and WebView2 profile cookies
 abstract interface class WebAuthenticationDataSource {
-  /// cookies профиля после входа. `null`, если пользователь закрыл окно
+  /// Profile cookies after sign-in. `null` if the user closed the window
   Future<List<BrowserCookieModel>?> signIn();
 
-  /// Открывает профиль окна входа в невидимом окне, только чтобы прочитать cookies
+  /// Opens the sign-in window profile in a hidden window just to read cookies
   Future<List<BrowserCookieModel>> readProfileCookies();
 }
 

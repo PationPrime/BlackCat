@@ -5,7 +5,7 @@ import 'package:easy_localization/src/translations.dart';
 import 'package:flutter/widgets.dart';
 import 'package:youtube_downloader/src/app/localization/lang/codegen_loader.g.dart';
 
-/// Загружает русские переводы без виджета EasyLocalization
+/// Loads Russian translations without the EasyLocalization widget
 void loadTestTranslations() {
   Localization.load(
     const Locale('ru', 'RU'),

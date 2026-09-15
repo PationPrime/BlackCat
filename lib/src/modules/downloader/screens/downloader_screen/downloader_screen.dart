@@ -1,9 +1,12 @@
+import 'dart:math' as math;
+
 import 'package:auto_route/auto_route.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:youtube_downloader/src/app/errors/errors.dart';
 import 'package:youtube_downloader/src/app/localization/lang/locale_keys.g.dart';
+import 'package:youtube_downloader/src/app/models/models.dart';
+import 'package:youtube_downloader/src/app/router/app_router.dart';
 import 'package:youtube_downloader/src/app/services/services.dart';
 import 'package:youtube_downloader/src/app/shared_controllers/shared_controllers.dart';
 import 'package:youtube_downloader/src/app/widgets/widgets.dart';
@@ -12,38 +15,62 @@ import '../../components/components.dart';
 import '../../controllers/controllers.dart';
 
 @RoutePage()
-class DownloaderScreen extends StatefulWidget {
-  const DownloaderScreen({super.key});
-
-  @override
-  State<DownloaderScreen> createState() => _DownloaderScreenState();
-}
-
-class _DownloaderScreenState extends State<DownloaderScreen> {
+class DownloaderScreen extends StatelessWidget {
   static const _contentMaxWidth = 640.0;
   static const _wideLayoutBreakpoint = 640.0;
+  static const _minHorizontalPadding = 16.0;
+  static const _tileSpacing = 8.0;
 
-  final _urlController = TextEditingController();
-  final _urlFocusNode = FocusNode();
+  /// Gap between the window title bar and the screen header
+  static const _minTopGap = 24.0;
 
-  @override
-  void dispose() {
-    _urlController.dispose();
-    _urlFocusNode.dispose();
-    super.dispose();
-  }
+  const DownloaderScreen({super.key});
 
-  void _onUrlSubmitted(String url) {
-    if (url.trim().isEmpty) {
-      _urlFocusNode.requestFocus();
+  /// An unfinished video is removed only after confirmation:
+  /// its downloaded bytes are deleted from the device with it
+  Future<void> _removeTask(BuildContext context, DownloadTaskModel task) async {
+    final downloadQueueController = context.read<DownloadQueueController>();
 
-      return;
+    if (task.removalNeedsConfirmation) {
+      final confirmed = await AppConfirmationDialog.show(
+        context,
+        title: LocaleKeys.app_downloader_remove_dialog_title.tr(),
+        message: LocaleKeys.app_downloader_remove_dialog_message.tr(
+          namedArgs: {
+            'title': task.video.title,
+            'percent': '${task.percent.floor()}',
+          },
+        ),
+        confirmTitle: LocaleKeys.app_downloader_remove_dialog_confirm.tr(),
+        cancelTitle: LocaleKeys.app_downloader_remove_dialog_cancel.tr(),
+        destructive: true,
+      );
+
+      if (!confirmed) return;
     }
 
-    context.read<DownloaderController>().fetchVideoInfo(url);
+    await downloadQueueController.removeTask(task.id);
   }
 
-  /// Текст кнопки под ошибкой, которую исправит вход в YouTube
+  Future<void> _clearFinished(BuildContext context) async {
+    final downloadQueueController = context.read<DownloadQueueController>();
+
+    /// The videos themselves stay in the download folder, so the action
+    /// is not destructive, but the whole list disappears at once
+    final confirmed = await AppConfirmationDialog.show(
+      context,
+      title: LocaleKeys.app_downloader_clear_finished_dialog_title.tr(),
+      message: LocaleKeys.app_downloader_clear_finished_dialog_message.tr(),
+      confirmTitle: LocaleKeys.app_downloader_clear_finished_dialog_confirm.tr(),
+      cancelTitle: LocaleKeys.app_downloader_clear_finished_dialog_cancel.tr(),
+    );
+
+    if (!confirmed) return;
+
+    await downloadQueueController.clearFinished();
+  }
+
+  /// Title of the button under an error that signing in to YouTube will fix
   String _signInActionTitle(AuthorizationState authorizationState) =>
       authorizationState.isInProgress
       ? LocaleKeys.app_authorization_waiting.tr()
@@ -51,119 +78,246 @@ class _DownloaderScreenState extends State<DownloaderScreen> {
       ? LocaleKeys.app_downloader_buttons_refresh_sign_in_and_retry.tr()
       : LocaleKeys.app_downloader_buttons_sign_in_and_retry.tr();
 
+  /// A dragged queue row is drawn over the screen:
+  /// it needs its own Material for text styles
+  Widget _dragProxy(Widget child, int index, Animation<double> animation) =>
+      AnimatedBuilder(
+        animation: animation,
+        builder: (context, child) => Transform.scale(
+          scale: 1 + 0.02 * Curves.easeOut.transform(animation.value),
+          child: child,
+        ),
+        child: Material(type: MaterialType.transparency, child: child),
+      );
+
   @override
   Widget build(BuildContext context) =>
       BlocListener<AuthorizationController, AuthorizationState>(
-        /// Ошибки входа и выхода показываются в общем сообщении экрана
+        /// Sign-in and sign-out errors are shown in the common screen message
         listenWhen: (previous, current) =>
             current.failure != null && current.failure != previous.failure,
         listener: (context, authorizationState) => context
-            .read<DownloaderController>()
+            .read<DownloadQueueController>()
             .showFailure(authorizationState.failure!),
         child: BlocBuilder<AuthorizationController, AuthorizationState>(
           builder: (context, authorizationState) =>
-              BlocBuilder<DownloaderController, DownloaderState>(
-                builder: (context, downloaderState) => AppScaffold(
-                  body: LayoutBuilder(
-                    builder: (context, constraints) => SingleChildScrollView(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: constraints.maxWidth >= _wideLayoutBreakpoint
-                            ? 64
-                            : 40,
-                      ),
-                      child: Center(
-                        child: ConstrainedBox(
-                          constraints: const BoxConstraints(
-                            maxWidth: _contentMaxWidth,
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              DownloaderHeader(
-                                authorizationState: authorizationState,
-                                signOutEnabled: !downloaderState.isJobActive,
-                                onSignInPressed: context
-                                    .read<AuthorizationController>()
-                                    .signIn,
-                                onSignOutPressed: context
-                                    .read<AuthorizationController>()
-                                    .signOut,
-                              ),
-                              const SizedBox(height: 32),
-                              UrlSearchForm(
-                                controller: _urlController,
-                                focusNode: _urlFocusNode,
-                                loading: downloaderState.isInfoLoading,
-                                enabled: downloaderState.canSearch,
-                                onSubmitted: _onUrlSubmitted,
-                              ),
+              BlocBuilder<DownloadQueueController, DownloadQueueState>(
+                builder: (context, queueState) {
+                  final downloadQueueController = context
+                      .read<DownloadQueueController>();
+                  final queue = queueState.queue;
+                  final finished = queueState.finished;
 
-                              /// Сообщение об ошибке; если поможет вход в YouTube — с кнопкой входа
-                              if (downloaderState.failure case final failure?) ...[
-                                const SizedBox(height: 16),
-                                AppFailureBanner(
-                                  message: failure.message,
-                                  actionTitle:
-                                      failure is VideoFailure &&
-                                          failure.needsSignIn
-                                      ? _signInActionTitle(authorizationState)
-                                      : null,
-                                  onActionPressed: authorizationState.isBusy
-                                      ? null
-                                      : context
-                                            .read<DownloaderController>()
-                                            .signInAndRetry,
-                                ),
-                              ],
-                              if (downloaderState.videoInfo
-                                  case final videoInfo?) ...[
-                                const SizedBox(height: 32),
-                                VideoCard(
-                                  videoInfo: videoInfo,
-                                  children: [
-                                    QualityPicker(
-                                      qualities: videoInfo.qualities,
-                                      selectedQualityId:
-                                          downloaderState.selectedQualityId,
-                                      enabled: !downloaderState.isJobActive,
-                                      onSelected: context
-                                          .read<DownloaderController>()
-                                          .selectQuality,
+                  return AppScaffold(
+                    body: LayoutBuilder(
+                      builder: (context, constraints) {
+                        final horizontalPadding = math.max(
+                          _minHorizontalPadding,
+                          (constraints.maxWidth - _contentMaxWidth) / 2,
+                        );
+                        final verticalPadding =
+                            constraints.maxWidth >= _wideLayoutBreakpoint
+                            ? 64.0
+                            : 40.0;
+
+                        /// The app title bar lies over the top of the screen
+                        final topPadding = math.max(
+                          verticalPadding,
+                          MediaQuery.paddingOf(context).top + _minTopGap,
+                        );
+
+                        return CustomScrollView(
+                          slivers: [
+                            SliverPadding(
+                              padding: EdgeInsets.fromLTRB(
+                                horizontalPadding,
+                                topPadding,
+                                horizontalPadding,
+                                12,
+                              ),
+                              sliver: SliverList.list(
+                                children: [
+                                  DownloaderHeader(
+                                    authorizationState: authorizationState,
+                                    signOutEnabled: !queueState.hasRunningTask,
+                                    onSignInPressed: context
+                                        .read<AuthorizationController>()
+                                        .signIn,
+                                    onSignOutPressed: context
+                                        .read<AuthorizationController>()
+                                        .signOut,
+                                    onSettingsPressed: () =>
+                                        context.router.push(
+                                          const SettingsRoute(),
+                                        ),
+                                  ),
+                                  const SizedBox(height: 32),
+                                  AppPrimaryButton(
+                                    title: LocaleKeys
+                                        .app_downloader_buttons_add_video
+                                        .tr(),
+                                    onPressed: queueState.isRestoring
+                                        ? null
+                                        : () => AddVideoDialog.show(context),
+                                  ),
+                                  if (queueState.failure case final failure?) ...[
+                                    const SizedBox(height: 16),
+                                    AppFailureBanner(
+                                      message: failure.message,
+                                      actionTitle: LocaleKeys
+                                          .app_downloader_buttons_hide
+                                          .tr(),
+                                      onActionPressed:
+                                          downloadQueueController.dismissFailure,
                                     ),
-                                    if (downloaderState.job case final job?)
-                                      DownloadProgressView(
-                                        job: job,
+                                  ],
+                                  const SizedBox(height: 32),
+                                  DownloaderSectionTitle(
+                                    title: LocaleKeys
+                                        .app_downloader_sections_active
+                                        .tr(),
+                                  ),
+                                  const SizedBox(height: 12),
+                                  if (queueState.activeTask case final task?)
+                                    ActiveDownloadCard(
+                                      key: ValueKey(task.id),
+                                      task: task,
+                                      onPausePressed: downloadQueueController
+                                          .pauseActiveTask,
+                                      onResumePressed: downloadQueueController
+                                          .resumeActiveTask,
+                                      onRemovePressed: () =>
+                                          _removeTask(context, task),
+                                    )
+                                  else if (!queueState.isRestoring)
+                                    DownloaderEmptyPlaceholder(
+                                      message: LocaleKeys
+                                          .app_downloader_empty_active
+                                          .tr(),
+                                    ),
+                                  const SizedBox(height: 32),
+                                  DownloaderSectionTitle(
+                                    title: LocaleKeys
+                                        .app_downloader_sections_queue
+                                        .tr(),
+                                    count: queue.length,
+                                  ),
+                                  if (queue.isEmpty && !queueState.isRestoring) ...[
+                                    const SizedBox(height: 12),
+                                    DownloaderEmptyPlaceholder(
+                                      message: LocaleKeys
+                                          .app_downloader_empty_queue
+                                          .tr(),
+                                    ),
+                                  ],
+                                ],
+                              ),
+                            ),
+                            SliverPadding(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: horizontalPadding,
+                              ),
+                              sliver: SliverReorderableList(
+                                itemCount: queue.length,
+                                onReorderItem:
+                                    downloadQueueController.moveQueuedTask,
+                                proxyDecorator: _dragProxy,
+                                itemBuilder: (context, index) {
+                                  final task = queue[index];
+
+                                  return Padding(
+                                    key: ValueKey(task.id),
+                                    padding: const EdgeInsets.only(
+                                      bottom: _tileSpacing,
+                                    ),
+                                    child: QueuedDownloadTile(
+                                      task: task,
+                                      index: index,
+                                      onStartPressed: () =>
+                                          downloadQueueController.startTask(
+                                            task.id,
+                                          ),
+                                      onRemovePressed: () =>
+                                          _removeTask(context, task),
+                                      onRetryPressed: () =>
+                                          downloadQueueController.retryTask(
+                                            task.id,
+                                          ),
+                                      signInTitle: _signInActionTitle(
+                                        authorizationState,
+                                      ),
+                                      onSignInPressed: authorizationState.isBusy
+                                          ? null
+                                          : () => downloadQueueController
+                                                .signInAndRetry(task.id),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                            SliverPadding(
+                              padding: EdgeInsets.fromLTRB(
+                                horizontalPadding,
+                                24,
+                                horizontalPadding,
+                                0,
+                              ),
+                              sliver: SliverList.list(
+                                children: [
+                                  DownloaderSectionTitle(
+                                    title: LocaleKeys
+                                        .app_downloader_sections_finished
+                                        .tr(),
+                                    count: finished.length,
+                                    trailing: finished.isEmpty
+                                        ? null
+                                        : AppLinkButton(
+                                            title: LocaleKeys
+                                                .app_downloader_buttons_clear_finished
+                                                .tr(),
+                                            onPressed: () =>
+                                                _clearFinished(context),
+                                          ),
+                                  ),
+                                  const SizedBox(height: 12),
+                                  if (finished.isEmpty && !queueState.isRestoring)
+                                    DownloaderEmptyPlaceholder(
+                                      message: LocaleKeys
+                                          .app_downloader_empty_finished
+                                          .tr(),
+                                    ),
+                                  for (final task in finished)
+                                    Padding(
+                                      key: ValueKey(task.id),
+                                      padding: const EdgeInsets.only(
+                                        bottom: _tileSpacing,
+                                      ),
+                                      child: DownloadedVideoTile(
+                                        task: task,
                                         onShowInFolderPressed:
-                                            job.filePath is String
+                                            task.filePath is String
                                             ? () => context
                                                   .read<FileSystemService>()
                                                   .revealInExplorer(
-                                                    job.filePath!,
+                                                    task.filePath!,
                                                   )
                                             : null,
-                                      )
-                                    else
-                                      AppPrimaryButton(
-                                        title: LocaleKeys
-                                            .app_downloader_buttons_download
-                                            .tr(),
-                                        onPressed: downloaderState.canDownload
-                                            ? context
-                                                  .read<DownloaderController>()
-                                                  .download
-                                            : null,
+                                        onRemovePressed: () =>
+                                            _removeTask(context, task),
                                       ),
-                                  ],
-                                ),
-                              ],
-                            ],
-                          ),
-                        ),
-                      ),
+                                    ),
+                                ],
+                              ),
+                            ),
+                            SliverToBoxAdapter(
+                              child: SizedBox(height: verticalPadding),
+                            ),
+                          ],
+                        );
+                      },
                     ),
-                  ),
-                ),
+                  );
+                },
               ),
         ),
       );

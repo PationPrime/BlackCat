@@ -5,7 +5,7 @@ import 'src/app/module/module.dart';
 import 'src/app/widgets/widgets.dart';
 
 Future<void> main(List<String> args) async {
-  /// Заголовок окна входа — отдельный движок Flutter, запущенный с этими аргументами
+  /// Sign-in window title bar: a separate Flutter engine launched with these arguments
   if (runWebViewTitleBarWidget(
     args,
     backgroundColor: AppThemeColors.dark.surface,

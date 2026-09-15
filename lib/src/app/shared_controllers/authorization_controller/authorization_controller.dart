@@ -8,7 +8,7 @@ import '../../repositories/repositories.dart';
 
 part 'authorization_state.dart';
 
-/// Состояние входа в аккаунт YouTube на всё приложение
+/// App-wide YouTube account sign-in state
 final class AuthorizationController extends Cubit<AuthorizationState> {
   static const _appLogger = AppLogger(where: 'AuthorizationController');
 
@@ -17,7 +17,7 @@ final class AuthorizationController extends Cubit<AuthorizationState> {
   AuthorizationController({required this._authenticationRepository})
     : super(const AuthorizationInitial());
 
-  /// Тихая проверка сохранённой сессии при запуске
+  /// Silent check of the saved session on launch
   Future<void> checkAuthorization() async {
     final result = await _authenticationRepository.restoreSession();
 
@@ -28,7 +28,7 @@ final class AuthorizationController extends Cubit<AuthorizationState> {
     );
   }
 
-  /// Открывает окно входа. `true` — вход выполнен
+  /// Opens the sign-in window. `true`: signed in
   Future<bool> signIn() async {
     if (state is AuthorizationInProgress) {
       return false;
@@ -55,7 +55,7 @@ final class AuthorizationController extends Cubit<AuthorizationState> {
     }
 
     if (result.data != true) {
-      /// Окно закрыли: всё остаётся как было
+      /// The window was closed: everything stays as it was
       emit(previousState is Authorized ? const Authorized() : const Unauthorized());
 
       return false;

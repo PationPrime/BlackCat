@@ -17,15 +17,36 @@
       "sign_out": "Выйти",
       "window_title": "Вход в YouTube"
     },
+    "window": {
+      "minimize": "Свернуть",
+      "maximize": "Развернуть",
+      "restore": "Восстановить",
+      "close": "Закрыть"
+    },
+    "tray": {
+      "open": "Открыть YT Download",
+      "hide": "Свернуть в трей",
+      "quit": "Выйти",
+      "no_active_download": "Нет активной загрузки"
+    },
     "downloader": {
       "url_hint": "https://www.youtube.com/watch?v=...",
       "buttons": {
         "search": "Найти",
         "searching": "Ищем…",
-        "download": "Скачать",
         "show_in_folder": "Показать в папке",
         "sign_in_and_retry": "Войти в YouTube и повторить",
-        "refresh_sign_in_and_retry": "Обновить вход и повторить"
+        "refresh_sign_in_and_retry": "Обновить вход и повторить",
+        "add_video": "Добавить видео",
+        "settings": "Настройки",
+        "start_now": "Скачать сейчас",
+        "pause": "Пауза",
+        "resume": "Продолжить",
+        "remove": "Убрать",
+        "retry": "Повторить",
+        "clear_finished": "Очистить",
+        "hide": "Скрыть",
+        "reorder": "Перетащите, чтобы изменить порядок"
       },
       "video": {
         "views": "{count} просмотров",
@@ -34,11 +55,64 @@
         "audio_only_m4a": "Только звук (M4A)"
       },
       "progress": {
+        "preparing": "Готовим загрузку…",
         "downloading": "Скачивание {percent}%",
+        "downloaded": "{downloaded} из {total}",
         "speed": "{value}/с",
         "eta": "осталось {value}",
-        "processing": "Склеиваем видео и звук…",
-        "done": "Готово, файл в «Загрузках»"
+        "processing": "Склеиваем видео и звук…"
+      },
+      "sections": {
+        "active": "Активная загрузка",
+        "queue": "Очередь скачивания",
+        "finished": "Скачанные"
+      },
+      "empty": {
+        "active": "Нет активной загрузки. Добавьте видео — оно сразу начнёт скачиваться.",
+        "queue": "Очередь пуста. Видео, добавленные во время загрузки, встанут сюда.",
+        "finished": "Здесь появятся скачанные видео."
+      },
+      "task": {
+        "queued": "В очереди",
+        "queued_with_progress": "В очереди · скачано {percent}%",
+        "paused": "На паузе · {percent}%",
+        "completed_at": "Скачано {date}",
+        "failed": "Ошибка"
+      },
+      "dialog": {
+        "title": "Добавить видео",
+        "add_to_queue": "Добавить в очередь",
+        "download_now": "Скачать",
+        "cancel": "Отмена"
+      },
+      "remove_dialog": {
+        "title": "Убрать видео?",
+        "message": "«{title}» скачано на {percent}%. Недокачанный файл удалится с устройства, и загрузку придётся начинать заново.",
+        "confirm": "Убрать и удалить файл",
+        "cancel": "Отмена"
+      },
+      "clear_finished_dialog": {
+        "title": "Очистить список скачанных?",
+        "message": "Видео останутся в папке загрузок: из приложения пропадут только записи о них и превью.",
+        "confirm": "Очистить",
+        "cancel": "Отмена"
+      }
+    },
+    "settings": {
+      "title": "Настройки",
+      "back": "Назад",
+      "download_directory": {
+        "title": "Папка для загрузок",
+        "description": "Сюда сохраняются готовые видео. Новая папка применится к следующим загрузкам; недокачанные файлы до конца загрузки хранятся в папке приложения.",
+        "default_badge": "По умолчанию",
+        "change": "Изменить…",
+        "reset": "Вернуть «Загрузки»",
+        "open": "Открыть папку",
+        "picker_confirm": "Выбрать папку"
+      },
+      "language": {
+        "title": "Язык",
+        "description": "Язык интерфейса приложения."
       }
     },
     "errors": {
@@ -59,16 +133,24 @@
         "streams_unavailable": "YouTube не дал прямых ссылок на потоки этого видео.",
         "player_parse": "Не удалось разобрать плеер YouTube: {error}",
         "challenge": "Не удалось решить проверку YouTube ({type}): {error}",
-        "quality_unavailable": "Выбранное качество больше недоступно. Обновите информацию о видео.",
+        "quality_unavailable": "Выбранное качество больше недоступно. Добавьте видео заново.",
         "unknown_quality": "Неизвестное качество: {quality}",
         "mux": "Не удалось собрать файл: {error}",
         "stream_interrupted": "YouTube обрывает загрузку потока. Попробуйте ещё раз.",
         "web_view_runtime": "Для скачивания нужен Microsoft Edge WebView2 Runtime.",
-        "js_engine": "Встроенный JavaScript-движок (WebView2) вернул ошибку: {error}"
+        "js_engine": "Встроенный JavaScript-движок (WebView2) вернул ошибку: {error}",
+        "destination_unavailable": "Не удалось сохранить файл в папку «{path}»: {error}"
       },
       "authentication": {
         "web_view_runtime": "Для входа нужен Microsoft Edge WebView2 Runtime.",
         "session_not_issued": "Вход не завершён: YouTube не выдал cookies аккаунта. Попробуйте ещё раз."
+      },
+      "settings": {
+        "picker": "Не удалось открыть выбор папки: {error}",
+        "storage": "Не удалось сохранить настройки: {error}"
+      },
+      "download_queue": {
+        "storage": "Не удалось сохранить очередь загрузок: {error}"
       }
     }
   }

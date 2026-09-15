@@ -4,15 +4,15 @@ abstract final class YouTubeConstants {
   static const browserUserAgent =
       'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36';
 
-  /// Встроенный плеер считается размещённым на сторонней странице:
-  /// подходит любой адрес не на YouTube
+  /// The embedded player is treated as hosted on a third-party page:
+  /// any address outside YouTube works
   static const embedUrl = 'https://www.reddit.com/';
 
-  /// Большие ответы YouTube отдаёт медленно; куски по 10 МиБ
-  /// (как у веб-плеера и yt-dlp) качаются быстро
+  /// YouTube serves large responses slowly; 10 MiB chunks
+  /// (as the web player and yt-dlp use) download fast
   static const streamChunkSize = 10 << 20;
 
-  /// Без `passive=true`: с ним Google пропускает форму входа
+  /// Without `passive=true`: with it Google skips the sign-in form
   static final signInUrl = Uri.https('accounts.google.com', '/ServiceLogin', {
     'service': 'youtube',
     'hl': 'ru',
@@ -20,7 +20,7 @@ abstract final class YouTubeConstants {
         'https://www.youtube.com/signin?action_handle_signin=true&app=desktop&hl=ru&next=%2F',
   }).toString();
 
-  /// Последний редирект входа — возврат на главную YouTube
+  /// The last sign-in redirect: back to the YouTube home page
   static const signInCallbackHost = 'www.youtube.com';
   static const signInCallbackPath = '/';
 }

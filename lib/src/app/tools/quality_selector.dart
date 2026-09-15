@@ -5,15 +5,15 @@ import '../models/models.dart';
 
 typedef RawFormat = Map<String, dynamic>;
 
-/// Список качеств и выбор потоков для скачивания
+/// Quality list and stream selection for downloading
 abstract final class QualitySelector {
   static final _h264Pattern = RegExp(r'^(avc1|h264)', caseSensitive: false);
   static final _aacPattern = RegExp(r'^mp4a', caseSensitive: false);
   static final _resolutionIdPattern = RegExp(r'^[1-9]\d{1,3}$');
 
-  /// Превращает список форматов в формате yt-dlp в короткий список для экрана:
-  /// по варианту на разрешение (от лучшего к худшему) и отдельно звук.
-  /// Без склейки ([canMerge] = `false`) доступны только форматы со звуком
+  /// Turns a list of yt-dlp formats into a short list for the screen:
+  /// one option per resolution (best to worst) and audio separately.
+  /// Without muxing ([canMerge] = `false`) only formats with audio are available
   static List<QualityModel> buildQualities(
     List<RawFormat> formats, {
     required bool canMerge,
@@ -74,7 +74,7 @@ abstract final class QualitySelector {
     return qualities;
   }
 
-  /// Качества для MP4-потоков YouTube: видео и звук приложение склеивает само
+  /// Qualities for YouTube MP4 streams: the app muxes video and audio itself
   static List<QualityModel> buildStreamQualities(
     List<StreamFormatDto> formats,
   ) => buildQualities([
@@ -84,7 +84,7 @@ abstract final class QualitySelector {
   static bool isValidQuality(String quality) =>
       quality == QualityModel.audioId || _resolutionIdPattern.hasMatch(quality);
 
-  /// Лучшее разрешение не выше 1080p, иначе первый вариант
+  /// The best resolution not above 1080p, otherwise the first option
   static String pickDefaultQuality(List<QualityModel> qualities) {
     final preferred = qualities.where(
       (quality) => quality.kind.isVideo && quality.resolution! <= 1080,
@@ -93,7 +93,7 @@ abstract final class QualitySelector {
     return (preferred.firstOrNull ?? qualities.firstOrNull)?.id ?? '';
   }
 
-  /// Потоки для качества из [buildStreamQualities]: видео и звук или только звук
+  /// Streams for a quality from [buildStreamQualities]: video and audio or audio only
   static ({StreamFormatDto? video, StreamFormatDto audio}) selectStreams(
     List<StreamFormatDto> formats,
     String quality,
@@ -130,7 +130,7 @@ abstract final class QualitySelector {
       throw ArgumentError('no $quality video stream');
     }
 
-    /// Тот же порядок, что у списка качеств: выше fps, затем H.264, затем битрейт
+    /// Same order as the quality list: higher fps, then H.264, then bitrate
     candidates.sort((left, right) {
       final byFps = (right.fps ?? 0).compareTo(left.fps ?? 0);
 
@@ -152,7 +152,7 @@ abstract final class QualitySelector {
     final audio =
         formats.where((format) => format.hasAudio && !format.hasVideo).toList()
           ..sort((left, right) {
-            /// Оригинальная дорожка дублированного видео, затем AAC, затем битрейт
+            /// The original track of a dubbed video, then AAC, then bitrate
             final byDefault =
                 (right.audioIsDefault ? 1 : 0) - (left.audioIsDefault ? 1 : 0);
 
@@ -186,7 +186,7 @@ abstract final class QualitySelector {
   static int? _sizeOf(RawFormat format) =>
       (_num(format['filesize']) ?? _num(format['filesize_approx']))?.round();
 
-  /// Короткая сторона кадра: вертикальное видео (Shorts) подписывается 1080p, а не 1920p
+  /// Short side of the frame: a vertical video (Shorts) is labeled 1080p, not 1920p
   static int _resolutionOf(RawFormat format) {
     final height = _num(format['height'])!;
     final width = _num(format['width']);
@@ -194,7 +194,7 @@ abstract final class QualitySelector {
     return math.min(width == null || width == 0 ? height : width, height).round();
   }
 
-  /// Выше fps, затем H.264 вместо VP9/AV1, затем битрейт
+  /// Higher fps, then H.264 instead of VP9/AV1, then bitrate
   static bool _isBetterCandidate(RawFormat candidate, RawFormat current) {
     if (_fps(candidate) != _fps(current)) {
       return _fps(candidate) > _fps(current);

@@ -23,6 +23,7 @@ final class VideoErrorCodes extends ErrorCodes {
   final String rateLimited;
   final String webViewRuntime;
   final String jsEngine;
+  final String destinationUnavailable;
 
   const VideoErrorCodes({
     super.otherError,
@@ -40,21 +41,22 @@ final class VideoErrorCodes extends ErrorCodes {
     this.rateLimited = '429',
     this.webViewRuntime = 'web_view_runtime',
     this.jsEngine = 'js_engine',
+    this.destinationUnavailable = 'destination_unavailable',
   });
 }
 
-/// Исключение предметной области «видео»: бросается источниками данных
-/// и сервисами, превращается в [VideoFailure] обработчиком [VideoErrorHandler]
+/// "Video" domain exception: thrown by data sources and services,
+/// turned into [VideoFailure] by [VideoErrorHandler]
 final class VideoException implements Exception {
   final String code;
 
-  /// Подстановки для текста ошибки
+  /// Substitutions for the error text
   final Map<String, String> args;
 
-  /// Готовый текст причины, например из ответа YouTube
+  /// Ready reason text, e.g. from a YouTube response
   final String? reason;
 
-  /// Войти в аккаунт YouTube (или обновить вход) — скорее всего, поможет
+  /// Signing in to YouTube (or refreshing the sign-in) will most likely help
   final bool needsSignIn;
 
   const VideoException(
@@ -69,7 +71,7 @@ final class VideoException implements Exception {
 }
 
 final class VideoFailure extends Failure {
-  /// Войти в аккаунт YouTube (или обновить вход) — скорее всего, поможет
+  /// Signing in to YouTube (or refreshing the sign-in) will most likely help
   final bool needsSignIn;
 
   const VideoFailure({

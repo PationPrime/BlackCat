@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 
-/// Cookie из профиля WebView2 или из cookies.txt
+/// Cookie from the WebView2 profile or from cookies.txt
 class BrowserCookieModel extends Equatable {
   final String name;
   final String value;

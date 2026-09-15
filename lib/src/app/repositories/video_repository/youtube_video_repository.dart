@@ -14,13 +14,16 @@ import '../../session/session_store.dart';
 import '../../tools/tools.dart';
 import 'video_repository_interface.dart';
 
-/// Информация о видео и загрузка напрямую с YouTube по HTTP (dio), без yt-dlp.
+typedef _StreamPart = ({DownloadStreamModel stream, StreamFormatDto format});
+
+/// Video info and downloading straight from YouTube over HTTP (dio), without yt-dlp.
 ///
-/// 1. Настройки встроенного плеера и `/youtubei/v1/player` дают список потоков.
-/// 2. В ссылках на потоки есть задача `n` (иногда и зашифрованная подпись);
-///    функции для их решения лежат в JavaScript плеера и исполняются
+/// 1. The embedded player settings and `/youtubei/v1/player` give the stream list.
+/// 2. Stream links contain the `n` challenge (sometimes an encrypted signature too);
+///    the functions that solve them live in the player JavaScript and are run by
 ///    [ChallengeSolverService].
-/// 3. Видео и звук качаются кусками по 10 МиБ и собираются в MP4 на Dart
+/// 3. Video and audio are downloaded in 10 MiB chunks into files of the
+///    [DownloadPartFiles] format and muxed into MP4 in Dart
 final class YouTubeVideoRepository implements VideoRepositoryInterface {
   final RemoteYouTubeDataSource _remoteYouTubeDataSource;
   final RemoteMediaStreamDataSource _remoteMediaStreamDataSource;
@@ -67,61 +70,98 @@ final class YouTubeVideoRepository implements VideoRepositoryInterface {
   }
 
   @override
-  Future<OperationResult<String>> downloadVideo({
+  Future<OperationResult<DownloadedFileModel>> downloadVideo({
+    required String taskId,
     required String url,
     required String quality,
+    List<DownloadStreamModel> streams = const [],
+    String? destinationDirectory,
+    DownloadCancellation? cancellation,
+    void Function(List<DownloadStreamModel> streams)? onStreamsSelected,
     void Function(DownloadProgressModel progress)? onProgress,
   }) async {
     try {
       final link = _parse(url);
-      final workDirectory = await _fileSystemService.createTempDirectory(
-        'yt-download-',
+
+      /// The work folder lives until the download finishes: after a pause we continue in it
+      final workDirectory = await _fileSystemService.downloadWorkDirectory(
+        taskId,
       );
 
-      try {
-        var resolved = _resolvedVideos[link.id];
+      var resolved = _resolvedVideos[link.id];
 
-        if (resolved == null || resolved.expired) {
-          resolved = _resolvedVideos[link.id] = await _resolve(link.id);
-        }
-
-        String filePath;
-
-        try {
-          filePath = await _download(
-            resolved,
-            quality: quality,
-            outputDirectory: workDirectory.path,
-            onProgress: onProgress,
-          );
-        } on DioException catch (error) {
-          if (error.response?.statusCode != 403) {
-            rethrow;
-          }
-
-          /// Ссылки привязаны к сессии и устаревают: берём свежие и пробуем ещё раз
-          resolved = _resolvedVideos[link.id] = await _resolve(link.id);
-          filePath = await _download(
-            resolved,
-            quality: quality,
-            outputDirectory: workDirectory.path,
-            onProgress: onProgress,
-          );
-        }
-
-        return ok(
-          await _fileSystemService.moveToDownloads(
-            filePath,
-            title: resolved.title,
-          ),
-        );
-      } finally {
-        await workDirectory
-            .delete(recursive: true)
-            .catchError((Object _) => workDirectory);
+      if (resolved == null || resolved.expired) {
+        resolved = _resolvedVideos[link.id] = await _resolve(link.id);
       }
+
+      _throwIfCancelled(cancellation);
+
+      /// Streams of the latest attempt: a retry after 403 continues the same ones
+      var selectedStreams = streams;
+
+      Future<String> download(ResolvedVideoDto resolved) => _download(
+        resolved,
+        quality: quality,
+        previousStreams: selectedStreams,
+        workDirectory: workDirectory.path,
+        cancellation: cancellation,
+        onStreamsSelected: (streams) {
+          selectedStreams = streams;
+          onStreamsSelected?.call(streams);
+        },
+        onProgress: onProgress,
+      );
+
+      String filePath;
+
+      try {
+        filePath = await download(resolved);
+      } on DioException catch (error) {
+        if (error.response?.statusCode != 403) {
+          rethrow;
+        }
+
+        _throwIfCancelled(cancellation);
+
+        /// Links are bound to the session and expire: take fresh ones and continue
+        resolved = _resolvedVideos[link.id] = await _resolve(link.id);
+        filePath = await download(resolved);
+      }
+
+      final destination =
+          destinationDirectory ??
+          await _fileSystemService.defaultDownloadsFolder();
+      final String savedPath;
+
+      try {
+        savedPath = await _fileSystemService.moveToFolder(
+          filePath,
+          destination,
+          title: resolved.title,
+        );
+      } on FileSystemException catch (error) {
+        throw VideoException(
+          const VideoErrorCodes().destinationUnavailable,
+          args: {'path': destination, 'error': error.message},
+        );
+      }
+
+      await _fileSystemService.deleteDownloadWorkDirectory(taskId);
+
+      return ok(
+        DownloadedFileModel(
+          path: savedPath,
+          sizeBytes: await _fileSystemService.fileLength(savedPath),
+        ),
+      );
     } catch (error, stackTrace) {
       return fail(errorHandler.handleError(error, stackTrace: stackTrace));
+    }
+  }
+
+  void _throwIfCancelled(DownloadCancellation? cancellation) {
+    if (cancellation?.isCancelled ?? false) {
+      throw VideoException(const VideoErrorCodes().canceled);
     }
   }
 
@@ -178,12 +218,14 @@ final class YouTubeVideoRepository implements VideoRepositoryInterface {
     );
   }
 
-  Future<String> _download(
+  /// Streams for the quality. If the download has started before, the same streams
+  /// as last time are used: the downloaded bytes fit only them. New streams
+  /// are selected only if the previous ones are gone from the YouTube response
+  List<_StreamPart> _selectParts(
     ResolvedVideoDto resolved, {
     required String quality,
-    required String outputDirectory,
-    void Function(DownloadProgressModel progress)? onProgress,
-  }) async {
+    required List<DownloadStreamModel> previousStreams,
+  }) {
     const errorCodes = VideoErrorCodes();
 
     if (!QualitySelector.isValidQuality(quality)) {
@@ -191,6 +233,33 @@ final class YouTubeVideoRepository implements VideoRepositoryInterface {
         errorCodes.unknownQuality,
         args: {'quality': quality},
       );
+    }
+
+    final expectedRoles = quality == QualityModel.audioId
+        ? {DownloadStreamRole.audio}
+        : {DownloadStreamRole.video, DownloadStreamRole.audio};
+
+    if (previousStreams.length == expectedRoles.length &&
+        previousStreams.every((stream) => expectedRoles.contains(stream.role))) {
+      final previousParts = [
+        for (final stream in previousStreams)
+          if (resolved.formats
+                  .where(
+                    (format) =>
+                        format.itag == stream.itag &&
+                        format.contentLength == stream.contentLength &&
+                        (stream.role == DownloadStreamRole.video
+                            ? format.hasVideo
+                            : format.hasAudio && !format.hasVideo),
+                  )
+                  .firstOrNull
+              case final format?)
+            (stream: stream, format: format),
+      ];
+
+      if (previousParts.length == previousStreams.length) {
+        return previousParts;
+      }
     }
 
     final ({StreamFormatDto? video, StreamFormatDto audio}) streams;
@@ -201,15 +270,97 @@ final class YouTubeVideoRepository implements VideoRepositoryInterface {
       throw VideoException(errorCodes.qualityUnavailable);
     }
 
-    final parts = [?streams.video, streams.audio];
+    _StreamPart partOf(DownloadStreamRole role, StreamFormatDto format) => (
+      stream: DownloadStreamModel(
+        role: role,
+        itag: format.itag,
+        contentLength: format.contentLength!,
+      ),
+      format: format,
+    );
+
+    return [
+      if (streams.video case final video?)
+        partOf(DownloadStreamRole.video, video),
+      partOf(DownloadStreamRole.audio, streams.audio),
+    ];
+  }
+
+  /// Wipes unfinished files of streams that are no longer downloaded
+  Future<void> _deleteStaleParts(
+    String workDirectory,
+    List<_StreamPart> parts,
+  ) async {
+    final actualNames = {
+      for (final part in parts) DownloadPartFiles.fileName(part.stream),
+    };
+
+    await for (final entity in Directory(workDirectory).list()) {
+      final name = p.basename(entity.path);
+
+      if (entity is File &&
+          DownloadPartFiles.parse(name) != null &&
+          !actualNames.contains(name)) {
+        await _fileSystemService.deleteFile(entity.path);
+      }
+    }
+  }
+
+  Future<String> _download(
+    ResolvedVideoDto resolved, {
+    required String quality,
+    required List<DownloadStreamModel> previousStreams,
+    required String workDirectory,
+    DownloadCancellation? cancellation,
+    void Function(List<DownloadStreamModel> streams)? onStreamsSelected,
+    void Function(DownloadProgressModel progress)? onProgress,
+  }) async {
+    final parts = _selectParts(
+      resolved,
+      quality: quality,
+      previousStreams: previousStreams,
+    );
+
+    onStreamsSelected?.call([for (final part in parts) part.stream]);
+
+    await _deleteStaleParts(workDirectory, parts);
+
+    String partPath(_StreamPart part) =>
+        DownloadPartFiles.path(workDirectory, part.stream);
+
     final total = parts.fold<int>(
       0,
-      (sum, format) => sum + format.contentLength!,
+      (sum, part) => sum + part.stream.contentLength,
     );
-    final speedMeter = SpeedMeter();
-    final cancelToken = CancelToken();
     var received = 0;
+
+    /// Downloaded before the pause: the streams continue from these bytes
+    for (final part in parts) {
+      received += DownloadPartFiles.resumableBytes(
+        await _fileSystemService.fileLength(partPath(part)),
+        part.stream,
+      );
+    }
+
+    final speedMeter = SpeedMeter();
     var lastReport = DateTime.fromMillisecondsSinceEpoch(0);
+
+    void reportDownloading({required DateTime now}) {
+      final speed = speedMeter.bytesPerSecond(now: now);
+
+      onProgress?.call(
+        DownloadProgressModel(
+          DownloadStage.downloading,
+          total == 0 ? 0 : (received / total * 1000).floor() / 10,
+          speed: speed,
+          eta: speed == null || speed == 0 ? null : (total - received) / speed,
+          downloadedBytes: received,
+          totalBytes: total,
+        ),
+      );
+    }
+
+    reportDownloading(now: DateTime.now());
 
     void onBytes(int bytes) {
       received += bytes;
@@ -223,61 +374,62 @@ final class YouTubeVideoRepository implements VideoRepositoryInterface {
       }
 
       lastReport = now;
-
-      final speed = speedMeter.bytesPerSecond(now: now);
-
-      onProgress?.call(
-        DownloadProgressModel(
-          DownloadStage.downloading,
-          (received / total * 1000).floor() / 10,
-          speed: speed,
-          eta: speed == null || speed == 0 ? null : (total - received) / speed,
-        ),
-      );
+      reportDownloading(now: now);
     }
 
-    String partPath(StreamFormatDto format) =>
-        p.join(outputDirectory, '${resolved.id}.${parts.indexOf(format)}.part');
+    /// Own token: if one stream fails, the other one stops,
+    /// while [cancellation] stays untouched
+    final cancelToken = CancelToken();
+
+    unawaited(cancellation?.whenCancelled.then((_) => cancelToken.cancel()));
 
     try {
       await Future.wait([
-        for (final format in parts)
+        for (final part in parts)
           _remoteMediaStreamDataSource.downloadStream(
-            resolved.urls[format]!,
-            length: format.contentLength!,
-            path: partPath(format),
+            resolved.urls[part.format]!,
+            length: part.stream.contentLength,
+            path: partPath(part),
             onBytes: onBytes,
             cancelToken: cancelToken,
           ),
       ], eagerError: true);
     } catch (_) {
-      /// Один поток упал — останавливаем и второй
       cancelToken.cancel();
 
       rethrow;
     }
 
-    final audioOnly = streams.video == null;
+    _throwIfCancelled(cancellation);
+
+    final audioOnly = parts.length == 1;
     final output = p.join(
-      outputDirectory,
-      '${resolved.id}.${audioOnly ? 'm4a' : 'mp4'}',
+      workDirectory,
+      '${DownloadPartFiles.outputBaseName}.${audioOnly ? 'm4a' : 'mp4'}',
     );
 
-    if (!audioOnly) {
-      onProgress?.call(
-        const DownloadProgressModel(DownloadStage.processing, 100),
-      );
-    }
+    onProgress?.call(
+      DownloadProgressModel(
+        DownloadStage.processing,
+        100,
+        downloadedBytes: total,
+        totalBytes: total,
+      ),
+    );
 
-    /// И для звука: DASH-потоки фрагментированы, а многие плееры понимают их плохо
+    /// Audio too: DASH streams are fragmented, and many players handle them poorly
     await _mediaMuxerService.muxToMp4(
-      inputs: [for (final format in parts) partPath(format)],
+      inputs: [for (final part in parts) partPath(part)],
       outputPath: output,
       audioOnly: audioOnly,
     );
 
-    for (final format in parts) {
-      await File(partPath(format)).delete();
+    /// Streams are deleted only after the check: a cancelled download
+    /// will mux the file again from the same streams
+    _throwIfCancelled(cancellation);
+
+    for (final part in parts) {
+      await _fileSystemService.deleteFile(partPath(part));
     }
 
     return output;
@@ -295,7 +447,7 @@ final class YouTubeVideoRepository implements VideoRepositoryInterface {
               earliest == null || value < earliest ? value : earliest,
         );
 
-    /// С запасом: долгая загрузка не должна начинаться на почти истёкших ссылках
+    /// With a margin: a long download must not start on almost expired links
     return expires == null
         ? DateTime.now().add(const Duration(hours: 1))
         : DateTime.fromMillisecondsSinceEpoch(

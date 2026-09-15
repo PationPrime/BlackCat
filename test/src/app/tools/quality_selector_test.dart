@@ -3,7 +3,7 @@ import 'package:youtube_downloader/src/app/dto/dto.dart';
 import 'package:youtube_downloader/src/app/models/models.dart';
 import 'package:youtube_downloader/src/app/tools/tools.dart';
 
-/// Типичный список форматов YouTube из yt-dlp (только нужные приложению поля)
+/// A typical YouTube format list from yt-dlp (only the fields the app needs)
 const _formats = <Map<String, dynamic>>[
   {'format_id': 'sb0', 'vcodec': 'none', 'acodec': 'none', 'width': 160, 'height': 90},
   {'format_id': '140', 'vcodec': 'none', 'acodec': 'mp4a.40.2', 'abr': 129, 'filesize': 10000000},

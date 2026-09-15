@@ -46,16 +46,10 @@ class _DownloaderAccountStatus extends StatelessWidget {
       );
     }
 
-    return AppPrimaryButton(
+    return AppSecondaryButton(
       title: LocaleKeys.app_authorization_sign_in.tr(),
       onPressed: onSignInPressed,
-      buttonColor: context.color.transparent,
-      hoverColor: context.color.hoverOverlay,
-      titleColor: context.color.textSecondary,
-      borderColor: context.color.border,
-      titleStyle: context.text.captionMedium,
-      borderRadius: 8,
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+      compact: true,
     );
   }
 }

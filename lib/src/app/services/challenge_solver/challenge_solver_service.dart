@@ -5,9 +5,9 @@ import '../js_engine/js_engine_service.dart';
 
 typedef ChallengeSolutions = ({Map<String, String> n, Map<String, String> sig});
 
-/// Решает задачи `n` и `sig` YouTube функциями из JavaScript самого плеера
+/// Solves YouTube `n` and `sig` challenges with functions from the player's own JavaScript
 abstract interface class ChallengeSolverService {
-  /// Словари `{задача: решение}` для запрошенных задач
+  /// `{challenge: solution}` maps for the requested challenges
   Future<ChallengeSolutions> solve({
     required String playerId,
     required Future<String> Function() playerJs,
@@ -16,13 +16,13 @@ abstract interface class ChallengeSolverService {
   });
 }
 
-/// Разбор плеера делают скрипты yt-dlp/ejs (assets/ejs): находят обе функции
-/// через meriyah и вызывают их. Скрипты загружаются в движок один раз,
-/// каждый плеер разбирается один раз и хранится в движке уже разобранным
+/// The player is parsed by the yt-dlp/ejs scripts (assets/ejs): they find both
+/// functions via meriyah and call them. The scripts are loaded into the engine once,
+/// each player is parsed once and kept in the engine already parsed
 class ChallengeSolverServiceImpl implements ChallengeSolverService {
   final JsEngineService _jsEngineService;
 
-  /// Читает скрипт решателя (`yt.solver.lib.min.js`, `yt.solver.core.min.js`)
+  /// Reads a solver script (`yt.solver.lib.min.js`, `yt.solver.core.min.js`)
   final Future<String> Function(String name) _loadScript;
 
   Future<void>? _loaded;
@@ -53,8 +53,8 @@ class ChallengeSolverServiceImpl implements ChallengeSolverService {
     final id = jsonEncode(playerId);
     Map<String, dynamic> output;
 
-    /// Движок может потерять состояние (окно пересоздано): тогда скрипты
-    /// и плеер загружаются заново
+    /// The engine may lose its state (the window was recreated): then the scripts
+    /// and the player are loaded again
     for (var attempt = 1; ; attempt++) {
       await (_loaded ??= _loadScripts().catchError((Object error) {
         _loaded = null;
@@ -135,8 +135,8 @@ class ChallengeSolverServiceImpl implements ChallengeSolverService {
     final lib = await _loadScript('yt.solver.lib.min.js');
     final core = await _loadScript('yt.solver.core.min.js');
 
-    /// Оба скрипта объявляют API через `var` верхнего уровня:
-    /// после загрузки это глобальные переменные движка
+    /// Both scripts declare their API via top-level `var`:
+    /// after loading these are global variables of the engine
     await _jsEngineService.evaluate(
       '$lib\n;Object.assign(globalThis, lib);\n$core\n;typeof jsc',
     );

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-/// Палитра приложения: сырые цвета без смысловой нагрузки.
-/// В виджетах используются только через [AppThemeColors]
+/// App palette: raw colors without semantic meaning.
+/// Widgets use them only through [AppThemeColors]
 abstract base class AppColors {
   // transparent
   static const transparent = Colors.transparent;
@@ -16,8 +16,10 @@ abstract base class AppColors {
   static const black5 = Color(0x0D000000);
   static const black10 = Color(0x1A000000);
   static const black30 = Color(0x4D000000);
+  static const black40 = Color(0x66000000);
+  static const black70 = Color(0xB3000000);
 
-  // stone: тёплые серые
+  // stone: warm grays
   static const stoneFAFAF9 = Color(0xFFFAFAF9);
   static const stoneF5F5F4 = Color(0xFFF5F5F4);
   static const stoneE7E5E4 = Color(0xFFE7E5E4);
@@ -31,7 +33,7 @@ abstract base class AppColors {
   static const stone1C1917Alpha70 = Color(0xB31C1917);
   static const stone0C0A09 = Color(0xFF0C0A09);
 
-  // amber: фирменный акцент
+  // amber: brand accent
   static const amberF59E0B = Color(0xFFF59E0B);
   static const amberF59E0BAlpha10 = Color(0x1AF59E0B);
   static const amberF59E0BAlpha12 = Color(0x1FF59E0B);
@@ -41,7 +43,7 @@ abstract base class AppColors {
   static const amberD97706Alpha10 = Color(0x1AD97706);
   static const amberB45309 = Color(0xFFB45309);
 
-  // red: ошибки
+  // red: errors
   static const redFEE2E2 = Color(0xFFFEE2E2);
   static const redFECACA = Color(0xFFFECACA);
   static const redFCA5A5 = Color(0xFFFCA5A5);
@@ -52,4 +54,5 @@ abstract base class AppColors {
   static const redB91C1C = Color(0xFFB91C1C);
   static const redB91C1CAlpha40 = Color(0x66B91C1C);
   static const red991B1B = Color(0xFF991B1B);
+  static const redC42B1C = Color(0xFFC42B1C);
 }

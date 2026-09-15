@@ -28,7 +28,7 @@ class AuthenticationErrorHandler
             stackTrace: stackTrace,
           ),
 
-        /// flutter_web_auth_2 сообщает об отсутствии WebView2 через [StateError]
+        /// flutter_web_auth_2 reports missing WebView2 via [StateError]
         StateError _ => AuthenticationFailure(
           code: errorCodes.webViewRuntime,
           message: LocaleKeys.app_errors_authentication_web_view_runtime.tr(),

@@ -7,22 +7,22 @@ extension QualityKindX on QualityKind {
   bool get isAudio => this == QualityKind.audio;
 }
 
-/// Вариант качества для скачивания: разрешение видео или только звук
+/// Quality option to download: video resolution or audio only
 class QualityModel extends Equatable {
   static const audioId = 'audio';
 
-  /// `1080`, `720`… или [audioId]
+  /// `1080`, `720`… or [audioId]
   final String id;
   final QualityKind kind;
 
-  /// Подпись разрешения, например `1080p60`. Для звука пустая
+  /// Resolution label, e.g. `1080p60`. Empty for audio
   final String label;
   final int? resolution;
 
-  /// Примерный размер файла в байтах
+  /// Approximate file size in bytes
   final int? size;
 
-  /// Звук в AAC: сохраняется как M4A
+  /// AAC audio: saved as M4A
   final bool isAac;
 
   const QualityModel({

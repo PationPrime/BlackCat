@@ -6,7 +6,7 @@ import 'package:path/path.dart' as p;
 import 'package:youtube_downloader/src/app/errors/errors.dart';
 import 'package:youtube_downloader/src/app/services/services.dart';
 
-/// Крошечные фрагментированные MP4 с той же структурой боксов, что у DASH-потоков YouTube
+/// Tiny fragmented MP4 files with the same box structure as YouTube DASH streams
 
 Uint8List box(String type, [List<Uint8List> children = const []]) {
   final size = 8 + children.fold<int>(0, (sum, child) => sum + child.length);
@@ -31,7 +31,7 @@ Uint8List full(String type, List<int> uint32s, {int version = 0, int flags = 0})
 
 Uint8List raw(List<int> bytes) => Uint8List.fromList(bytes);
 
-/// Сэмпл: данные (текст), длительность, ключевой кадр, смещение композиции
+/// Sample: data (text), duration, keyframe, composition offset
 typedef Sample = (String data, int duration, bool sync, int cto);
 
 Uint8List dashStream({
@@ -170,7 +170,7 @@ void main() {
       final sizes = [for (var i = 0; i < stsz.u32(16); i++) stsz.u32(20 + 4 * i)];
       final stsc = stbl.child('stsc').table(3);
 
-      /// Читаем каждый сэмпл обратно через stsc/stco/stsz
+      /// Read every sample back via stsc/stco/stsz
       final samples = <String>[];
       var sample = 0;
       for (var chunk = 0; chunk < stco.length; chunk++) {

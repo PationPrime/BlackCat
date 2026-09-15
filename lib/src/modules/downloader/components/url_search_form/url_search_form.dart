@@ -4,22 +4,22 @@ import 'package:youtube_downloader/src/app/design_system/design_system.dart';
 import 'package:youtube_downloader/src/app/localization/lang/locale_keys.g.dart';
 import 'package:youtube_downloader/src/app/widgets/widgets.dart';
 
-/// Поле ссылки на видео и кнопка «Найти»
+/// Video link field and the Search button
 class UrlSearchForm extends StatelessWidget {
   static const _fieldHeight = 50.0;
-
-  /// Ширина, с которой поле и кнопка встают в строку
-  static const _rowBreakpoint = 640.0;
 
   final TextEditingController controller;
   final FocusNode? focusNode;
 
-  /// Идёт поиск: кнопка показывает «Ищем…»
+  /// Search is in progress: the button shows "Searching…"
   final bool loading;
 
-  /// Искать можно: не ищем и не качаем
+  /// Searching is allowed: no search is running
   final bool enabled;
   final ValueChanged<String>? onSubmitted;
+
+  /// Width from which the field and the button go into one row
+  final double rowBreakpoint;
 
   const UrlSearchForm({
     super.key,
@@ -28,6 +28,7 @@ class UrlSearchForm extends StatelessWidget {
     this.loading = false,
     this.enabled = true,
     this.onSubmitted,
+    this.rowBreakpoint = 640,
   });
 
   void _submit() => onSubmitted?.call(controller.text);
@@ -55,14 +56,14 @@ class UrlSearchForm extends StatelessWidget {
         titleColor: context.color.onButtonNeutral,
       );
 
-      if (constraints.maxWidth < _rowBreakpoint) {
+      if (constraints.maxWidth < rowBreakpoint) {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [input, const SizedBox(height: 12), button],
         );
       }
 
-      /// Во flex-строке CSS элементы тянутся по высоте: кнопка равна полю
+      /// In a CSS flex row items stretch vertically: the button matches the field
       return SizedBox(
         height: _fieldHeight,
         child: Row(

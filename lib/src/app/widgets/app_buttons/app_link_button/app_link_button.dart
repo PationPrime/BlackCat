@@ -3,12 +3,12 @@ import 'package:flutter/material.dart';
 import '../../../design_system/design_system.dart';
 import '../app_pressable/app_pressable.dart';
 
-/// Текстовая кнопка, подчёркивается при наведении
+/// Text button, underlined on hover
 class AppLinkButton extends StatelessWidget {
   final String title;
   final VoidCallback? onPressed;
 
-  /// По умолчанию — акцентный цвет
+  /// Defaults to the accent color
   final Color? titleColor;
 
   const AppLinkButton({

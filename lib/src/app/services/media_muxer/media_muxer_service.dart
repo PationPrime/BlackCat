@@ -6,10 +6,10 @@ import '../../errors/errors.dart';
 
 part 'mp4_muxer.dart';
 
-/// Собирает скачанные потоки в один файл без перекодирования
+/// Muxes the downloaded streams into one file without re-encoding
 abstract interface class MediaMuxerService {
-  /// [inputs]: видео (если есть), затем звук — фрагментированные MP4 YouTube.
-  /// [audioOnly]: собрать M4A с одной звуковой дорожкой
+  /// [inputs]: video (if any), then audio: YouTube fragmented MP4 files.
+  /// [audioOnly]: build an M4A with a single audio track
   Future<void> muxToMp4({
     required List<String> inputs,
     required String outputPath,

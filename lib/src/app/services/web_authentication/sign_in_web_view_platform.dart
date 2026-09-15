@@ -8,22 +8,23 @@ import 'package:flutter_web_auth_2_platform_interface/flutter_web_auth_2_platfor
 import '../../models/models.dart';
 import '../../tools/tools.dart';
 
-/// Реализация [FlutterWebAuth2.authenticate] для Windows.
+/// [FlutterWebAuth2.authenticate] implementation for Windows.
 ///
-/// Подход тот же, что у WebView-реализации пакета (окно desktop_webview_window,
-/// переходы которого сверяются с адресом возврата), с двумя отличиями:
+/// Same approach as the package's WebView implementation (a desktop_webview_window
+/// window whose navigations are checked against the callback address), with two
+/// differences:
 ///
-/// * desktop_webview_window отменяет каждый переход, чтобы спросить Dart,
-///   и сразу запускает его заново. WebView2 молча выбрасывает повторный переход,
-///   пока отменённый на тот же адрес не завершился, и быстрая цепочка редиректов
-///   (Google входит в уже открытую сессию) оставляет пустую страницу.
-///   Здесь переход перезапускается только после завершения отменённого.
-/// * cookies профиля читаются из самого окна входа перед его закрытием
+/// * desktop_webview_window cancels every navigation to ask Dart and immediately
+///   starts it again. WebView2 silently drops the repeated navigation while the
+///   cancelled one to the same address has not finished, so a fast redirect chain
+///   (Google signs in to an already open session) leaves a blank page.
+///   Here the navigation is restarted only after the cancelled one finishes.
+/// * Profile cookies are read from the sign-in window itself before it closes
 class SignInWebViewPlatform extends FlutterWebAuth2Platform {
-  /// Папка данных WebView2: хранит сессию Google между запусками
+  /// WebView2 data folder: keeps the Google session between launches
   final Future<String> Function() _profileFolder;
 
-  /// Заголовок окна входа
+  /// Sign-in window title
   final String Function() _windowTitle;
 
   Webview? _webview;
@@ -34,7 +35,7 @@ class SignInWebViewPlatform extends FlutterWebAuth2Platform {
     required this._windowTitle,
   });
 
-  /// cookies профиля в момент завершения последнего входа
+  /// Profile cookies at the moment the last sign-in finished
   List<BrowserCookieModel> takeCookies() {
     final cookies = _cookies;
     _cookies = const [];
@@ -96,7 +97,7 @@ class SignInWebViewPlatform extends FlutterWebAuth2Platform {
     webview.isNavigating.addListener(() {
       final url = pendingUrl;
 
-      /// Отменённый переход завершился: теперь повторный не выбросится
+      /// The cancelled navigation has finished: a repeated one will not be dropped now
       if (!webview.isNavigating.value && url != null && !finishing) {
         pendingUrl = null;
         webview.launch(url, triggerOnUrlRequestEvent: false);
@@ -112,7 +113,7 @@ class SignInWebViewPlatform extends FlutterWebAuth2Platform {
         pendingUrl = url;
       }
 
-      /// Не даём плагину перезапускать переход самому (см. описание класса)
+      /// Do not let the plugin restart the navigation itself (see the class description)
       return false;
     });
 
@@ -138,7 +139,7 @@ class SignInWebViewPlatform extends FlutterWebAuth2Platform {
   @override
   Future<void> clearAllDanglingCalls() async {}
 
-  /// Все cookies профиля WebView (тип cookie плагин наружу не отдаёт)
+  /// All WebView profile cookies (the plugin does not expose its cookie type)
   static Future<List<BrowserCookieModel>> readCookies(Webview webview) async => [
     for (final cookie in await webview.getAllCookies())
       BrowserCookieModel(

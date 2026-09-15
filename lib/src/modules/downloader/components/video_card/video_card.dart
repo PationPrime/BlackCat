@@ -6,8 +6,8 @@ import 'package:youtube_downloader/src/app/models/models.dart';
 import 'package:youtube_downloader/src/app/tools/tools.dart';
 import 'package:youtube_downloader/src/app/widgets/widgets.dart';
 
-/// Карточка найденного видео: превью, название, канал, длительность, просмотры.
-/// Под ними — [children]: выбор качества и загрузка
+/// Found video card: thumbnail, title, channel, duration, views.
+/// Below them: [children], quality selection and download
 class VideoCard extends StatelessWidget {
   final VideoInfoModel videoInfo;
   final List<Widget> children;
@@ -33,18 +33,7 @@ class VideoCard extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         if (videoInfo.thumbnail is String)
-          AspectRatio(
-            aspectRatio: 16 / 9,
-            child: ColoredBox(
-              color: context.color.background,
-              child: Image.network(
-                videoInfo.thumbnail!,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) =>
-                    const SizedBox.shrink(),
-              ),
-            ),
-          ),
+          AppVideoThumbnail(url: videoInfo.thumbnail),
         Padding(
           padding: const EdgeInsets.all(20),
           child: Column(

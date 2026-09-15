@@ -1,10 +1,14 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:youtube_downloader/src/app/tools/tools.dart';
 
 import '../../support/test_localization.dart';
 
 void main() {
-  setUpAll(loadTestTranslations);
+  setUpAll(() async {
+    loadTestTranslations();
+    await initializeDateFormatting();
+  });
 
   test('duration', () {
     expect(AppFormatters.duration(5), '0:05');
@@ -13,10 +17,20 @@ void main() {
     expect(AppFormatters.duration(null), isNull);
   });
 
-  test('count: разряды как в ru-RU', () {
-    expect(AppFormatters.count(1234567), '1 234 567');
-    expect(AppFormatters.count(999), '999');
+  test('count: разряды по языку', () {
+    expect(AppFormatters.count(1234567, locale: 'ru'), '1\u00A0234\u00A0567');
+    expect(AppFormatters.count(1234567, locale: 'en'), '1,234,567');
+    expect(AppFormatters.count(999, locale: 'ru'), '999');
     expect(AppFormatters.count(null), isNull);
+  });
+
+  test('dateTime: дата и время по языку', () {
+    final dateTime = DateTime(2026, 9, 16, 14, 5);
+
+    expect(AppFormatters.dateTime(dateTime, locale: 'en'), 'Sep 16, 2026 14:05');
+    expect(AppFormatters.dateTime(dateTime, locale: 'ru'), contains('2026'));
+    expect(AppFormatters.dateTime(dateTime, locale: 'ru'), contains('14:05'));
+    expect(AppFormatters.dateTime(null), isNull);
   });
 
   test('AppFileSize.format', () {

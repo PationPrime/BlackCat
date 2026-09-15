@@ -5,8 +5,8 @@ import '../data_sources/authentication/local_authentication_data_source.dart';
 import '../models/models.dart';
 import '../tools/tools.dart';
 
-/// cookies youtube.com вошедшего аккаунта для запросов к YouTube.
-/// cookies, которые YouTube обновляет в ответах, записываются обратно в файл
+/// youtube.com cookies of the signed-in account for YouTube requests.
+/// Cookies that YouTube updates in responses are written back to the file
 final class SessionStore {
   final LocalAuthenticationDataSource _localAuthenticationDataSource;
 
@@ -16,7 +16,7 @@ final class SessionStore {
 
   bool get signedIn => _cookies.any((cookie) => cookie.name == 'LOGIN_INFO');
 
-  /// Перечитывает файл: с прошлого запроса пользователь мог войти или выйти
+  /// Re-reads the file: the user may have signed in or out since the last request
   Future<void> reload() async {
     final cookies = await _localAuthenticationDataSource.readCookies();
 
@@ -27,7 +27,7 @@ final class SessionStore {
         const [];
   }
 
-  /// Заголовок `Cookie` для youtube.com; `null` без входа
+  /// `Cookie` header for youtube.com; `null` when signed out
   String? get cookieHeader {
     final now = DateTime.now();
     final live = _cookies.where(
@@ -39,7 +39,7 @@ final class SessionStore {
         : live.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
   }
 
-  /// Заголовки, которые веб-клиент YouTube шлёт с запросами от имени аккаунта
+  /// Headers the YouTube web client sends with requests on behalf of the account
   Map<String, String> authHeaders({
     String? userSessionId,
     int? sessionIndex,
@@ -69,7 +69,7 @@ final class SessionStore {
     };
   }
 
-  /// Применяет `Set-Cookie` ответа youtube.com и сохраняет файл, если что-то изменилось
+  /// Applies `Set-Cookie` of a youtube.com response and saves the file if anything changed
   Future<void> update(List<String>? setCookieHeaders) async {
     if (setCookieHeaders == null ||
         setCookieHeaders.isEmpty ||
@@ -133,7 +133,7 @@ final class SessionStore {
 
     _cookies = cookies;
 
-    /// cookies Google, сохранённые окном входа, остаются как были
+    /// Google cookies saved by the sign-in window stay as they were
     final others =
         (await _localAuthenticationDataSource.readCookies())?.where(
           (cookie) => !NetscapeCookies.isYouTube(cookie.domain),

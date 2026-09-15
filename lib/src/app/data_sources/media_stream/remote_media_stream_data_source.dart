@@ -7,10 +7,11 @@ import '../../api/api.dart';
 import '../../constants/constants.dart';
 import '../../errors/errors.dart';
 
-/// Потоки видео и звука с googlevideo.com
+/// Video and audio streams from googlevideo.com
 abstract interface class RemoteMediaStreamDataSource {
-  /// Скачивает [length] байт потока в [path] кусками по 10 МиБ, докачивая кусок
-  /// при обрыве соединения. [onBytes] получает размер каждого полученного блока
+  /// Downloads [length] bytes of the stream into [path] in 10 MiB chunks. If the file
+  /// already exists, continues from its end; on a dropped connection resumes the chunk.
+  /// [onBytes] receives the size of every new block
   Future<void> downloadStream(
     String url, {
     required int length,
@@ -36,8 +37,17 @@ final class RemoteMediaStreamDataSourceImpl
     required void Function(int bytes) onBytes,
     CancelToken? cancelToken,
   }) async {
-    final file = await File(path).open(mode: FileMode.write);
-    var written = 0;
+    final existing = File(path);
+    var written = await existing.exists() ? await existing.length() : 0;
+
+    /// The file is longer than the stream, so it is not this stream: start over
+    if (written > length) {
+      written = 0;
+    }
+
+    final file = await existing.open(
+      mode: written == 0 ? FileMode.write : FileMode.append,
+    );
     var failures = 0;
 
     try {
@@ -59,7 +69,7 @@ final class RemoteMediaStreamDataSourceImpl
           }
 
           if (written <= end) {
-            /// Сервер оборвал кусок: просим снова с места обрыва
+            /// The server cut the chunk short: request again from where it stopped
             throw const _ShortReadException();
           }
 
@@ -73,6 +83,13 @@ final class RemoteMediaStreamDataSourceImpl
 
           await Future<void>.delayed(Duration(milliseconds: 500 * failures));
         } on _ShortReadException {
+          if (cancelToken?.isCancelled ?? false) {
+            throw DioException.requestCancelled(
+              requestOptions: RequestOptions(path: url),
+              reason: cancelToken!.cancelError?.error,
+            );
+          }
+
           if (++failures >= _maxAttempts) {
             throw VideoException(const VideoErrorCodes().streamInterrupted);
           }

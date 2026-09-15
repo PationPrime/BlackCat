@@ -5,9 +5,9 @@ import 'package:path/path.dart' as p;
 import '../../constants/constants.dart';
 import '../../services/services.dart';
 
-/// Кэш JavaScript плеера YouTube на диске: ~3 МБ, меняется примерно раз в неделю
+/// YouTube player JavaScript cache on disk: ~3 MB, changes about once a week
 abstract interface class LocalPlayerDataSource {
-  /// `null`, если этот плеер ещё не скачивался
+  /// `null` if this player has not been downloaded yet
   Future<String?> readPlayerJs(String playerId);
 
   Future<void> writePlayerJs(String playerId, String code);

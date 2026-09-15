@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import '../../constants/constants.dart';
 
-/// Настройки (`ytcfg`) встроенного плеера: из них собирается запрос к API плеера
+/// Embedded player settings (`ytcfg`): the player API request is built from them
 class EmbedConfigDto {
   static final _ytcfgSetPattern = RegExp(r'ytcfg\.set\s*\(\s*(\{.+?\})\s*\)\s*;');
   static final _playerIdPattern = RegExp(r'/s/player/([0-9a-zA-Z_-]{8})/');
@@ -12,7 +12,7 @@ class EmbedConfigDto {
 
   const EmbedConfigDto({required this.ytcfg, required this.playerId});
 
-  /// `null`, если на странице нет настроек или номера плеера
+  /// `null` if the page has no settings or player version
   static EmbedConfigDto? fromHtml(String html) {
     final ytcfg = parseYtcfg(html);
     final playerId = _playerIdPattern.firstMatch(html)?.group(1);
@@ -24,7 +24,7 @@ class EmbedConfigDto {
     return EmbedConfigDto(ytcfg: ytcfg, playerId: playerId);
   }
 
-  /// Объединяет все вызовы `ytcfg.set({...});` страницы YouTube
+  /// Merges all `ytcfg.set({...});` calls of a YouTube page
   static Map<String, dynamic> parseYtcfg(String html) {
     final ytcfg = <String, dynamic>{};
 
@@ -32,7 +32,7 @@ class EmbedConfigDto {
       try {
         ytcfg.addAll(jsonDecode(match.group(1)!) as Map<String, dynamic>);
       } on FormatException {
-        /// Не каждое совпадение — законченный объект
+        /// Not every match is a complete object
       }
     }
 

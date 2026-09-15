@@ -6,12 +6,12 @@ class VideoInfoModel extends Equatable {
   final String id;
   final String title;
 
-  /// Каноническая ссылка на страницу видео
+  /// Canonical link to the video page
   final String url;
   final List<QualityModel> qualities;
   final String? channel;
 
-  /// Длительность в секундах
+  /// Duration in seconds
   final num? duration;
   final String? thumbnail;
   final int? viewCount;

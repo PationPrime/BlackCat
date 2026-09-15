@@ -3,14 +3,14 @@ import '../base_repository_interface.dart';
 
 abstract interface class AuthenticationRepositoryInterface
     implements BaseRepositoryInterface {
-  /// Восстанавливает сессию при запуске, не показывая окон.
-  /// `true` — аккаунт подключён
+  /// Restores the session on launch without showing windows.
+  /// `true`: the account is connected
   Future<OperationResult<bool>> restoreSession();
 
-  /// Вход через окно flutter_web_auth_2.
-  /// `true` — вход выполнен, `false` — пользователь закрыл окно
+  /// Sign-in through the flutter_web_auth_2 window.
+  /// `true`: signed in, `false`: the user closed the window
   Future<OperationResult<bool>> signIn();
 
-  /// Удаляет cookies и сессию Google из профиля окна входа
+  /// Deletes cookies and the Google session from the sign-in window profile
   Future<OperationResult<void>> signOut();
 }

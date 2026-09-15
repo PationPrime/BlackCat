@@ -1,14 +1,14 @@
-/// Поток из `streamingData.adaptiveFormats` ответа API плеера
+/// A stream from `streamingData.adaptiveFormats` of the player API response
 class StreamFormatDto {
   static final _codecsPattern = RegExp(r'codecs="([^"]*)"');
 
   final int itag;
   final String mimeType;
 
-  /// Ссылка до решения задачи `n` (и подписи, если она есть)
+  /// Link before solving the `n` challenge (and the signature, if any)
   final String url;
 
-  /// Зашифрованная подпись из `signatureCipher`; решение идёт в [signatureParam]
+  /// Encrypted signature from `signatureCipher`; the solution goes into [signatureParam]
   final String? signature;
   final String signatureParam;
 
@@ -39,7 +39,7 @@ class StreamFormatDto {
     this.audioIsDefault = false,
   });
 
-  /// `null` для потоков, которые не скачать обычным HTTPS (например, только SABR)
+  /// `null` for streams that cannot be downloaded over plain HTTPS (e.g. SABR only)
   static StreamFormatDto? fromJson(Map<String, dynamic> json) {
     var url = json['url'] as String?;
     String? signature;
@@ -93,7 +93,7 @@ class StreamFormatDto {
 
   String? get nChallenge => Uri.parse(url).queryParameters['n'];
 
-  /// Ссылка с подставленными решениями `n` и подписи
+  /// Link with the `n` and signature solutions substituted
   String resolvedUrl({
     required Map<String, String> n,
     required Map<String, String> sig,
@@ -125,7 +125,7 @@ class StreamFormatDto {
     return uri.replace(queryParameters: query).toString();
   }
 
-  /// Формат в виде словаря yt-dlp: список качеств строится тем же кодом
+  /// The format as a yt-dlp dictionary: the quality list is built by the same code
   Map<String, dynamic> toRawFormat() => {
     'format_id': '$itag',
     'vcodec': videoCodec ?? 'none',

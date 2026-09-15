@@ -1,6 +1,10 @@
 export 'app_formatters.dart';
+export 'download_cancellation.dart';
+export 'download_part_files.dart';
 export 'netscape_cookies.dart';
 export 'quality_selector.dart';
 export 'sapisid_authorization.dart';
 export 'speed_meter.dart';
+export 'system_tray_content_builder.dart';
+export 'system_tray_text.dart';
 export 'youtube_url_parser.dart';

@@ -7,14 +7,15 @@ import 'package:youtube_downloader/src/app/widgets/widgets.dart';
 
 part 'downloader_account_status.dart';
 
-/// Шапка: название приложения и состояние входа в YouTube
+/// Header: app name, YouTube sign-in state and settings
 class DownloaderHeader extends StatelessWidget {
   final AuthorizationState authorizationState;
 
-  /// Выйти нельзя, пока идёт загрузка
+  /// Signing out is not allowed while a download is running
   final bool signOutEnabled;
   final VoidCallback? onSignInPressed;
   final VoidCallback? onSignOutPressed;
+  final VoidCallback? onSettingsPressed;
 
   const DownloaderHeader({
     super.key,
@@ -22,6 +23,7 @@ class DownloaderHeader extends StatelessWidget {
     this.signOutEnabled = true,
     this.onSignInPressed,
     this.onSignOutPressed,
+    this.onSettingsPressed,
   });
 
   @override
@@ -47,6 +49,12 @@ class DownloaderHeader extends StatelessWidget {
         signOutEnabled: signOutEnabled,
         onSignInPressed: onSignInPressed,
         onSignOutPressed: onSignOutPressed,
+      ),
+      const SizedBox(width: 8),
+      AppIconButton(
+        icon: Icons.settings_outlined,
+        tooltip: LocaleKeys.app_downloader_buttons_settings.tr(),
+        onPressed: onSettingsPressed,
       ),
     ],
   );

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-/// Нажимаемая область с наведением и фокусом с клавиатуры, без ряби Material
+/// Pressable area with hover and keyboard focus, without the Material ripple
 class AppPressable extends StatefulWidget {
-  /// [highlighted]: курсор над областью или на ней фокус
+  /// [highlighted]: the cursor is over the area or it has focus
   final Widget Function(BuildContext context, bool highlighted) builder;
   final VoidCallback? onPressed;
 

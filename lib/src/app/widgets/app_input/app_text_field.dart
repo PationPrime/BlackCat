@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../design_system/design_system.dart';
 
-/// Однострочное поле ввода: скругление, акцентная рамка в фокусе
+/// Single-line input field: rounded corners, accent border when focused
 class AppTextField extends StatelessWidget {
   final TextEditingController? controller;
   final FocusNode? focusNode;

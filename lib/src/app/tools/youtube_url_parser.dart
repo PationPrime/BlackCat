@@ -1,12 +1,12 @@
 import 'package:equatable/equatable.dart';
 
-/// Ссылка на видео YouTube в каноническом виде
+/// Canonical YouTube video link
 class YouTubeVideoLink extends Equatable {
   final String id;
 
   const YouTubeVideoLink(this.id);
 
-  /// Страница видео без меток отслеживания и плейлиста
+  /// Video page without tracking parameters and playlist
   String get url => 'https://www.youtube.com/watch?v=$id';
 
   @override
@@ -26,8 +26,8 @@ abstract final class YouTubeUrlParser {
     'www.youtube-nocookie.com',
   };
 
-  /// Номер видео из любой обычной ссылки: watch, youtu.be, shorts, embed, live.
-  /// `null`, если это не ссылка на видео YouTube
+  /// Video ID from any regular link: watch, youtu.be, shorts, embed, live.
+  /// `null` if this is not a YouTube video link
   static YouTubeVideoLink? parse(String? input) {
     final Uri url;
 
@@ -54,7 +54,7 @@ abstract final class YouTubeUrlParser {
             : _pathIdPattern.firstMatch(url.path)?.group(1);
       }
     } on FormatException {
-      /// Сломанная процентная кодировка в параметрах
+      /// Broken percent-encoding in the parameters
       return null;
     }
 

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-/// Базовые начертания шрифта. Цвет и кегль задаются в [AppThemeTextStyles]
+/// Base font weights. Color and size are set in [AppThemeTextStyles]
 abstract base class AppTextStyles {
-  /// Системный шрифт Windows
+  /// Windows system font
   static const _segoeUIFamily = 'Segoe UI';
 
   static const segoeUIRegular = TextStyle(

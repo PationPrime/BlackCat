@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 
 import '../../design_system/design_system.dart';
 
-/// Мягкое свечение сверху экрана:
-/// `radial-gradient(circle at top, glow, transparent 40%)` поверх фона
+/// Soft glow at the top of the screen:
+/// `radial-gradient(circle at top, glow, transparent 40%)` over the background
 class AppBackgroundGlow extends StatelessWidget {
   const AppBackgroundGlow({super.key});
 
@@ -16,7 +16,7 @@ class AppBackgroundGlow extends StatelessWidget {
         final width = constraints.maxWidth;
         final height = constraints.maxHeight;
 
-        /// CSS считает радиус до дальнего угла, Flutter — в долях короткой стороны
+        /// CSS measures the radius to the farthest corner, Flutter in fractions of the short side
         final farthestCorner = math.sqrt(width * width / 4 + height * height);
 
         return DecoratedBox(

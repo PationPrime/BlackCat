@@ -1,14 +1,14 @@
 import '../stream_format_dto/stream_format_dto.dart';
 
-/// Ответ `/youtubei/v1/player`
+/// `/youtubei/v1/player` response
 class PlayerResponseDto {
   /// `OK`, `LOGIN_REQUIRED`, `UNPLAYABLE`…
   final String? status;
 
-  /// Причина отказа, уже переведённая YouTube
+  /// Refusal reason, already translated by YouTube
   final String? reason;
 
-  /// Скачиваемые MP4-потоки: WebM приложение не склеивает
+  /// Downloadable MP4 streams: the app does not mux WebM
   final List<StreamFormatDto> formats;
   final String? title;
   final String? author;
@@ -58,7 +58,7 @@ class PlayerResponseDto {
 
   bool get isPlayable => status == 'OK';
 
-  /// Смотреть видео мешает отсутствие входа в аккаунт
+  /// Watching the video requires signing in to an account
   bool get requiresSignIn =>
       status == 'LOGIN_REQUIRED' ||
       status == 'AGE_CHECK_REQUIRED' ||

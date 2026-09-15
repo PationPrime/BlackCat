@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../../design_system/design_system.dart';
 import '../app_buttons/app_buttons.dart';
 
-/// Сообщение об ошибке с необязательной кнопкой действия
+/// Error message with an optional action button
 class AppFailureBanner extends StatelessWidget {
   final String message;
   final String? actionTitle;

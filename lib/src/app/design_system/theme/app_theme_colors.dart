@@ -3,56 +3,62 @@ import 'package:flutter/material.dart';
 import 'app_colors.dart';
 
 class AppThemeColors extends ThemeExtension<AppThemeColors> {
-  /// Фон экранов
+  /// Screen background
   final Color background;
 
-  /// Свечение в шапке экрана
+  /// Glow in the screen header
   final Color backgroundGlow;
 
-  /// Поля ввода и панели поверх фона
+  /// Input fields and panels over the background
   final Color surface;
 
-  /// Карточки
+  /// Cards
   final Color card;
+
+  /// Dialog background
+  final Color dialog;
+
+  /// Screen dimming under a dialog
+  final Color scrim;
 
   final Color border;
   final Color borderHover;
 
-  /// Подсветка прозрачных кнопок при наведении
+  /// Hover highlight of transparent buttons
   final Color hoverOverlay;
 
-  /// Основной текст: заголовки карточек, ввод
+  /// Primary text: card titles, input
   final Color textPrimary;
 
-  /// Название приложения в шапке
+  /// App name in the header
   final Color textHeader;
 
-  /// Второстепенный текст: подписи кнопок, прогресс
+  /// Secondary text: button titles, progress
   final Color textSecondary;
 
-  /// Метаданные: канал, длительность, статусы
+  /// Metadata: channel, duration, statuses
   final Color textTertiary;
 
-  /// Подсказки, заголовки групп, неактивное
+  /// Hints, group titles, inactive elements
   final Color textHint;
 
   final Color iconPrimary;
   final Color iconDisabled;
 
-  /// Фирменный акцент: основная кнопка, выбор, прогресс
+  /// Brand accent: primary button, selection, progress
   final Color accent;
   final Color accentHover;
 
-  /// Фон выбранного элемента
+  /// Selected item background
   final Color accentSubtle;
 
-  /// Выделение текста
+  /// Text selection
   final Color textSelection;
 
-  /// Текст и иконки на акцентном фоне
+  /// Text and icons on the accent background
   final Color onAccent;
 
-  /// Нейтральная кнопка («Найти»)
+  /// Neutral button ("Search")
   final Color buttonNeutral;
   final Color buttonNeutralHover;
   final Color onButtonNeutral;
@@ -61,10 +67,14 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
   final Color errorBorder;
   final Color errorText;
 
-  /// Кнопка действия внутри сообщения об ошибке
+  /// Action button inside an error message
   final Color errorActionText;
   final Color errorActionBorder;
   final Color errorActionHover;
+
+  /// Close button of the app title bar on hover, as on Windows
+  final Color windowCloseHover;
+  final Color onWindowCloseHover;
 
   final Color transparent;
 
@@ -73,6 +83,8 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
     required this.backgroundGlow,
     required this.surface,
     required this.card,
+    required this.dialog,
+    required this.scrim,
     required this.border,
     required this.borderHover,
     required this.hoverOverlay,
@@ -97,6 +109,8 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
     required this.errorActionText,
     required this.errorActionBorder,
     required this.errorActionHover,
+    required this.windowCloseHover,
+    required this.onWindowCloseHover,
     required this.transparent,
   });
 
@@ -106,6 +120,8 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
     Color? backgroundGlow,
     Color? surface,
     Color? card,
+    Color? dialog,
+    Color? scrim,
     Color? border,
     Color? borderHover,
     Color? hoverOverlay,
@@ -130,12 +146,16 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
     Color? errorActionText,
     Color? errorActionBorder,
     Color? errorActionHover,
+    Color? windowCloseHover,
+    Color? onWindowCloseHover,
     Color? transparent,
   }) => AppThemeColors(
     background: background ?? this.background,
     backgroundGlow: backgroundGlow ?? this.backgroundGlow,
     surface: surface ?? this.surface,
     card: card ?? this.card,
+    dialog: dialog ?? this.dialog,
+    scrim: scrim ?? this.scrim,
     border: border ?? this.border,
     borderHover: borderHover ?? this.borderHover,
     hoverOverlay: hoverOverlay ?? this.hoverOverlay,
@@ -160,6 +180,8 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
     errorActionText: errorActionText ?? this.errorActionText,
     errorActionBorder: errorActionBorder ?? this.errorActionBorder,
     errorActionHover: errorActionHover ?? this.errorActionHover,
+    windowCloseHover: windowCloseHover ?? this.windowCloseHover,
+    onWindowCloseHover: onWindowCloseHover ?? this.onWindowCloseHover,
     transparent: transparent ?? this.transparent,
   );
 
@@ -177,6 +199,8 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
       backgroundGlow: Color.lerp(backgroundGlow, other.backgroundGlow, t)!,
       surface: Color.lerp(surface, other.surface, t)!,
       card: Color.lerp(card, other.card, t)!,
+      dialog: Color.lerp(dialog, other.dialog, t)!,
+      scrim: Color.lerp(scrim, other.scrim, t)!,
       border: Color.lerp(border, other.border, t)!,
       borderHover: Color.lerp(borderHover, other.borderHover, t)!,
       hoverOverlay: Color.lerp(hoverOverlay, other.hoverOverlay, t)!,
@@ -213,6 +237,16 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
         other.errorActionHover,
         t,
       )!,
+      windowCloseHover: Color.lerp(
+        windowCloseHover,
+        other.windowCloseHover,
+        t,
+      )!,
+      onWindowCloseHover: Color.lerp(
+        onWindowCloseHover,
+        other.onWindowCloseHover,
+        t,
+      )!,
       transparent: Color.lerp(transparent, other.transparent, t)!,
     );
   }
@@ -222,6 +256,8 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
     backgroundGlow: AppColors.amberF59E0BAlpha12,
     surface: AppColors.white,
     card: AppColors.white,
+    dialog: AppColors.white,
+    scrim: AppColors.black40,
     border: AppColors.black10,
     borderHover: AppColors.black30,
     hoverOverlay: AppColors.black5,
@@ -246,6 +282,8 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
     errorActionText: AppColors.red991B1B,
     errorActionBorder: AppColors.redB91C1CAlpha40,
     errorActionHover: AppColors.redF87171Alpha10,
+    windowCloseHover: AppColors.redC42B1C,
+    onWindowCloseHover: AppColors.white,
     transparent: AppColors.transparent,
   );
 
@@ -254,6 +292,8 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
     backgroundGlow: AppColors.amberF59E0BAlpha16,
     surface: AppColors.stone1C1917,
     card: AppColors.stone1C1917Alpha70,
+    dialog: AppColors.stone1C1917,
+    scrim: AppColors.black70,
     border: AppColors.white10,
     borderHover: AppColors.white30,
     hoverOverlay: AppColors.white5,
@@ -278,6 +318,8 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
     errorActionText: AppColors.redFEE2E2,
     errorActionBorder: AppColors.redFCA5A5Alpha40,
     errorActionHover: AppColors.redF87171Alpha10,
+    windowCloseHover: AppColors.redC42B1C,
+    onWindowCloseHover: AppColors.white,
     transparent: AppColors.transparent,
   );
 }

@@ -1,6 +1,6 @@
 import '../stream_format_dto/stream_format_dto.dart';
 
-/// Видео с готовыми ссылками на потоки
+/// Video with ready stream links
 class ResolvedVideoDto {
   final String id;
   final String title;
@@ -10,10 +10,10 @@ class ResolvedVideoDto {
   final String? thumbnail;
   final List<StreamFormatDto> formats;
 
-  /// По самому формату: у дублированного видео по потоку itag 140 на каждый язык
+  /// Keyed by the format itself: a dubbed video has an itag 140 stream per language
   final Map<StreamFormatDto, String> urls;
 
-  /// Ссылки привязаны к сессии и устаревают
+  /// Links are bound to the session and expire
   final DateTime expiresAt;
 
   const ResolvedVideoDto({

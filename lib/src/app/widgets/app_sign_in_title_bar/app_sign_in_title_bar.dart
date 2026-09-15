@@ -3,12 +3,12 @@ import 'package:flutter/material.dart';
 
 import '../../design_system/design_system.dart';
 
-/// Заголовок окна входа. Работает в отдельном движке Flutter, поэтому
-/// тему задаёт сам. Показывает адрес: пароль вводится на accounts.google.com
+/// Sign-in window title bar. Runs in a separate Flutter engine, so it sets
+/// the theme itself. Shows the address: the password is entered on accounts.google.com
 class AppSignInTitleBar extends StatelessWidget {
   const AppSignInTitleBar({super.key});
 
-  /// Для [runWebViewTitleBarWidget]
+  /// For [runWebViewTitleBarWidget]
   static Widget builder(BuildContext context) => const AppSignInTitleBar();
 
   @override

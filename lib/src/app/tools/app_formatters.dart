@@ -21,23 +21,28 @@ abstract final class AppFormatters {
     ].join(':');
   }
 
-  /// Разряды через неразрывный пробел, как в ru-RU: `1 234 567`
-  static String? count(int? count) {
+  /// Digit groups of the [locale] (the current app language by default):
+  /// `1 234 567` in Russian, `1,234,567` in English
+  static String? count(int? count, {String? locale}) {
     if (count == null) {
       return null;
     }
 
-    final digits = count.abs().toString();
-    final grouped = digits.replaceAllMapped(
-      RegExp(r'\B(?=(\d{3})+$)'),
-      (_) => ' ',
-    );
+    return NumberFormat.decimalPattern(locale).format(count);
+  }
 
-    return count < 0 ? '-$grouped' : grouped;
+  /// Date and time of the [locale] (the current app language by default),
+  /// e.g. `Sep 16, 2026 14:05` in English
+  static String? dateTime(DateTime? dateTime, {String? locale}) {
+    if (dateTime == null) {
+      return null;
+    }
+
+    return DateFormat.yMMMd(locale).add_Hm().format(dateTime.toLocal());
   }
 }
 
-/// Размер файла в самой крупной единице, где он больше единицы
+/// File size in the largest unit where it is above one
 abstract final class AppFileSize {
   static const _step = 1024;
 
@@ -48,8 +53,8 @@ abstract final class AppFileSize {
     LocaleKeys.app_common_file_size_gigabytes,
   ];
 
-  /// `512` → `512 Б`, `1536` → `1.5 КБ`, `70000000` → `67 МБ`.
-  /// `null` для пустого размера
+  /// `512` → `512 B`, `1536` → `1.5 KB`, `70000000` → `67 MB` in English.
+  /// `null` for an empty size
   static String? format(num? bytes) {
     if (bytes == null || bytes <= 0) {
       return null;

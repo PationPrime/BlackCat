@@ -1,16 +1,34 @@
 abstract final class StorageConstants {
-  /// Папка приложения в `%LOCALAPPDATA%`
+  /// App folder in `%LOCALAPPDATA%`
   static const localAppFolder = 'YT Download';
 
-  /// Профиль WebView2 окна входа: хранит сессию Google между запусками
+  /// WebView2 profile of the sign-in window: keeps the Google session between launches
   static const signInProfileFolder = 'WebView';
 
-  /// Профиль WebView2 для исполнения JavaScript плеера
+  /// WebView2 profile for running the player JavaScript
   static const jsEngineProfileFolder = 'JsEngine';
 
-  /// Кэш JavaScript плеера YouTube
+  /// YouTube player JavaScript cache
   static const playerCacheFolder = 'Cache/players';
 
-  /// cookies.txt аккаунта в `%APPDATA%`
+  /// Account cookies.txt in `%APPDATA%`
   static const cookiesFileName = 'youtube_cookies.txt';
+
+  /// Unfinished download streams in `%LOCALAPPDATA%\YT Download`:
+  /// each download has its own subfolder so it can continue after a pause
+  /// and after an app restart
+  static const downloadWorkFolder = 'Unfinished downloads';
+
+  /// Local copies of downloaded video thumbnails in `%LOCALAPPDATA%\YT Download`:
+  /// the downloaded list shows them without network access
+  static const thumbnailsFolder = 'Thumbnails';
+
+  /// Download queue database in `%APPDATA%`
+  static const databaseFileName = 'youtube-downloader-database.sqlite';
+
+  /// Download folder chosen by the user
+  static const downloadDirectoryKey = 'settings.download_directory';
+
+  /// App interface language chosen by the user
+  static const languageKey = 'settings.language';
 }

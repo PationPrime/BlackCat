@@ -10,17 +10,37 @@ extension DownloadStageX on DownloadStage {
 class DownloadProgressModel extends Equatable {
   final DownloadStage stage;
 
-  /// Проценты, от 0 до 100
+  /// Percent, from 0 to 100
   final double percent;
 
-  /// Байт в секунду
+  /// Bytes per second
   final num? speed;
 
-  /// Оставшееся время в секундах
+  /// Remaining time in seconds
   final num? eta;
 
-  const DownloadProgressModel(this.stage, this.percent, {this.speed, this.eta});
+  /// Downloaded bytes of all streams, including those downloaded before a pause
+  final int? downloadedBytes;
+
+  /// Size of all streams
+  final int? totalBytes;
+
+  const DownloadProgressModel(
+    this.stage,
+    this.percent, {
+    this.speed,
+    this.eta,
+    this.downloadedBytes,
+    this.totalBytes,
+  });
 
   @override
-  List<Object?> get props => [stage, percent, speed, eta];
+  List<Object?> get props => [
+    stage,
+    percent,
+    speed,
+    eta,
+    downloadedBytes,
+    totalBytes,
+  ];
 }

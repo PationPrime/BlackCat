@@ -1,4 +1,4 @@
-/// Скорость загрузки за последние секунды: для строки со скоростью и остатком времени
+/// Download speed over the last seconds: for the speed and remaining time line
 class SpeedMeter {
   final Duration window;
   final _samples = <(DateTime, int)>[];
@@ -12,7 +12,7 @@ class SpeedMeter {
       ..removeWhere((sample) => now!.difference(sample.$1) > window);
   }
 
-  /// Байт в секунду. `null`, пока данных мало
+  /// Bytes per second. `null` while there is too little data
   double? bytesPerSecond({DateTime? now}) {
     now ??= DateTime.now();
     _samples.removeWhere((sample) => now!.difference(sample.$1) > window);

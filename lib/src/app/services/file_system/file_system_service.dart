@@ -7,20 +7,52 @@ import 'package:path_provider/path_provider.dart';
 import '../../constants/constants.dart';
 
 abstract interface class FileSystemService {
-  /// `%LOCALAPPDATA%\YT Download\<name>`: профили WebView2, кэш
+  /// `%LOCALAPPDATA%\YT Download\<name>`: WebView2 profiles, cache
   Future<String> localAppFolder(String name);
 
-  /// Папка для настроек и cookies в `%APPDATA%`
+  /// Folder for settings and cookies in `%APPDATA%`
   Future<String> supportFolder();
 
-  Future<Directory> createTempDirectory(String prefix);
+  /// The system Downloads folder
+  Future<String> defaultDownloadsFolder();
 
-  /// Переносит готовый файл в «Загрузки» под читаемым именем
-  /// и возвращает итоговый путь
-  Future<String> moveToDownloads(String filePath, {String? title});
+  Future<bool> directoryExists(String path);
 
-  /// Открывает Проводник с выделенным файлом
+  /// Download work folder: unfinished streams stay in it until the download
+  /// finishes and survive an app restart
+  Future<Directory> downloadWorkDirectory(String taskId);
+
+  Future<void> deleteDownloadWorkDirectory(String taskId);
+
+  /// Wipes work folders of downloads that are no longer in the queue
+  Future<void> deleteDownloadWorkDirectoriesExcept(Set<String> taskIds);
+
+  /// File size in bytes; `0` if the file does not exist
+  Future<int> fileLength(String path);
+
+  Future<void> deleteFile(String path);
+
+  /// Writes [bytes] into [path], creating missing folders
+  Future<void> writeFile(String path, List<int> bytes);
+
+  /// Path of the local thumbnail copy of a download, e.g. `<taskId>.jpg`
+  Future<String> thumbnailPath(String taskId, {required String extension});
+
+  /// Deletes local thumbnail copies of the downloads
+  Future<void> deleteThumbnails(Set<String> taskIds);
+
+  /// Wipes local thumbnail copies of downloads that are no longer in the queue
+  Future<void> deleteThumbnailsExcept(Set<String> taskIds);
+
+  /// Moves the finished file into [folder] under a readable name
+  /// and returns the resulting path
+  Future<String> moveToFolder(String filePath, String folder, {String? title});
+
+  /// Opens Explorer with the file selected
   Future<void> revealInExplorer(String filePath);
+
+  /// Opens the folder in Explorer
+  Future<void> openFolder(String folderPath);
 }
 
 class FileSystemServiceImpl implements FileSystemService {
@@ -41,21 +73,123 @@ class FileSystemServiceImpl implements FileSystemService {
       (await getApplicationSupportDirectory()).path;
 
   @override
-  Future<Directory> createTempDirectory(String prefix) =>
-      Directory.systemTemp.createTemp(prefix);
+  Future<String> defaultDownloadsFolder() async {
+    final folder = await getDownloadsDirectory();
+
+    return folder?.path ??
+        p.join(Platform.environment['USERPROFILE'] ?? '.', 'Downloads');
+  }
 
   @override
-  Future<String> moveToDownloads(String filePath, {String? title}) async {
-    final target = uniquePath(
-      await _downloadsFolder(),
-      buildFilename(title, filePath),
-    );
+  Future<bool> directoryExists(String path) => Directory(path).exists();
+
+  Future<Directory> _downloadWorkRoot() async =>
+      Directory(await localAppFolder(StorageConstants.downloadWorkFolder));
+
+  @override
+  Future<Directory> downloadWorkDirectory(String taskId) async => Directory(
+    p.join((await _downloadWorkRoot()).path, taskId),
+  ).create(recursive: true);
+
+  @override
+  Future<void> deleteDownloadWorkDirectory(String taskId) async =>
+      _deleteIfExists(Directory(p.join((await _downloadWorkRoot()).path, taskId)));
+
+  @override
+  Future<void> deleteDownloadWorkDirectoriesExcept(Set<String> taskIds) async {
+    final root = await _downloadWorkRoot();
+
+    if (!await root.exists()) return;
+
+    await for (final entity in root.list()) {
+      if (!taskIds.contains(p.basename(entity.path))) {
+        await _deleteIfExists(entity);
+      }
+    }
+  }
+
+  @override
+  Future<int> fileLength(String path) async {
+    final file = File(path);
+
+    return await file.exists() ? await file.length() : 0;
+  }
+
+  @override
+  Future<void> deleteFile(String path) => _deleteIfExists(File(path));
+
+  @override
+  Future<void> writeFile(String path, List<int> bytes) async {
+    await Directory(p.dirname(path)).create(recursive: true);
+    await File(path).writeAsBytes(bytes, flush: true);
+  }
+
+  Future<Directory> _thumbnailsRoot() async =>
+      Directory(await localAppFolder(StorageConstants.thumbnailsFolder));
+
+  @override
+  Future<String> thumbnailPath(
+    String taskId, {
+    required String extension,
+  }) async => p.join((await _thumbnailsRoot()).path, '$taskId.$extension');
+
+  @override
+  Future<void> deleteThumbnails(Set<String> taskIds) =>
+      _deleteThumbnailsWhere(taskIds.contains);
+
+  @override
+  Future<void> deleteThumbnailsExcept(Set<String> taskIds) =>
+      _deleteThumbnailsWhere((taskId) => !taskIds.contains(taskId));
+
+  Future<void> _deleteThumbnailsWhere(bool Function(String taskId) test) async {
+    final root = await _thumbnailsRoot();
+
+    if (!await root.exists()) return;
+
+    await for (final entity in root.list()) {
+      if (test(p.basenameWithoutExtension(entity.path))) {
+        await _deleteIfExists(entity);
+      }
+    }
+  }
+
+  Future<void> _deleteIfExists(FileSystemEntity entity) async {
+    try {
+      if (await entity.exists()) {
+        await entity.delete(recursive: true);
+      }
+    } on FileSystemException {
+      /// The file is still busy: the folder stays until the next launch
+    }
+  }
+
+  @override
+  Future<String> moveToFolder(
+    String filePath,
+    String folder, {
+    String? title,
+  }) async {
+    await Directory(folder).create(recursive: true);
+
+    final target = uniquePath(folder, buildFilename(title, filePath));
 
     try {
       await File(filePath).rename(target);
     } on FileSystemException {
-      /// Временная папка и «Загрузки» могут быть на разных дисках
-      await File(filePath).copy(target);
+      /// The work folder and the download folder may be on different drives.
+      /// Copy under a temporary name: an interrupted copy does not leave
+      /// a broken file with the video name in the download folder
+      final copyPath = '$target.copying';
+
+      try {
+        await File(filePath).copy(copyPath);
+        await File(copyPath).rename(target);
+      } catch (_) {
+        await _deleteIfExists(File(copyPath));
+
+        rethrow;
+      }
+
       await File(filePath).delete();
     }
 
@@ -66,19 +200,11 @@ class FileSystemServiceImpl implements FileSystemService {
   Future<void> revealInExplorer(String filePath) =>
       Process.run('explorer.exe', ['/select,', filePath]);
 
-  Future<String> _downloadsFolder() async {
-    final folder =
-        await getDownloadsDirectory() ??
-        Directory(
-          p.join(Platform.environment['USERPROFILE'] ?? '.', 'Downloads'),
-        );
+  @override
+  Future<void> openFolder(String folderPath) =>
+      Process.run('explorer.exe', [folderPath]);
 
-    await folder.create(recursive: true);
-
-    return folder.path;
-  }
-
-  /// Читаемое имя файла из названия видео, допустимое в Windows
+  /// Readable file name from the video title, valid on Windows
   static String buildFilename(String? title, String filePath) {
     final extension = p.extension(filePath);
     var base = (title ?? '')
@@ -93,7 +219,7 @@ class FileSystemServiceImpl implements FileSystemService {
     return '${base.isEmpty ? p.basenameWithoutExtension(filePath) : base}$extension';
   }
 
-  /// `name.mp4`, затем `name (2).mp4`, `name (3).mp4`… — первое свободное
+  /// `name.mp4`, then `name (2).mp4`, `name (3).mp4`…: the first free one
   static String uniquePath(
     String folder,
     String filename, {

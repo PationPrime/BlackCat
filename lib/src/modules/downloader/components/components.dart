@@ -1,5 +1,12 @@
-export 'download_progress_view/download_progress_view.dart';
+export 'active_download_card/active_download_card.dart';
+export 'add_video_dialog/add_video_dialog.dart';
+export 'download_task_failure/download_task_failure.dart';
+export 'download_task_preview/download_task_preview.dart';
+export 'downloaded_video_tile/downloaded_video_tile.dart';
+export 'downloader_empty_placeholder/downloader_empty_placeholder.dart';
 export 'downloader_header/downloader_header.dart';
+export 'downloader_section_title/downloader_section_title.dart';
 export 'quality_picker/quality_picker.dart';
+export 'queued_download_tile/queued_download_tile.dart';
 export 'url_search_form/url_search_form.dart';
 export 'video_card/video_card.dart';

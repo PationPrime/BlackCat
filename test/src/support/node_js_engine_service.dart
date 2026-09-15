@@ -4,9 +4,9 @@ import 'dart:io';
 
 import 'package:youtube_downloader/src/app/services/services.dart';
 
-/// JS-движок только для тестов: flutter test не открывает окно WebView2,
-/// поэтому скрипты исполняются в постоянном контексте `vm` Node
-/// (глобальные переменные сохраняются между вызовами, как в WebView)
+/// JS engine for tests only: flutter test does not open a WebView2 window,
+/// so scripts run in a persistent Node `vm` context
+/// (global variables persist between calls, as in WebView)
 class NodeJsEngineService implements JsEngineService {
   static const _host = r'''
 const vm = require('vm');

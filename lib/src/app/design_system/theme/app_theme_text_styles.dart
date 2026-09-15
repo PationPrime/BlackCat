@@ -6,34 +6,34 @@ import 'app_theme_colors.dart';
 class AppThemeTextStyles extends ThemeExtension<AppThemeTextStyles> {
   // Headings
 
-  /// Заголовок карточки: название видео
+  /// Card title: video name
   final TextStyle header4Semibold;
 
-  /// Название приложения в шапке
+  /// App name in the header
   final TextStyle header5Semibold;
 
   // Body
 
-  /// Текст в полях ввода
+  /// Text in input fields
   final TextStyle bodyRegular;
 
-  /// Подписи основных кнопок
+  /// Primary button titles
   final TextStyle bodyMedium;
 
   // Caption
 
-  /// Метаданные, прогресс, сообщения об ошибках
+  /// Metadata, progress, error messages
   final TextStyle captionRegular;
 
-  /// Подписи небольших кнопок
+  /// Small button titles
   final TextStyle captionMedium;
 
-  /// Адрес в заголовке окна входа
+  /// Address in the sign-in window title bar
   final TextStyle footnoteRegular;
 
   // Overline
 
-  /// Заголовки групп («КАЧЕСТВО»)
+  /// Group titles ("QUALITY")
   final TextStyle overlineRegular;
 
   const AppThemeTextStyles({

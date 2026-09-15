@@ -1,6 +1,6 @@
 part of 'failure.dart';
 
-/// Глобальная неизвестная ошибка
+/// Global unknown error
 class UnknownFailure extends Failure {
   const UnknownFailure({super.message = 'Unknown error', super.stackTrace});
 
@@ -16,7 +16,7 @@ class UnknownFailure extends Failure {
       UnknownFailure(message: other.message, stackTrace: other.stackTrace);
 }
 
-/// Сервер не ответил за отведённое время
+/// The server did not respond in time
 class ConnectionTimeOutFailure extends Failure {
   final String? errorCode;
 
@@ -46,7 +46,7 @@ class ConnectionTimeOutFailure extends Failure {
       );
 }
 
-/// Нет соединения с сервером
+/// No connection to the server
 class NoConnectionFailure extends Failure {
   final String? errorCode;
 

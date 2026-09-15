@@ -1,7 +1,7 @@
-// Живая проверка загрузки с YouTube (сеть, ~20 МБ). Не входит в обычный прогон:
+// Live YouTube download check (network, ~20 MB). Not part of the regular run:
 //   $env:YT_LIVE='1'; flutter test --tags live
-// Использует сохранённые cookies входа приложения, если они есть.
-// JavaScript исполняется в Node только потому, что flutter test не открывает окно WebView2
+// Uses the app's saved sign-in cookies if there are any.
+// JavaScript runs in Node only because flutter test does not open a WebView2 window
 @Tags(['live'])
 library;
 
@@ -17,13 +17,14 @@ import 'package:youtube_downloader/src/app/operation_result/operation_result.dar
 import 'package:youtube_downloader/src/app/repositories/repositories.dart';
 import 'package:youtube_downloader/src/app/services/services.dart';
 import 'package:youtube_downloader/src/app/session/session_store.dart';
+import 'package:youtube_downloader/src/app/tools/tools.dart';
 
 import '../../support/node_js_engine_service.dart';
 import '../../support/test_localization.dart';
 
 const _video = 'https://www.youtube.com/watch?v=kgA8JPY2lIA';
 
-/// «Загрузки» и папки приложения — во временной папке теста; cookies — настоящие
+/// Downloads and app folders are in the test temp folder; cookies are real
 class _TestFileSystemService extends FileSystemServiceImpl {
   final Directory root;
 
@@ -32,19 +33,13 @@ class _TestFileSystemService extends FileSystemServiceImpl {
   @override
   Future<String> localAppFolder(String name) async => p.join(root.path, name);
 
-  /// Настоящие cookies входа приложения (path_provider в тестах недоступен)
+  /// Real app sign-in cookies (path_provider is unavailable in tests)
   @override
   Future<String> supportFolder() async =>
       p.join(Platform.environment['APPDATA']!, 'com.ytdownload', 'youtube_downloader');
 
   @override
-  Future<String> moveToDownloads(String filePath, {String? title}) async {
-    final target = p.join(root.path, 'Downloads', p.basename(filePath));
-
-    await Directory(p.dirname(target)).create(recursive: true);
-
-    return (await File(filePath).rename(target)).path;
-  }
+  Future<String> defaultDownloadsFolder() async => p.join(root.path, 'Downloads');
 }
 
 Future<Map<String, dynamic>?> _ffprobe(String path) async {
@@ -119,13 +114,19 @@ void main() {
 
   test('только звук: обычный M4A', () async {
     final progress = <DownloadProgressModel>[];
-    final result = await repository.downloadVideo(url: _video, quality: 'audio', onProgress: progress.add);
+    final result = await repository.downloadVideo(
+      taskId: 'live-audio',
+      url: _video,
+      quality: 'audio',
+      onProgress: progress.add,
+    );
 
     expect(result.failure, isNull, reason: result.failure?.message);
-    expect(p.extension(result.requireData), '.m4a');
+    expect(p.extension(result.requireData.path), '.m4a');
+    expect(result.requireData.sizeBytes, await File(result.requireData.path).length());
     expect(progress.last.percent, 100);
 
-    final probe = await _ffprobe(result.requireData);
+    final probe = await _ffprobe(result.requireData.path);
 
     if (probe != null) {
       expect((probe['streams'] as List).map((stream) => stream['codec_type']), ['audio']);
@@ -136,22 +137,70 @@ void main() {
   test('144p: видео и звук скачаны параллельно и собраны в MP4 на Dart', () async {
     final stages = <DownloadStage>{};
     final result = await repository.downloadVideo(
+      taskId: 'live-144',
       url: _video,
       quality: '144',
       onProgress: (progress) => stages.add(progress.stage),
     );
 
     expect(result.failure, isNull, reason: result.failure?.message);
-    expect(p.extension(result.requireData), '.mp4');
+    expect(p.extension(result.requireData.path), '.mp4');
     expect(stages, {DownloadStage.downloading, DownloadStage.processing});
 
-    final probe = await _ffprobe(result.requireData);
+    final probe = await _ffprobe(result.requireData.path);
 
     if (probe != null) {
       final streams = probe['streams'] as List;
 
       expect(streams.map((stream) => '${stream['codec_type']}:${stream['codec_name']}'), ['video:h264', 'audio:aac']);
       expect(streams.first['height'], 144);
+      expect(double.parse(probe['format']['duration'] as String), closeTo(478, 3));
+    }
+  }, skip: enabled ? false : 'нужен YT_LIVE=1', timeout: const Timeout(Duration(minutes: 3)));
+
+  test('пауза и продолжение: докачивает с места остановки', () async {
+    const taskId = 'live-resume';
+    final cancellation = DownloadCancellation();
+    var streams = <DownloadStreamModel>[];
+    var pausedAt = 0;
+
+    final paused = await repository.downloadVideo(
+      taskId: taskId,
+      url: _video,
+      quality: '144',
+      cancellation: cancellation,
+      onStreamsSelected: (selected) => streams = selected,
+      onProgress: (progress) {
+        pausedAt = progress.downloadedBytes ?? 0;
+
+        if (pausedAt > 1024 * 1024) {
+          cancellation.cancel();
+        }
+      },
+    );
+
+    expect(paused.isFailed, isTrue);
+    expect(streams, hasLength(2));
+    expect(pausedAt, greaterThan(1024 * 1024));
+
+    final progress = <DownloadProgressModel>[];
+    final resumed = await repository.downloadVideo(
+      taskId: taskId,
+      url: _video,
+      quality: '144',
+      streams: streams,
+      onProgress: progress.add,
+    );
+
+    expect(resumed.failure, isNull, reason: resumed.failure?.message);
+
+    /// The first report already counts what was downloaded before the pause
+    expect(progress.first.downloadedBytes, greaterThan(1024 * 1024));
+    expect(progress.first.totalBytes, streams.fold<int>(0, (sum, stream) => sum + stream.contentLength));
+
+    final probe = await _ffprobe(resumed.requireData.path);
+
+    if (probe != null) {
       expect(double.parse(probe['format']['duration'] as String), closeTo(478, 3));
     }
   }, skip: enabled ? false : 'нужен YT_LIVE=1', timeout: const Timeout(Duration(minutes: 3)));

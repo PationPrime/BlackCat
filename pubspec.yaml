@@ -9,11 +9,15 @@ environment:
 dependencies:
   auto_route: ^11.1.0
   bloc: ^9.2.1
+  characters: ^1.4.1
   crypto: ^3.0.7
   desktop_webview_window: ^0.3.0
   dio: ^5.11.1
+  drift: 2.34.3
+  drift_flutter: 0.3.1
   easy_localization: ^3.0.8
   equatable: ^2.1.0
+  file_selector: ^1.1.0
   flutter:
     sdk: flutter
   flutter_bloc: ^9.1.1
@@ -22,6 +26,9 @@ dependencies:
   intl: ^0.20.2
   path: ^1.9.1
   path_provider: ^2.1.6
+  shared_preferences: ^2.5.5
+  tray_manager: ^0.5.3
+  window_manager: ^0.5.2
 
 dev_dependencies:
   flutter_test:
@@ -29,10 +36,12 @@ dev_dependencies:
   flutter_lints: ^6.0.0
   auto_route_generator: ^10.6.0
   build_runner: ^2.15.1
+  drift_dev: 2.34.5
 
 flutter:
   uses-material-design: true
   assets:
     - assets/lang/
+    - assets/tray/
     - assets/ejs/yt.solver.lib.min.js
     - assets/ejs/yt.solver.core.min.js

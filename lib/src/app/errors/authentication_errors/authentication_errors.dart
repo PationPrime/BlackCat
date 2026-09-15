@@ -19,7 +19,7 @@ final class AuthenticationErrorCodes extends ErrorCodes {
   });
 }
 
-/// Исключение входа в аккаунт YouTube
+/// YouTube account sign-in exception
 final class AuthenticationException implements Exception {
   final String code;
 
