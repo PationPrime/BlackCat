@@ -1,8 +1,8 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:flutter/widgets.dart';
 
 import '../../modules/modules.dart';
 import 'authorization_wrapper_router.dart';
+import 'home_stack.dart';
 import 'main_wrapper_router.dart';
 import 'navigator_key_provider.dart';
 
@@ -23,12 +23,23 @@ class AppRouter extends RootStackRouter {
           path: '',
           page: MainWrapperRouter.page,
           children: [
+            /// Pages of the navigation bar, in the order of its buttons
             AutoRoute(
-              path: RoutePaths.downloader,
-              page: DownloaderRoute.page,
-              initial: true,
+              path: '',
+              page: HomeStackRoute.page,
+              children: [
+                AutoRoute(
+                  path: RoutePaths.home,
+                  page: HomeRoute.page,
+                  initial: true,
+                ),
+                AutoRoute(
+                  path: RoutePaths.downloads,
+                  page: DownloadsRoute.page,
+                ),
+                AutoRoute(path: RoutePaths.settings, page: SettingsRoute.page),
+              ],
             ),
-            AutoRoute(path: RoutePaths.settings, page: SettingsRoute.page),
           ],
         ),
       ],

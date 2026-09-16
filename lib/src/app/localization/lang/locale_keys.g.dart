@@ -95,7 +95,6 @@ abstract class  LocaleKeys {
   static const app_downloader_dependencies = 'app.downloader.dependencies';
   static const app_downloader = 'app.downloader';
   static const app_settings_title = 'app.settings.title';
-  static const app_settings_back = 'app.settings.back';
   static const app_settings_download_directory_title = 'app.settings.download_directory.title';
   static const app_settings_download_directory_description = 'app.settings.download_directory.description';
   static const app_settings_download_directory_default_badge = 'app.settings.download_directory.default_badge';
@@ -127,6 +126,7 @@ abstract class  LocaleKeys {
   static const app_settings_cookies_picker_confirm = 'app.settings.cookies.picker_confirm';
   static const app_settings_cookies_success = 'app.settings.cookies.success';
   static const app_settings_cookies = 'app.settings.cookies';
+  static const app_settings_subtitle = 'app.settings.subtitle';
   static const app_settings = 'app.settings';
   static const app_errors_unknown = 'app.errors.unknown';
   static const app_errors_network_no_connection = 'app.errors.network.no_connection';
@@ -223,6 +223,24 @@ abstract class  LocaleKeys {
   static const app_dependencies_fallback_dialog_close = 'app.dependencies.fallback_dialog.close';
   static const app_dependencies_fallback_dialog = 'app.dependencies.fallback_dialog';
   static const app_dependencies = 'app.dependencies';
+  static const app_navigation_home = 'app.navigation.home';
+  static const app_navigation_downloads = 'app.navigation.downloads';
+  static const app_navigation_settings = 'app.navigation.settings';
+  static const app_navigation = 'app.navigation';
+  static const app_home_title = 'app.home.title';
+  static const app_home_subtitle = 'app.home.subtitle';
+  static const app_home_added = 'app.home.added';
+  static const app_home_open_downloads = 'app.home.open_downloads';
+  static const app_home_clear = 'app.home.clear';
+  static const app_home = 'app.home';
+  static const app_downloads_title = 'app.downloads.title';
+  static const app_downloads_subtitle = 'app.downloads.subtitle';
+  static const app_downloads_add_video = 'app.downloads.add_video';
+  static const app_downloads = 'app.downloads';
+  static const app_footer_idle = 'app.footer.idle';
+  static const app_footer_queued = 'app.footer.queued';
+  static const app_footer_open_downloads = 'app.footer.open_downloads';
+  static const app_footer = 'app.footer';
   static const app = 'app';
 
 }

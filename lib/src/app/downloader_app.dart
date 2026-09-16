@@ -93,6 +93,9 @@ class DownloaderApp extends StatelessWidget {
           create: (context) =>
               AppThemeController(initialThemeType: appThemeType),
         ),
+        BlocProvider<AppNavigationController>(
+          create: (context) => AppNavigationController(),
+        ),
         BlocProvider<DownloadQueueController>(
           lazy: false,
           create: (context) => DownloadQueueController(

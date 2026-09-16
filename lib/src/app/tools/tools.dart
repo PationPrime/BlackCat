@@ -3,6 +3,7 @@ export 'cookies_file_parser.dart';
 export 'dependency_assets.dart';
 export 'download_cancellation.dart';
 export 'download_part_files.dart';
+export 'download_task_text.dart';
 export 'netscape_cookies.dart';
 export 'quality_selector.dart';
 export 'sapisid_authorization.dart';

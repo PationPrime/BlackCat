@@ -7,34 +7,18 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:youtube_downloader/src/app/constants/constants.dart';
 import 'package:youtube_downloader/src/app/errors/errors.dart';
 import 'package:youtube_downloader/src/app/localization/lang/locale_keys.g.dart';
-import 'package:youtube_downloader/src/app/router/app_router.dart';
 import 'package:youtube_downloader/src/app/services/services.dart';
 import 'package:youtube_downloader/src/app/shared_controllers/shared_controllers.dart';
 import 'package:youtube_downloader/src/app/widgets/widgets.dart';
-import 'package:youtube_downloader/src/modules/downloader/controllers/controllers.dart';
+import 'package:youtube_downloader/src/modules/downloads/controllers/controllers.dart';
 
 import '../../components/components.dart';
 import '../../controllers/controllers.dart';
 
+/// Download folder, interface language and YouTube cookies
 @RoutePage()
 class SettingsScreen extends StatelessWidget implements AutoRouteWrapper {
-  /// Scrolls to the cookies card and highlights it
-  final bool highlightCookies;
-
-  const SettingsScreen({super.key, this.highlightCookies = false});
-
-  /// Opens the settings at the cookies import. `true`: a cookies.txt
-  /// was imported before the user came back
-  static Future<bool> openCookiesImport(BuildContext context) async {
-    final authorizationController = context.read<AuthorizationController>();
-    final previousSession = authorizationController.state.session;
-
-    await context.router.push(SettingsRoute(highlightCookies: true));
-
-    final session = authorizationController.state.session;
-
-    return session != null && session.isImported && session != previousSession;
-  }
+  const SettingsScreen({super.key});
 
   @override
   Widget wrappedRoute(BuildContext context) =>
@@ -46,20 +30,17 @@ class SettingsScreen extends StatelessWidget implements AutoRouteWrapper {
       );
 
   @override
-  Widget build(BuildContext context) =>
-      _SettingsView(highlightCookies: highlightCookies);
+  Widget build(BuildContext context) => const _SettingsView();
 }
 
 class _SettingsView extends StatefulWidget {
   static const _contentMaxWidth = 640.0;
   static const _wideLayoutBreakpoint = 640.0;
 
-  /// Gap between the window title bar and the screen header
+  /// Gap between the window title bar and the page header
   static const _minTopGap = 24.0;
 
-  final bool highlightCookies;
-
-  const _SettingsView({required this.highlightCookies});
+  const _SettingsView();
 
   @override
   State<_SettingsView> createState() => _SettingsViewState();
@@ -72,7 +53,8 @@ class _SettingsViewState extends State<_SettingsView> {
   void initState() {
     super.initState();
 
-    if (widget.highlightCookies) {
+    /// The page is built for the first time right for the cookies import
+    if (context.read<AppNavigationController>().state.cookiesImport != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) => _showCookiesCard());
     }
   }
@@ -80,7 +62,7 @@ class _SettingsViewState extends State<_SettingsView> {
   void _showCookiesCard() {
     final cardContext = _cookiesCardKey.currentContext;
 
-    if (cardContext == null || !cardContext.mounted) return;
+    if (!mounted || cardContext == null || !cardContext.mounted) return;
 
     Scrollable.ensureVisible(
       cardContext,
@@ -115,98 +97,128 @@ class _SettingsViewState extends State<_SettingsView> {
     final hasRunningTask = context.select(
       (DownloadQueueController controller) => controller.state.hasRunningTask,
     );
+    final cookiesImportRequested = context.select(
+      (AppNavigationController controller) =>
+          controller.state.cookiesImport != null,
+    );
 
-    return BlocBuilder<SettingsController, SettingsState>(
-      builder: (context, settingsState) => AppScaffold(
-        body: LayoutBuilder(
-          builder: (context, constraints) {
-            final verticalPadding =
-                constraints.maxWidth >= _SettingsView._wideLayoutBreakpoint
-                ? 64.0
-                : 40.0;
+    return MultiBlocListener(
+      listeners: [
+        /// Every new request scrolls to the cookies card again
+        BlocListener<AppNavigationController, AppNavigationState>(
+          listenWhen: (previous, current) =>
+              current.cookiesImport != null &&
+              current.cookiesImport != previous.cookiesImport,
+          listener: (context, _) => WidgetsBinding.instance
+              .addPostFrameCallback((_) => _showCookiesCard()),
+        ),
 
-            return SingleChildScrollView(
-              padding: EdgeInsets.fromLTRB(
-                16,
+        /// Imported cookies return the user to the page that asked for them
+        BlocListener<CookiesImportController, CookiesImportState>(
+          listenWhen: (previous, current) =>
+              current.isImported && !previous.isImported,
+          listener: (context, _) =>
+              context.read<AppNavigationController>().finishCookiesImport(),
+        ),
+      ],
+      child: BlocBuilder<SettingsController, SettingsState>(
+        builder: (context, settingsState) => AppScaffold(
+          body: LayoutBuilder(
+            builder: (context, constraints) {
+              final verticalPadding =
+                  constraints.maxWidth >= _SettingsView._wideLayoutBreakpoint
+                  ? 64.0
+                  : 40.0;
 
-                /// The app title bar lies over the top of the screen
-                math.max(
+              return SingleChildScrollView(
+                padding: EdgeInsets.fromLTRB(
+                  16,
+
+                  /// The app title bar lies over the top of the screen
+                  math.max(
+                    verticalPadding,
+                    MediaQuery.paddingOf(context).top +
+                        _SettingsView._minTopGap,
+                  ),
+                  16,
                   verticalPadding,
-                  MediaQuery.paddingOf(context).top + _SettingsView._minTopGap,
                 ),
-                16,
-                verticalPadding,
-              ),
-              child: Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(
-                    maxWidth: _SettingsView._contentMaxWidth,
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      SettingsHeader(
-                        onBackPressed: () => context.router.maybePop(),
-                      ),
-                      const SizedBox(height: 32),
-                      if (settingsState.failure case final failure?) ...[
-                        AppFailureBanner(message: failure.message),
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(
+                      maxWidth: _SettingsView._contentMaxWidth,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        AppPageHeader(
+                          title: LocaleKeys.app_settings_title.tr(),
+                          subtitle: LocaleKeys.app_settings_subtitle.tr(),
+                        ),
+                        const SizedBox(height: 32),
+                        if (settingsState.failure case final failure?) ...[
+                          AppFailureBanner(message: failure.message),
+                          const SizedBox(height: 16),
+                        ],
+                        DownloadDirectoryCard(
+                          downloadDirectory: settingsState.downloadDirectory,
+                          onChangePressed: context
+                              .read<SettingsController>()
+                              .pickDownloadDirectory,
+                          onResetPressed: context
+                              .read<SettingsController>()
+                              .resetDownloadDirectory,
+                          onOpenPressed: () =>
+                              switch (settingsState.downloadDirectory) {
+                                final directory? =>
+                                  context.read<FileSystemService>().openFolder(
+                                    directory.path,
+                                  ),
+                                null => null,
+                              },
+                        ),
                         const SizedBox(height: 16),
-                      ],
-                      DownloadDirectoryCard(
-                        downloadDirectory: settingsState.downloadDirectory,
-                        onChangePressed: context
-                            .read<SettingsController>()
-                            .pickDownloadDirectory,
-                        onResetPressed: context
-                            .read<SettingsController>()
-                            .resetDownloadDirectory,
-                        onOpenPressed: () =>
-                            switch (settingsState.downloadDirectory) {
-                              final directory? =>
-                                context.read<FileSystemService>().openFolder(
-                                  directory.path,
-                                ),
-                              null => null,
-                            },
-                      ),
-                      const SizedBox(height: 16),
-                      LanguageCard(
-                        selectedLanguage: settingsState.language,
-                        onLanguageSelected: context
-                            .read<SettingsController>()
-                            .changeLanguage,
-                      ),
-                      const SizedBox(height: 16),
-                      BlocBuilder<CookiesImportController, CookiesImportState>(
-                        builder: (context, cookiesImportState) {
-                          final cookiesImportController = context
-                              .read<CookiesImportController>();
+                        LanguageCard(
+                          selectedLanguage: settingsState.language,
+                          onLanguageSelected: context
+                              .read<SettingsController>()
+                              .changeLanguage,
+                        ),
+                        const SizedBox(height: 16),
+                        BlocBuilder<
+                          CookiesImportController,
+                          CookiesImportState
+                        >(
+                          builder: (context, cookiesImportState) {
+                            final cookiesImportController = context
+                                .read<CookiesImportController>();
 
-                          return CookiesCard(
-                            key: _cookiesCardKey,
-                            session: session,
-                            highlighted: widget.highlightCookies,
-                            isImporting: cookiesImportState.isImporting,
-                            isImported: cookiesImportState.isImported,
-                            failureMessage: cookiesImportState.failure?.message,
-                            removeEnabled: !hasRunningTask,
-                            onChoosePressed:
-                                cookiesImportController.importCookies,
-                            onRemovePressed:
-                                cookiesImportController.removeCookies,
-                            onGuidePressed: _openCookiesGuide,
-                            onDismissFailurePressed:
-                                cookiesImportController.dismissFailure,
-                          );
-                        },
-                      ),
-                    ],
+                            return CookiesCard(
+                              key: _cookiesCardKey,
+                              session: session,
+                              highlighted: cookiesImportRequested,
+                              isImporting: cookiesImportState.isImporting,
+                              isImported: cookiesImportState.isImported,
+                              failureMessage:
+                                  cookiesImportState.failure?.message,
+                              removeEnabled: !hasRunningTask,
+                              onChoosePressed:
+                                  cookiesImportController.importCookies,
+                              onRemovePressed:
+                                  cookiesImportController.removeCookies,
+                              onGuidePressed: _openCookiesGuide,
+                              onDismissFailurePressed:
+                                  cookiesImportController.dismissFailure,
+                            );
+                          },
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            );
-          },
+              );
+            },
+          ),
         ),
       ),
     );

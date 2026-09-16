@@ -69,7 +69,7 @@
         "finished": "Downloaded"
       },
       "empty": {
-        "active": "No active download. Add a video and it will start downloading right away.",
+        "active": "No active download. Add a video on the Home page and it will start downloading right away.",
         "queue": "The queue is empty. Videos added during a download will line up here.",
         "finished": "Downloaded videos will appear here."
       },
@@ -109,7 +109,6 @@
     },
     "settings": {
       "title": "Settings",
-      "back": "Back",
       "download_directory": {
         "title": "Download folder",
         "description": "Finished videos are saved here. A new folder applies to the next downloads; partial files are kept in the app folder until the download finishes.",
@@ -143,7 +142,8 @@
         "picker_label": "Text files",
         "picker_confirm": "Import",
         "success": "Cookies imported: signed in to YouTube."
-      }
+      },
+      "subtitle": "Download folder, interface language and YouTube cookies."
     },
     "errors": {
       "unknown": "Something went wrong: {error}",
@@ -170,7 +170,7 @@
         "web_view_runtime": "Downloading requires Microsoft Edge WebView2 Runtime.",
         "js_engine": "The built-in JavaScript engine (WebView2) returned an error: {error}",
         "destination_unavailable": "Could not save the file to “{path}”: {error}",
-        "ytdlp_not_found": "yt-dlp or a JavaScript runtime (Deno, Node.js 22+) wasn't found. Install them from the Add video dialog.",
+        "ytdlp_not_found": "yt-dlp or a JavaScript runtime (Deno, Node.js 22+) wasn't found. Install them on the Home page.",
         "ytdlp_failed": "yt-dlp failed: {error}",
         "bot_check": "YouTube asks to confirm you're not a bot. Sign in to YouTube or import cookies.txt.",
         "age_restricted": "Age-restricted video: signing in to YouTube is required.",
@@ -250,6 +250,28 @@
         "import_cookies": "Import cookies.txt",
         "close": "Close"
       }
+    },
+    "navigation": {
+      "home": "Home",
+      "downloads": "Downloads",
+      "settings": "Settings"
+    },
+    "home": {
+      "title": "Home",
+      "subtitle": "Paste a YouTube video link and press Enter, then choose the quality.",
+      "added": "“{title}” was added to downloads.",
+      "open_downloads": "Open downloads",
+      "clear": "Clear"
+    },
+    "downloads": {
+      "title": "Downloads",
+      "subtitle": "Active download, queue and downloaded videos.",
+      "add_video": "Add video"
+    },
+    "footer": {
+      "idle": "No active downloads",
+      "queued": "Queued: {count}",
+      "open_downloads": "Open downloads"
     }
   }
 }

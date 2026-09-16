@@ -12,7 +12,7 @@ inline constexpr wchar_t kSingleInstanceMutexName[] =
     L"YTDownloadSingleInstanceMutex";
 
 // Initial window size in logical pixels. The minimum size is set from Dart
-inline constexpr unsigned int kDefaultWindowWidth = 760;
+inline constexpr unsigned int kDefaultWindowWidth = 1040;
 inline constexpr unsigned int kDefaultWindowHeight = 820;
 
 #endif  // RUNNER_WINDOW_CONSTANTS_H_

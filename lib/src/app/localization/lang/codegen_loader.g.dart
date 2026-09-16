@@ -85,7 +85,7 @@ class CodegenLoader extends AssetLoader{
         "finished": "Downloaded"
       },
       "empty": {
-        "active": "No active download. Add a video and it will start downloading right away.",
+        "active": "No active download. Add a video on the Home page and it will start downloading right away.",
         "queue": "The queue is empty. Videos added during a download will line up here.",
         "finished": "Downloaded videos will appear here."
       },
@@ -125,7 +125,6 @@ class CodegenLoader extends AssetLoader{
     },
     "settings": {
       "title": "Settings",
-      "back": "Back",
       "download_directory": {
         "title": "Download folder",
         "description": "Finished videos are saved here. A new folder applies to the next downloads; partial files are kept in the app folder until the download finishes.",
@@ -159,7 +158,8 @@ class CodegenLoader extends AssetLoader{
         "picker_label": "Text files",
         "picker_confirm": "Import",
         "success": "Cookies imported: signed in to YouTube."
-      }
+      },
+      "subtitle": "Download folder, interface language and YouTube cookies."
     },
     "errors": {
       "unknown": "Something went wrong: {error}",
@@ -186,7 +186,7 @@ class CodegenLoader extends AssetLoader{
         "web_view_runtime": "Downloading requires Microsoft Edge WebView2 Runtime.",
         "js_engine": "The built-in JavaScript engine (WebView2) returned an error: {error}",
         "destination_unavailable": "Could not save the file to “{path}”: {error}",
-        "ytdlp_not_found": "yt-dlp or a JavaScript runtime (Deno, Node.js 22+) wasn't found. Install them from the Add video dialog.",
+        "ytdlp_not_found": "yt-dlp or a JavaScript runtime (Deno, Node.js 22+) wasn't found. Install them on the Home page.",
         "ytdlp_failed": "yt-dlp failed: {error}",
         "bot_check": "YouTube asks to confirm you're not a bot. Sign in to YouTube or import cookies.txt.",
         "age_restricted": "Age-restricted video: signing in to YouTube is required.",
@@ -266,6 +266,28 @@ class CodegenLoader extends AssetLoader{
         "import_cookies": "Import cookies.txt",
         "close": "Close"
       }
+    },
+    "navigation": {
+      "home": "Home",
+      "downloads": "Downloads",
+      "settings": "Settings"
+    },
+    "home": {
+      "title": "Home",
+      "subtitle": "Paste a YouTube video link and press Enter, then choose the quality.",
+      "added": "“{title}” was added to downloads.",
+      "open_downloads": "Open downloads",
+      "clear": "Clear"
+    },
+    "downloads": {
+      "title": "Downloads",
+      "subtitle": "Active download, queue and downloaded videos.",
+      "add_video": "Add video"
+    },
+    "footer": {
+      "idle": "No active downloads",
+      "queued": "Queued: {count}",
+      "open_downloads": "Open downloads"
     }
   }
 };
@@ -340,7 +362,7 @@ static const Map<String,dynamic> _ru_RU = {
         "finished": "Скачанные"
       },
       "empty": {
-        "active": "Нет активной загрузки. Добавьте видео — оно сразу начнёт скачиваться.",
+        "active": "Нет активной загрузки. Добавьте видео на главной — оно сразу начнёт скачиваться.",
         "queue": "Очередь пуста. Видео, добавленные во время загрузки, встанут сюда.",
         "finished": "Здесь появятся скачанные видео."
       },
@@ -380,7 +402,6 @@ static const Map<String,dynamic> _ru_RU = {
     },
     "settings": {
       "title": "Настройки",
-      "back": "Назад",
       "download_directory": {
         "title": "Папка для загрузок",
         "description": "Сюда сохраняются готовые видео. Новая папка применится к следующим загрузкам; недокачанные файлы до конца загрузки хранятся в папке приложения.",
@@ -414,7 +435,8 @@ static const Map<String,dynamic> _ru_RU = {
         "picker_label": "Текстовые файлы",
         "picker_confirm": "Импортировать",
         "success": "Cookies импортированы: вход в YouTube выполнен."
-      }
+      },
+      "subtitle": "Папка для загрузок, язык интерфейса и cookies YouTube."
     },
     "errors": {
       "unknown": "Что-то пошло не так: {error}",
@@ -441,7 +463,7 @@ static const Map<String,dynamic> _ru_RU = {
         "web_view_runtime": "Для скачивания нужен Microsoft Edge WebView2 Runtime.",
         "js_engine": "Встроенный JavaScript-движок (WebView2) вернул ошибку: {error}",
         "destination_unavailable": "Не удалось сохранить файл в папку «{path}»: {error}",
-        "ytdlp_not_found": "Не найден yt-dlp или среда JavaScript (Deno, Node.js 22+). Установите их из окна «Добавить видео».",
+        "ytdlp_not_found": "Не найден yt-dlp или среда JavaScript (Deno, Node.js 22+). Установите их на главной странице.",
         "ytdlp_failed": "yt-dlp завершился с ошибкой: {error}",
         "bot_check": "YouTube просит подтвердить, что вы не бот. Войдите в аккаунт YouTube или импортируйте cookies.txt.",
         "age_restricted": "Видео с возрастным ограничением: нужен вход в аккаунт YouTube.",
@@ -521,6 +543,28 @@ static const Map<String,dynamic> _ru_RU = {
         "import_cookies": "Импортировать cookies.txt",
         "close": "Закрыть"
       }
+    },
+    "navigation": {
+      "home": "Главная",
+      "downloads": "Загрузки",
+      "settings": "Настройки"
+    },
+    "home": {
+      "title": "Главная",
+      "subtitle": "Вставьте ссылку на видео YouTube и нажмите Enter, затем выберите качество.",
+      "added": "«{title}» добавлено в загрузки.",
+      "open_downloads": "Открыть загрузки",
+      "clear": "Очистить"
+    },
+    "downloads": {
+      "title": "Загрузки",
+      "subtitle": "Активная загрузка, очередь и скачанные видео.",
+      "add_video": "Добавить видео"
+    },
+    "footer": {
+      "idle": "Нет активных загрузок",
+      "queued": "В очереди: {count}",
+      "open_downloads": "Открыть загрузки"
     }
   }
 };

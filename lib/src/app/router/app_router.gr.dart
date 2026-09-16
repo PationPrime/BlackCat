@@ -27,17 +27,49 @@ class AuthorizationWrapperRouter extends PageRouteInfo<void> {
 }
 
 /// generated route for
-/// [DownloaderScreen]
-class DownloaderRoute extends PageRouteInfo<void> {
-  const DownloaderRoute({List<PageRouteInfo>? children})
-    : super(DownloaderRoute.name, initialChildren: children);
+/// [DownloadsScreen]
+class DownloadsRoute extends PageRouteInfo<void> {
+  const DownloadsRoute({List<PageRouteInfo>? children})
+    : super(DownloadsRoute.name, initialChildren: children);
 
-  static const String name = 'DownloaderRoute';
+  static const String name = 'DownloadsRoute';
 
   static PageInfo page = PageInfo(
     name,
     builder: (data) {
-      return const DownloaderScreen();
+      return const DownloadsScreen();
+    },
+  );
+}
+
+/// generated route for
+/// [HomeScreen]
+class HomeRoute extends PageRouteInfo<void> {
+  const HomeRoute({List<PageRouteInfo>? children})
+    : super(HomeRoute.name, initialChildren: children);
+
+  static const String name = 'HomeRoute';
+
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      return WrappedRoute(child: const HomeScreen());
+    },
+  );
+}
+
+/// generated route for
+/// [HomeStackScreen]
+class HomeStackRoute extends PageRouteInfo<void> {
+  const HomeStackRoute({List<PageRouteInfo>? children})
+    : super(HomeStackRoute.name, initialChildren: children);
+
+  static const String name = 'HomeStackRoute';
+
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      return const HomeStackScreen();
     },
   );
 }
@@ -60,54 +92,16 @@ class MainWrapperRouter extends PageRouteInfo<void> {
 
 /// generated route for
 /// [SettingsScreen]
-class SettingsRoute extends PageRouteInfo<SettingsRouteArgs> {
-  SettingsRoute({
-    Key? key,
-    bool highlightCookies = false,
-    List<PageRouteInfo>? children,
-  }) : super(
-         SettingsRoute.name,
-         args: SettingsRouteArgs(key: key, highlightCookies: highlightCookies),
-         initialChildren: children,
-       );
+class SettingsRoute extends PageRouteInfo<void> {
+  const SettingsRoute({List<PageRouteInfo>? children})
+    : super(SettingsRoute.name, initialChildren: children);
 
   static const String name = 'SettingsRoute';
 
   static PageInfo page = PageInfo(
     name,
     builder: (data) {
-      final args = data.argsAs<SettingsRouteArgs>(
-        orElse: () => const SettingsRouteArgs(),
-      );
-      return WrappedRoute(
-        child: SettingsScreen(
-          key: args.key,
-          highlightCookies: args.highlightCookies,
-        ),
-      );
+      return WrappedRoute(child: const SettingsScreen());
     },
   );
-}
-
-class SettingsRouteArgs {
-  const SettingsRouteArgs({this.key, this.highlightCookies = false});
-
-  final Key? key;
-
-  final bool highlightCookies;
-
-  @override
-  String toString() {
-    return 'SettingsRouteArgs{key: $key, highlightCookies: $highlightCookies}';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    if (identical(this, other)) return true;
-    if (other is! SettingsRouteArgs) return false;
-    return key == other.key && highlightCookies == other.highlightCookies;
-  }
-
-  @override
-  int get hashCode => key.hashCode ^ highlightCookies.hashCode;
 }

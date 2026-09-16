@@ -9,6 +9,7 @@ class AppTextField extends StatelessWidget {
   final String? hintText;
   final bool autofocus;
   final TextInputType? keyboardType;
+  final TextInputAction? textInputAction;
   final ValueChanged<String>? onSubmitted;
   final double height;
 
@@ -19,6 +20,7 @@ class AppTextField extends StatelessWidget {
     this.hintText,
     this.autofocus = false,
     this.keyboardType,
+    this.textInputAction,
     this.onSubmitted,
     this.height = 50,
   });
@@ -38,6 +40,7 @@ class AppTextField extends StatelessWidget {
       focusNode: focusNode,
       autofocus: autofocus,
       keyboardType: keyboardType,
+      textInputAction: textInputAction,
       onSubmitted: onSubmitted,
       cursorColor: context.color.textPrimary,
       style: context.text.bodyRegular,
