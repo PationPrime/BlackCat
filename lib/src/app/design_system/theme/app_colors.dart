@@ -33,15 +33,13 @@ abstract base class AppColors {
   static const stone1C1917Alpha70 = Color(0xB31C1917);
   static const stone0C0A09 = Color(0xFF0C0A09);
 
-  // amber: brand accent
-  static const amberF59E0B = Color(0xFFF59E0B);
-  static const amberF59E0BAlpha10 = Color(0x1AF59E0B);
-  static const amberF59E0BAlpha12 = Color(0x1FF59E0B);
-  static const amberF59E0BAlpha16 = Color(0x29F59E0B);
-  static const amberF59E0BAlpha35 = Color(0x59F59E0B);
-  static const amberD97706 = Color(0xFFD97706);
-  static const amberD97706Alpha10 = Color(0x1AD97706);
-  static const amberB45309 = Color(0xFFB45309);
+  // green: brand accent
+  static const green80EF80 = Color(0xFF80EF80);
+  static const green80EF80Alpha10 = Color(0x1A80EF80);
+  static const green80EF80Alpha12 = Color(0x1F80EF80);
+  static const green80EF80Alpha16 = Color(0x2980EF80);
+  static const green80EF80Alpha35 = Color(0x5980EF80);
+  static const green66D966 = Color(0xFF66D966);
 
   // red: errors
   static const redFEE2E2 = Color(0xFFFEE2E2);

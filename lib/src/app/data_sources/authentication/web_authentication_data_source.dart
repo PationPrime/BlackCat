@@ -1,3 +1,5 @@
+import 'dart:io' as io;
+
 import 'package:desktop_webview_window/desktop_webview_window.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_web_auth_2/flutter_web_auth_2.dart';
@@ -12,7 +14,7 @@ abstract interface class WebAuthenticationDataSource {
   /// Profile cookies after sign-in. `null` if the user closed the window
   Future<List<BrowserCookieModel>?> signIn();
 
-  /// Opens the sign-in window profile in a hidden window just to read cookies
+  /// Opens the sign-in window profile in a tiny off-screen window to read cookies
   Future<List<BrowserCookieModel>> readProfileCookies();
 }
 
@@ -65,7 +67,11 @@ final class WebAuthenticationDataSourceImpl
     );
 
     try {
-      await webview.setWebviewWindowVisibility(false);
+      // The plugin implements this platform-channel method only on Windows.
+      // Calling it from macOS would raise MissingPluginException.
+      if (io.Platform.isWindows) {
+        await webview.setWebviewWindowVisibility(false);
+      }
 
       return await SignInWebViewPlatform.readCookies(webview);
     } finally {
