@@ -143,6 +143,9 @@ class _HomeViewState extends State<_HomeView> {
     final hasActiveTask = context.select(
       (DownloadQueueController controller) => controller.state.hasActiveTask,
     );
+    final hasRunningTask = context.select(
+      (DownloadQueueController controller) => controller.state.hasRunningTask,
+    );
     final dependenciesStatus = context.select(
       (DependenciesController controller) => controller.state.status,
     );
@@ -180,7 +183,10 @@ class _HomeViewState extends State<_HomeView> {
                                 _HomeView._minTopGap,
                           ),
                           16,
-                          verticalPadding,
+
+                          /// The download footer lies over the bottom
+                          verticalPadding +
+                              MediaQuery.paddingOf(context).bottom,
                         ),
                         child: Center(
                           child: ConstrainedBox(
@@ -193,6 +199,16 @@ class _HomeViewState extends State<_HomeView> {
                                 AppPageHeader(
                                   title: LocaleKeys.app_home_title.tr(),
                                   subtitle: LocaleKeys.app_home_subtitle.tr(),
+                                  trailing: AccountStatus(
+                                    authorizationState: authorizationState,
+                                    signOutEnabled: !hasRunningTask,
+                                    onSignInPressed: context
+                                        .read<AuthorizationController>()
+                                        .signIn,
+                                    onSignOutPressed: context
+                                        .read<AuthorizationController>()
+                                        .signOut,
+                                  ),
                                 ),
                                 const SizedBox(height: 32),
                                 UrlSearchForm(

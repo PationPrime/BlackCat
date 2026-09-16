@@ -5,11 +5,9 @@ import 'package:youtube_downloader/src/app/localization/lang/locale_keys.g.dart'
 import 'package:youtube_downloader/src/app/models/models.dart';
 import 'package:youtube_downloader/src/app/widgets/widgets.dart';
 
-import '../download_task_failure/download_task_failure.dart';
 import '../download_task_preview/download_task_preview.dart';
 
-/// Queued video: drag handle, "Download now" and removal.
-/// A failed download shows its reason with a retry
+/// Queued video: drag handle, "Download now" and removal
 class QueuedDownloadTile extends StatelessWidget {
   final DownloadTaskModel task;
 
@@ -17,13 +15,6 @@ class QueuedDownloadTile extends StatelessWidget {
   final int index;
   final VoidCallback? onStartPressed;
   final VoidCallback? onRemovePressed;
-  final VoidCallback? onRetryPressed;
-
-  /// The sign-in and cookies import buttons are shown if signing in
-  /// to YouTube will most likely help
-  final String? signInTitle;
-  final VoidCallback? onSignInPressed;
-  final VoidCallback? onImportCookiesPressed;
 
   const QueuedDownloadTile({
     super.key,
@@ -31,10 +22,6 @@ class QueuedDownloadTile extends StatelessWidget {
     required this.index,
     this.onStartPressed,
     this.onRemovePressed,
-    this.onRetryPressed,
-    this.signInTitle,
-    this.onSignInPressed,
-    this.onImportCookiesPressed,
   });
 
   String get _status {
@@ -57,9 +44,6 @@ class QueuedDownloadTile extends StatelessWidget {
   Widget build(BuildContext context) => AppBorderedBox(
     padding: const EdgeInsets.fromLTRB(4, 12, 12, 12),
     child: Row(
-      crossAxisAlignment: task.status.isFailed
-          ? CrossAxisAlignment.start
-          : CrossAxisAlignment.center,
       children: [
         ReorderableDragStartListener(
           index: index,
@@ -69,7 +53,10 @@ class QueuedDownloadTile extends StatelessWidget {
             child: MouseRegion(
               cursor: SystemMouseCursors.grab,
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 16),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 6,
+                  vertical: 16,
+                ),
                 child: Icon(
                   Icons.drag_indicator_rounded,
                   size: 20,
@@ -82,20 +69,12 @@ class QueuedDownloadTile extends StatelessWidget {
         Expanded(
           child: DownloadTaskPreview(
             task: task,
-            subtitle: task.status.isFailed
-                ? DownloadTaskFailure(
-                    task: task,
-                    onRetryPressed: onRetryPressed,
-                    signInTitle: signInTitle,
-                    onSignInPressed: onSignInPressed,
-                    onImportCookiesPressed: onImportCookiesPressed,
-                  )
-                : Text(
-                    _status,
-                    style: context.text.captionRegular.copyWith(
-                      color: context.color.textSecondary,
-                    ),
-                  ),
+            subtitle: Text(
+              _status,
+              style: context.text.captionRegular.copyWith(
+                color: context.color.textSecondary,
+              ),
+            ),
           ),
         ),
         const SizedBox(width: 8),

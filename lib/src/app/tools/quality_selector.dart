@@ -11,6 +11,11 @@ abstract final class QualitySelector {
   static final _aacPattern = RegExp(r'^mp4a', caseSensitive: false);
   static final _resolutionIdPattern = RegExp(r'^[1-9]\d{1,3}$');
 
+  /// yt-dlp format id: the YouTube itag, `-drc` for compressed audio or
+  /// `-sr` for AI-upscaled video, and `-0`, `-1`… for the audio tracks
+  /// of a dubbed video
+  static final _rawFormatIdPattern = RegExp(r'^(\d+)(?:-(drc|sr))?(?:-\d+)?$');
+
   /// Turns a list of yt-dlp formats into a short list for the screen:
   /// one option per resolution (best to worst) and audio separately.
   /// Without muxing ([canMerge] = `false`) only formats with audio are available
@@ -22,9 +27,10 @@ abstract final class QualitySelector {
     final bestByResolution = <int, RawFormat>{};
 
     for (final format in formats) {
-      if (!_hasVideo(format) ||
-          _num(format['height']) == null ||
-          (!canMerge && !_hasAudio(format))) {
+      /// A video stream without an audio one to mux it with is useless
+      final playable = _hasAudio(format) || (canMerge && audio != null);
+
+      if (!_hasVideo(format) || _num(format['height']) == null || !playable) {
         continue;
       }
 
@@ -150,11 +156,22 @@ abstract final class QualitySelector {
 
   /// yt-dlp formats the app downloads and muxes itself, as with its own
   /// downloader: separate MP4 video and M4A audio over plain HTTPS with an
-  /// exact size and a numeric itag
+  /// exact size and a YouTube itag
   static List<RawFormat> muxableRawFormats(List<RawFormat> formats) => [
     for (final format in formats)
       if (_isMuxableRaw(format)) format,
   ];
+
+  /// YouTube itag of a yt-dlp format: `140` for both `140` and `140-1`.
+  /// Tracks with the same itag differ in size. `null` for other formats
+  static int? itagOf(RawFormat format) => int.tryParse(
+    _rawFormatIdPattern.firstMatch('${format['format_id']}')?.group(1) ?? '',
+  );
+
+  /// Compressed audio or upscaled video: the original is preferred
+  static bool _isVariant(RawFormat format) =>
+      _rawFormatIdPattern.firstMatch('${format['format_id']}')?.group(2) !=
+      null;
 
   static bool _isMuxableRaw(RawFormat format) {
     final isVideoOnly = _hasVideo(format) && !_hasAudio(format);
@@ -162,7 +179,7 @@ abstract final class QualitySelector {
 
     return format['protocol'] == 'https' &&
         format['filesize'] is int &&
-        int.tryParse('${format['format_id']}') != null &&
+        itagOf(format) != null &&
         ((isVideoOnly && format['ext'] == 'mp4') ||
             (isAudioOnly && format['ext'] == 'm4a'));
   }
@@ -178,23 +195,7 @@ abstract final class QualitySelector {
         muxable
             .where((format) => _hasAudio(format) && !_hasVideo(format))
             .toList()
-          ..sort((left, right) {
-            /// The original track of a dubbed video, then AAC, then bitrate
-            final byLanguage = (_num(right['language_preference']) ?? 0)
-                .compareTo(_num(left['language_preference']) ?? 0);
-
-            if (byLanguage != 0) return byLanguage;
-
-            final byCodec =
-                (_aacPattern.hasMatch(right['acodec'] as String? ?? '') ? 1 : 0) -
-                (_aacPattern.hasMatch(left['acodec'] as String? ?? '') ? 1 : 0);
-
-            if (byCodec != 0) return byCodec;
-
-            return (_num(right['abr']) ?? _num(right['tbr']) ?? 0).compareTo(
-              _num(left['abr']) ?? _num(left['tbr']) ?? 0,
-            );
-          });
+          ..sort(_compareRawAudio);
 
     if (audio.isEmpty) {
       throw ArgumentError('no M4A audio format');
@@ -262,6 +263,31 @@ abstract final class QualitySelector {
 
   static bool _isH264Codec(String? codec) => _h264Pattern.hasMatch(codec ?? '');
 
+  static bool _isAac(RawFormat format) =>
+      _aacPattern.hasMatch(format['acodec'] as String? ?? '');
+
+  /// Best first: the original track of a dubbed video, uncompressed range,
+  /// AAC, then bitrate
+  static int _compareRawAudio(RawFormat left, RawFormat right) {
+    final byLanguage = (_num(right['language_preference']) ?? 0).compareTo(
+      _num(left['language_preference']) ?? 0,
+    );
+
+    if (byLanguage != 0) return byLanguage;
+
+    final byVariant = (_isVariant(left) ? 1 : 0) - (_isVariant(right) ? 1 : 0);
+
+    if (byVariant != 0) return byVariant;
+
+    final byCodec = (_isAac(right) ? 1 : 0) - (_isAac(left) ? 1 : 0);
+
+    if (byCodec != 0) return byCodec;
+
+    return (_num(right['abr']) ?? _num(right['tbr']) ?? 0).compareTo(
+      _num(left['abr']) ?? _num(left['tbr']) ?? 0,
+    );
+  }
+
   static num _fps(RawFormat format) => _num(format['fps']) ?? 0;
 
   static int? _sizeOf(RawFormat format) =>
@@ -272,11 +298,18 @@ abstract final class QualitySelector {
     final height = _num(format['height'])!;
     final width = _num(format['width']);
 
-    return math.min(width == null || width == 0 ? height : width, height).round();
+    return math
+        .min(width == null || width == 0 ? height : width, height)
+        .round();
   }
 
-  /// Higher fps, then H.264 instead of VP9/AV1, then bitrate
+  /// The original instead of an upscaled one, higher fps, then H.264
+  /// instead of VP9/AV1, then bitrate
   static bool _isBetterCandidate(RawFormat candidate, RawFormat current) {
+    if (_isVariant(candidate) != _isVariant(current)) {
+      return !_isVariant(candidate);
+    }
+
     if (_fps(candidate) != _fps(current)) {
       return _fps(candidate) > _fps(current);
     }
@@ -291,20 +324,13 @@ abstract final class QualitySelector {
     return (_num(candidate['tbr']) ?? 0) > (_num(current['tbr']) ?? 0);
   }
 
+  /// The same track [selectRawStreams] downloads: its size is shown
   static RawFormat? _pickRawAudio(List<RawFormat> formats) {
     final audio =
         formats
             .where((format) => _hasAudio(format) && !_hasVideo(format))
             .toList()
-          ..sort((left, right) {
-            final byCodec =
-                (_aacPattern.hasMatch(right['acodec'] as String? ?? '') ? 1 : 0) -
-                (_aacPattern.hasMatch(left['acodec'] as String? ?? '') ? 1 : 0);
-
-            return byCodec != 0
-                ? byCodec
-                : (_num(right['abr']) ?? 0).compareTo(_num(left['abr']) ?? 0);
-          });
+          ..sort(_compareRawAudio);
 
     return audio.firstOrNull;
   }

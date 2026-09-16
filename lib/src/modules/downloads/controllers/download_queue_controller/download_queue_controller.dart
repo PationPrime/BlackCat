@@ -3,6 +3,7 @@ import 'dart:math' as math;
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:youtube_downloader/src/app/constants/constants.dart';
 import 'package:youtube_downloader/src/app/errors/errors.dart';
 import 'package:youtube_downloader/src/app/failure/failure.dart';
 import 'package:youtube_downloader/src/app/logger/app_logger.dart';
@@ -29,6 +30,11 @@ class DownloadQueueController extends Cubit<DownloadQueueState> {
   /// the exact bytes are taken from the length of the unfinished files anyway
   static const _progressSaveInterval = Duration(seconds: 2);
 
+  /// A progress report without a speed keeps the last one this long:
+  /// a new chunk of a stream starts without a speed, and the speed line
+  /// would blink otherwise
+  static const _speedHoldTime = Duration(seconds: 5);
+
   final DownloadQueueRepositoryInterface _downloadQueueRepository;
   final VideoRepositoryInterface _videoRepository;
   final YtDlpVideoRepositoryInterface _ytDlpVideoRepository;
@@ -45,6 +51,9 @@ class DownloadQueueController extends Cubit<DownloadQueueState> {
 
   var _lastProgressSave = DateTime.fromMillisecondsSinceEpoch(0);
 
+  /// Progress of the active download is shown no more often
+  final Duration _progressUpdateInterval;
+
   late final StreamSubscription<AuthorizationState> _authorizationSubscription;
   AccountSessionModel? _session;
 
@@ -54,6 +63,7 @@ class DownloadQueueController extends Cubit<DownloadQueueState> {
     required this._ytDlpVideoRepository,
     required this._settingsRepository,
     required this._authorizationController,
+    this._progressUpdateInterval = DownloadConstants.progressUpdateInterval,
   }) : super(const DownloadQueueInitialState()) {
     _session = _authorizationController.state.session;
     _authorizationSubscription = _authorizationController.stream.listen(
@@ -73,7 +83,7 @@ class DownloadQueueController extends Cubit<DownloadQueueState> {
     /// completes inside fake async zones of widget tests
     unawaited(_authorizationSubscription.cancel());
 
-    _run?.cancellation.cancel();
+    _run?.stop();
     _run = null;
 
     await super.close();
@@ -103,13 +113,15 @@ class DownloadQueueController extends Cubit<DownloadQueueState> {
       queue: [
         /// Extra active downloads go to the start of the queue
         for (final task in activeTasks.skip(1)) _pausedTask(task),
-
-        /// Failed downloads of older versions lay among the finished ones:
-        /// they belong to the queue, where they can be retried
-        for (final task in tasks)
-          if (task.section.isFinished && !task.status.isDone) task,
         for (final task in tasks.where((task) => task.section.isQueue))
-          task.isRunning ? _pausedTask(task) : task,
+          if (!task.status.isFailed) task.isRunning ? _pausedTask(task) : task,
+      ],
+
+      /// Older versions kept failed downloads in the queue or among
+      /// the finished ones
+      failed: [
+        for (final task in tasks)
+          if (task.status.isFailed && !task.section.isActive) task,
       ],
       finished: [
         for (final task in tasks)
@@ -129,37 +141,55 @@ class DownloadQueueController extends Cubit<DownloadQueueState> {
 
   /// Adds a video: straight to the active download if the slot is free,
   /// otherwise to the end of the queue. [engine] downloads it; the built-in
-  /// downloader takes over if yt-dlp disappears
+  /// downloader takes over if yt-dlp disappears.
+  ///
+  /// A video added again after its download failed is not a second copy:
+  /// the failed download returns to the queue and continues from its bytes.
+  /// A video added while its first copy is still waiting, downloading or
+  /// downloaded is a deliberate second copy
   Future<void> addTask({
     required VideoInfoModel video,
     required QualityModel quality,
     DownloadEngineModel engine = DownloadEngineModel.fallback,
   }) => _serialized(() async {
     final now = DateTime.now();
-
-    final task = DownloadTaskModel(
-      id: _newTaskId(now),
-      video: VideoInfoModel(
-        id: video.id,
-        title: video.title,
-        url: video.url,
-        qualities: const [],
-        channel: video.channel,
-        duration: video.duration,
-        thumbnail: video.thumbnail,
-        viewCount: video.viewCount,
-      ),
-      quality: quality,
-      engine: engine,
-      status: DownloadTaskStatus.queued,
-      section: DownloadTaskSection.queue,
-      createdAt: now,
-      updatedAt: now,
+    final storedVideo = VideoInfoModel(
+      id: video.id,
+      title: video.title,
+      url: video.url,
+      qualities: const [],
+      channel: video.channel,
+      duration: video.duration,
+      thumbnail: video.thumbnail,
+      viewCount: video.viewCount,
     );
+    final failedCopy = state.failed
+        .where(
+          (task) => task.video.id == video.id && task.quality.id == quality.id,
+        )
+        .firstOrNull;
+
+    final task = switch (failedCopy) {
+      final failedCopy? => _retriedTask(
+        failedCopy,
+        now,
+      ).copyWith(video: storedVideo, quality: quality, engine: engine),
+      null => DownloadTaskModel(
+        id: _newTaskId(now),
+        video: storedVideo,
+        quality: quality,
+        engine: engine,
+        status: DownloadTaskStatus.queued,
+        section: DownloadTaskSection.queue,
+        createdAt: now,
+        updatedAt: now,
+      ),
+    };
 
     _emitTasks(
       activeTask: state.activeTask,
       queue: [...state.queue, task],
+      failed: _failedWithout(task.id),
       finished: state.finished,
     );
 
@@ -167,10 +197,10 @@ class DownloadQueueController extends Cubit<DownloadQueueState> {
     await _promoteNext();
   });
 
-  /// Starts a queued video now. The active download is paused at the start
-  /// of the queue and later continues from the same place
+  /// Starts a queued or failed video now. The active download is paused
+  /// at the start of the queue and later continues from the same place
   Future<void> startTask(String taskId) => _serialized(() async {
-    final task = _queuedTask(taskId);
+    final task = _waitingTask(taskId);
     final activeTask = state.activeTask;
 
     if (task == null) return;
@@ -179,6 +209,7 @@ class DownloadQueueController extends Cubit<DownloadQueueState> {
       _emitTasks(
         activeTask: task,
         queue: _queueWithout(taskId),
+        failed: _failedWithout(taskId),
         finished: state.finished,
       );
 
@@ -193,6 +224,7 @@ class DownloadQueueController extends Cubit<DownloadQueueState> {
       _emitTasks(
         activeTask: activeTask,
         queue: [task, ..._queueWithout(taskId)],
+        failed: _failedWithout(taskId),
         finished: state.finished,
       );
 
@@ -204,15 +236,17 @@ class DownloadQueueController extends Cubit<DownloadQueueState> {
     final stoppedTask = _stoppedTask(activeTask, await _stopRun());
 
     _emitTasks(
-      activeTask: _queuedTask(taskId) ?? task,
+      activeTask: _waitingTask(taskId) ?? task,
       queue: [
-        if (!stoppedTask.status.isDone) stoppedTask,
+        if (!stoppedTask.status.isDone && !stoppedTask.status.isFailed)
+          stoppedTask,
         ..._queueWithout(taskId),
       ],
-      finished: [
-        if (stoppedTask.status.isDone) stoppedTask,
-        ...state.finished,
+      failed: [
+        if (stoppedTask.status.isFailed) stoppedTask,
+        ..._failedWithout(taskId),
       ],
+      finished: [if (stoppedTask.status.isDone) stoppedTask, ...state.finished],
     );
 
     if (stoppedTask.status.isDone) {
@@ -289,6 +323,7 @@ class DownloadQueueController extends Cubit<DownloadQueueState> {
     _emitTasks(
       activeTask: state.activeTask?.id == taskId ? null : state.activeTask,
       queue: _queueWithout(taskId),
+      failed: _failedWithout(taskId),
       finished: [
         for (final task in state.finished)
           if (task.id != taskId) task,
@@ -300,57 +335,46 @@ class DownloadQueueController extends Cubit<DownloadQueueState> {
     await _promoteNext();
   });
 
-  /// Retries a failed download from where it failed. It stays in its place
-  /// in the queue and starts right away if the active download slot is free
-  Future<void> retryTask(String taskId) => _serialized(() async {
-    if (!(_queuedTask(taskId)?.status.isFailed ?? false)) return;
-
-    _emitTasks(
-      activeTask: state.activeTask,
-      queue: [
-        for (final task in state.queue)
-          task.id == taskId
-              ? task.copyWith(
-                  status: DownloadTaskStatus.queued,
-                  clearFailure: true,
-                  updatedAt: DateTime.now(),
-                )
-              : task,
-      ],
-      finished: state.finished,
-    );
-
-    await _saveTasks();
-    await _promoteNext();
-  });
+  /// Retries a failed download from where it failed: it moves to the start
+  /// of the queue and starts right away if the active download slot is free
+  Future<void> retryTask(String taskId) =>
+      _retryWhere((task) => task.id == taskId);
 
   /// Retries every download that failed for want of a YouTube sign-in
-  Future<void> retrySignInFailures() => _serialized(() async {
-    if (!state.queue.any(_needsSignIn)) return;
+  Future<void> retrySignInFailures() =>
+      _retryWhere((task) => task.failureNeedsSignIn);
 
-    final now = DateTime.now();
+  Future<void> _retryWhere(bool Function(DownloadTaskModel task) test) =>
+      _serialized(() async {
+        final retried = state.failed.where(test).toList();
 
-    _emitTasks(
-      activeTask: state.activeTask,
-      queue: [
-        for (final task in state.queue)
-          _needsSignIn(task)
-              ? task.copyWith(
-                  status: DownloadTaskStatus.queued,
-                  clearFailure: true,
-                  updatedAt: now,
-                )
-              : task,
-      ],
-      finished: state.finished,
-    );
+        if (retried.isEmpty) return;
 
-    await _saveTasks();
-    await _promoteNext();
-  });
+        final now = DateTime.now();
 
-  static bool _needsSignIn(DownloadTaskModel task) =>
-      task.status.isFailed && task.failureNeedsSignIn;
+        _emitTasks(
+          activeTask: state.activeTask,
+          queue: [
+            for (final task in retried) _retriedTask(task, now),
+            ...state.queue,
+          ],
+          failed: [
+            for (final task in state.failed)
+              if (!retried.contains(task)) task,
+          ],
+          finished: state.finished,
+        );
+
+        await _saveTasks();
+        await _promoteNext();
+      });
+
+  static DownloadTaskModel _retriedTask(DownloadTaskModel task, DateTime now) =>
+      task.copyWith(
+        status: DownloadTaskStatus.queued,
+        clearFailure: true,
+        updatedAt: now,
+      );
 
   /// Cookies imported in the settings may lift the sign-in requirement.
   /// Signing in through the window retries the chosen download on its own
@@ -421,19 +445,31 @@ class DownloadQueueController extends Cubit<DownloadQueueState> {
       '${now.microsecondsSinceEpoch.toRadixString(36)}'
       '-${_random.nextInt(1 << 30).toRadixString(36)}';
 
-  DownloadTaskModel? _queuedTask(String taskId) =>
-      state.queue.where((task) => task.id == taskId).firstOrNull;
+  /// A queued video, or a failed one ready for a retry
+  DownloadTaskModel? _waitingTask(String taskId) =>
+      state.queue.where((task) => task.id == taskId).firstOrNull ??
+      switch (state.failed.where((task) => task.id == taskId).firstOrNull) {
+        final task? => _retriedTask(task, DateTime.now()),
+        null => null,
+      };
 
   List<DownloadTaskModel> _queueWithout(String taskId) => [
     for (final task in state.queue)
       if (task.id != taskId) task,
   ];
 
-  /// Distributes downloads into sections and numbers their positions
+  List<DownloadTaskModel> _failedWithout(String taskId) => [
+    for (final task in state.failed)
+      if (task.id != taskId) task,
+  ];
+
+  /// Distributes downloads into sections and numbers their positions.
+  /// Without [failed] the failed downloads stay as they are
   void _emitTasks({
     required DownloadTaskModel? activeTask,
     required List<DownloadTaskModel> queue,
     required List<DownloadTaskModel> finished,
+    List<DownloadTaskModel>? failed,
   }) => _safeEmit(
     state.copyWith(
       activeTask: activeTask == null
@@ -441,6 +477,7 @@ class DownloadQueueController extends Cubit<DownloadQueueState> {
           : _placed([activeTask], DownloadTaskSection.active).single,
       clearActiveTask: activeTask == null,
       queue: _placed(queue, DownloadTaskSection.queue),
+      failed: _placed(failed ?? state.failed, DownloadTaskSection.failed),
       finished: _placed(finished, DownloadTaskSection.finished),
     ),
   );
@@ -481,14 +518,11 @@ class DownloadQueueController extends Cubit<DownloadQueueState> {
     _safeEmit(state.copyWith(failure: effectiveFailure));
   }
 
-  /// If the active download slot is free, starts the first queued video.
-  /// Failed downloads wait for a retry and are skipped
+  /// If the active download slot is free, starts the first queued video
   Future<void> _promoteNext() async {
     if (state.activeTask != null) return;
 
-    final nextTask = state.queue
-        .where((task) => !task.status.isFailed)
-        .firstOrNull;
+    final nextTask = state.queue.firstOrNull;
 
     if (nextTask == null) return;
 
@@ -502,19 +536,21 @@ class DownloadQueueController extends Cubit<DownloadQueueState> {
   }
 
   /// Moves a download out of the active slot: a downloaded one to the top
-  /// of the downloaded list, a failed one to the start of the queue
+  /// of the downloaded list, a failed one to the top of the errors,
+  /// a stopped one to the start of the queue
   Future<void> _moveActiveOut(DownloadTaskModel task) async {
-    final isDone = task.status.isDone;
+    final status = task.status;
 
     _emitTasks(
       activeTask: null,
-      queue: [if (!isDone) task, ...state.queue],
-      finished: [if (isDone) task, ...state.finished],
+      queue: [if (!status.isDone && !status.isFailed) task, ...state.queue],
+      failed: [if (status.isFailed) task, ...state.failed],
+      finished: [if (status.isDone) task, ...state.finished],
     );
 
     await _saveTasks();
 
-    if (isDone) {
+    if (status.isDone) {
       unawaited(_saveThumbnail(task));
     }
 
@@ -648,7 +684,7 @@ class DownloadQueueController extends Cubit<DownloadQueueState> {
 
     final interrupted = !run.isCompleted;
 
-    run.cancellation.cancel();
+    run.stop();
 
     return (result: await run.result, interrupted: interrupted);
   }
@@ -679,7 +715,10 @@ class DownloadQueueController extends Cubit<DownloadQueueState> {
     updatedAt: DateTime.now(),
   );
 
-  DownloadTaskModel _doneTask(DownloadTaskModel task, DownloadedFileModel file) {
+  DownloadTaskModel _doneTask(
+    DownloadTaskModel task,
+    DownloadedFileModel file,
+  ) {
     final now = DateTime.now();
 
     return task.copyWith(
@@ -728,10 +767,7 @@ class DownloadQueueController extends Cubit<DownloadQueueState> {
     return activeTask.streams;
   }
 
-  void _onStreamsSelected(
-    _DownloadRun run,
-    List<DownloadStreamModel> streams,
-  ) {
+  void _onStreamsSelected(_DownloadRun run, List<DownloadStreamModel> streams) {
     final activeTask = state.activeTask;
 
     if (_run != run || activeTask == null || activeTask.id != run.taskId) {
@@ -755,6 +791,9 @@ class DownloadQueueController extends Cubit<DownloadQueueState> {
     unawaited(_serialized(_saveTasks));
   }
 
+  /// Shows the progress at most once per [_progressUpdateInterval]:
+  /// a report that comes sooner waits, and a newer one replaces it.
+  /// A new stage (e.g. muxing) is shown right away
   void _onProgress(_DownloadRun run, DownloadProgressModel progress) {
     final activeTask = state.activeTask;
 
@@ -762,9 +801,59 @@ class DownloadQueueController extends Cubit<DownloadQueueState> {
       return;
     }
 
-    final status = progress.stage.isProcessing
-        ? DownloadTaskStatus.processing
-        : DownloadTaskStatus.downloading;
+    final status = _statusOf(progress);
+    final now = DateTime.now();
+    final sinceShown = now.difference(run.progressShownAt ?? DateTime(0));
+
+    if (status == activeTask.status && sinceShown < _progressUpdateInterval) {
+      run.deferProgress(
+        progress,
+        after: _progressUpdateInterval - sinceShown,
+        onDue: (pending) => _showProgress(run, pending),
+      );
+
+      return;
+    }
+
+    run.cancelDeferredProgress();
+    _showProgress(run, progress);
+  }
+
+  static DownloadTaskStatus _statusOf(DownloadProgressModel progress) =>
+      progress.stage.isProcessing
+      ? DownloadTaskStatus.processing
+      : DownloadTaskStatus.downloading;
+
+  void _showProgress(_DownloadRun run, DownloadProgressModel progress) {
+    final activeTask = state.activeTask;
+
+    if (_run != run || activeTask == null || activeTask.id != run.taskId) {
+      return;
+    }
+
+    final status = _statusOf(progress);
+    final now = DateTime.now();
+
+    run.progressShownAt = now;
+
+    var speed = progress.speed;
+    var eta = progress.eta;
+
+    if (speed != null) {
+      run.speedReportedAt = now;
+    } else if (activeTask.speed case final heldSpeed?
+        when heldSpeed > 0 &&
+            status == activeTask.status &&
+            now.difference(run.speedReportedAt ?? now) < _speedHoldTime) {
+      speed = heldSpeed;
+
+      final downloadedBytes = progress.downloadedBytes;
+      final totalBytes = progress.totalBytes;
+
+      eta = downloadedBytes != null && totalBytes != null
+          ? (totalBytes - downloadedBytes).clamp(0, totalBytes) / heldSpeed
+          : activeTask.eta;
+    }
 
     final task = activeTask
         .copyWith(clearSpeed: true)
@@ -772,13 +861,11 @@ class DownloadQueueController extends Cubit<DownloadQueueState> {
           status: status,
           downloadedBytes: progress.downloadedBytes,
           totalBytes: progress.totalBytes,
-          speed: progress.speed,
-          eta: progress.eta,
+          speed: speed,
+          eta: eta,
         );
 
     _safeEmit(state.copyWith(activeTask: task));
-
-    final now = DateTime.now();
 
     if (status != activeTask.status) {
       _lastProgressSave = now;
@@ -806,6 +893,7 @@ class DownloadQueueController extends Cubit<DownloadQueueState> {
     }
 
     _run = null;
+    run.cancelDeferredProgress();
 
     if (downloadResponse.isSuccess) {
       await _moveActiveOut(_doneTask(activeTask, downloadResponse.requireData));

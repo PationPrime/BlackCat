@@ -141,7 +141,9 @@ class _SettingsViewState extends State<_SettingsView> {
                         _SettingsView._minTopGap,
                   ),
                   16,
-                  verticalPadding,
+
+                  /// The download footer lies over the bottom
+                  verticalPadding + MediaQuery.paddingOf(context).bottom,
                 ),
                 child: Center(
                   child: ConstrainedBox(

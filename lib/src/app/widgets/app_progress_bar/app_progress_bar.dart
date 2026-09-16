@@ -9,11 +9,15 @@ class AppProgressBar extends StatefulWidget {
   final bool pulsing;
   final double height;
 
+  /// How long the bar moves to a new value
+  final Duration animationDuration;
+
   const AppProgressBar({
     super.key,
     required this.value,
     this.pulsing = false,
     this.height = 8,
+    this.animationDuration = const Duration(milliseconds: 150),
   });
 
   @override
@@ -76,7 +80,7 @@ class _AppProgressBarState extends State<AppProgressBar>
           child: FadeTransition(
             opacity: _pulseOpacity,
             child: AnimatedFractionallySizedBox(
-              duration: const Duration(milliseconds: 150),
+              duration: widget.animationDuration,
               widthFactor: widget.value.clamp(0, 1),
               heightFactor: 1,
               child: DecoratedBox(

@@ -1,5 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:youtube_downloader/src/app/constants/constants.dart';
 import 'package:youtube_downloader/src/app/design_system/design_system.dart';
 import 'package:youtube_downloader/src/app/localization/lang/locale_keys.g.dart';
 import 'package:youtube_downloader/src/app/models/models.dart';
@@ -45,6 +46,7 @@ class ActiveDownloadCard extends StatelessWidget {
               AppIconButton(
                 icon: Icons.pause_rounded,
                 tooltip: LocaleKeys.app_downloader_buttons_pause.tr(),
+
                 /// Muxing video and audio cannot be interrupted
                 onPressed: task.status.isDownloading ? onPausePressed : null,
               ),
@@ -64,6 +66,9 @@ class ActiveDownloadCard extends StatelessWidget {
         ),
         const SizedBox(height: 10),
         AppProgressBar(
+          /// Progress changes once per interval: the bar moves between
+          /// the values all this time
+          animationDuration: DownloadConstants.progressUpdateInterval,
           value: task.percent / 100,
           pulsing: DownloadTaskText.isIndeterminate(task),
         ),

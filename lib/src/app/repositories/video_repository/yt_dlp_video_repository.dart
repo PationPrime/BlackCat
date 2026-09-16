@@ -219,7 +219,10 @@ final class YtDlpVideoRepository implements YtDlpVideoRepositoryInterface {
 
     try {
       final result = await _ytDlpService.run(
-        [if (useCookies) ...['--cookies', cookiesPath], ...arguments],
+        [
+          if (useCookies) ...['--cookies', cookiesPath],
+          ...arguments,
+        ],
         onLine: onLine,
         cancellation: cancellation,
       );
@@ -283,10 +286,11 @@ final class YtDlpVideoRepository implements YtDlpVideoRepositoryInterface {
 
     final muxable = QualitySelector.muxableRawFormats(info.formats);
 
+    /// Audio tracks of a dubbed video share the itag and differ in size
     RawFormat? formatOf(DownloadStreamModel stream) => muxable
         .where(
           (format) =>
-              format['format_id'] == '${stream.itag}' &&
+              QualitySelector.itagOf(format) == stream.itag &&
               format['filesize'] == stream.contentLength,
         )
         .firstOrNull;
@@ -296,11 +300,13 @@ final class YtDlpVideoRepository implements YtDlpVideoRepositoryInterface {
         : {DownloadStreamRole.video, DownloadStreamRole.audio};
 
     if (previousStreams.length == expectedRoles.length &&
-        previousStreams.every((stream) => expectedRoles.contains(stream.role)) &&
+        previousStreams.every(
+          (stream) => expectedRoles.contains(stream.role),
+        ) &&
         previousStreams.every((stream) => formatOf(stream) != null)) {
       return [
         for (final stream in previousStreams)
-          (stream: stream, formatId: '${stream.itag}'),
+          (stream: stream, formatId: '${formatOf(stream)!['format_id']}'),
       ];
     }
 
@@ -315,7 +321,7 @@ final class YtDlpVideoRepository implements YtDlpVideoRepositoryInterface {
     _RawPart partOf(DownloadStreamRole role, RawFormat format) => (
       stream: DownloadStreamModel(
         role: role,
-        itag: int.parse('${format['format_id']}'),
+        itag: QualitySelector.itagOf(format)!,
         contentLength: format['filesize'] as int,
       ),
       formatId: '${format['format_id']}',
@@ -329,8 +335,7 @@ final class YtDlpVideoRepository implements YtDlpVideoRepositoryInterface {
   }
 
   /// yt-dlp keeps a finished stream without the `.part` extension
-  static String _finishedPath(String partPath) =>
-      p.withoutExtension(partPath);
+  static String _finishedPath(String partPath) => p.withoutExtension(partPath);
 
   /// Wipes stream files that are no longer downloaded
   Future<void> _deleteStaleParts(
@@ -400,11 +405,15 @@ final class YtDlpVideoRepository implements YtDlpVideoRepositoryInterface {
       );
     }
 
-    int received() => downloadedByPart.values.fold(0, (sum, bytes) => sum + bytes);
+    int received() =>
+        downloadedByPart.values.fold(0, (sum, bytes) => sum + bytes);
 
+    /// yt-dlp starts every chunk of a stream without a speed: the speed is
+    /// measured over the bytes of the last seconds instead
+    final speedMeter = SpeedMeter();
     var lastReport = DateTime.fromMillisecondsSinceEpoch(0);
 
-    void report({num? speed, bool force = false}) {
+    void report({num? fallbackSpeed, bool force = false}) {
       final now = DateTime.now();
 
       if (!force && now.difference(lastReport) < _progressInterval) return;
@@ -412,13 +421,16 @@ final class YtDlpVideoRepository implements YtDlpVideoRepositoryInterface {
       lastReport = now;
 
       final downloaded = math.min(received(), total);
+      final speed = speedMeter.bytesPerSecond(now: now) ?? fallbackSpeed;
 
       onProgress?.call(
         DownloadProgressModel(
           DownloadStage.downloading,
           total == 0 ? 0 : (downloaded / total * 1000).floor() / 10,
           speed: speed,
-          eta: speed == null || speed == 0 ? null : (total - downloaded) / speed,
+          eta: speed == null || speed == 0
+              ? null
+              : (total - downloaded) / speed,
           downloadedBytes: downloaded,
           totalBytes: total,
         ),
@@ -454,8 +466,15 @@ final class YtDlpVideoRepository implements YtDlpVideoRepositoryInterface {
           final progress = YtDlpOutput.parseProgress(line);
 
           if (progress?.downloadedBytes case final bytes?) {
-            downloadedByPart[part] = math.min(bytes, part.stream.contentLength);
-            report(speed: progress!.speed, force: progress.isFinished);
+            final partBytes = math.min(bytes, part.stream.contentLength);
+            final newBytes = partBytes - (downloadedByPart[part] ?? 0);
+
+            if (newBytes > 0) {
+              speedMeter.add(newBytes);
+            }
+
+            downloadedByPart[part] = partBytes;
+            report(fallbackSpeed: progress!.speed, force: progress.isFinished);
           }
         },
       );

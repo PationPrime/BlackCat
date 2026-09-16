@@ -5,4 +5,5 @@ abstract final class RoutePaths {
   static const home = 'home';
   static const downloads = 'downloads';
   static const settings = 'settings';
+  static const donations = 'donations';
 }

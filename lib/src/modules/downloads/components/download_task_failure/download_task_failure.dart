@@ -26,40 +26,48 @@ class DownloadTaskFailure extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) => Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      SelectableText(
-        task.failureMessage ?? LocaleKeys.app_downloader_task_failed.tr(),
-        style: context.text.captionRegular.copyWith(
-          color: context.color.errorText,
-        ),
+  Widget build(BuildContext context) {
+    final buttons = [
+      AppSecondaryButton(
+        title: LocaleKeys.app_downloader_buttons_retry.tr(),
+        onPressed: onRetryPressed,
+        compact: true,
       ),
-      const SizedBox(height: 8),
-      Wrap(
-        spacing: 8,
-        runSpacing: 8,
-        children: [
+      if (task.failureNeedsSignIn) ...[
+        if (signInTitle case final title?)
           AppSecondaryButton(
-            title: LocaleKeys.app_downloader_buttons_retry.tr(),
-            onPressed: onRetryPressed,
+            title: title,
+            onPressed: onSignInPressed,
             compact: true,
           ),
-          if (task.failureNeedsSignIn) ...[
-            if (signInTitle case final title?)
-              AppSecondaryButton(
-                title: title,
-                onPressed: onSignInPressed,
-                compact: true,
-              ),
-            AppSecondaryButton(
-              title: LocaleKeys.app_downloader_buttons_import_cookies.tr(),
-              onPressed: onImportCookiesPressed,
-              compact: true,
-            ),
+        AppSecondaryButton(
+          title: LocaleKeys.app_downloader_buttons_import_cookies.tr(),
+          onPressed: onImportCookiesPressed,
+          compact: true,
+        ),
+      ],
+    ];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SelectableText(
+          task.failureMessage ?? LocaleKeys.app_downloader_task_failed.tr(),
+          style: context.text.captionRegular.copyWith(
+            color: context.color.errorText,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            /// A button fills the width it is given: here each keeps its own
+            /// width, and the buttons line up and wrap when the row is full
+            for (final button in buttons) IntrinsicWidth(child: button),
           ],
-        ],
-      ),
-    ],
-  );
+        ),
+      ],
+    );
+  }
 }

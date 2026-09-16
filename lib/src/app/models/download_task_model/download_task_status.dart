@@ -11,11 +11,19 @@ extension DownloadTaskStatusX on DownloadTaskStatus {
   bool get isFailed => this == DownloadTaskStatus.failed;
 }
 
-/// Screen section the download belongs to
-enum DownloadTaskSection { active, queue, finished }
+/// Screen section the download belongs to, in the order of the screen
+enum DownloadTaskSection {
+  active,
+  queue,
+
+  /// Failed downloads waiting for a retry
+  failed,
+  finished,
+}
 
 extension DownloadTaskSectionX on DownloadTaskSection {
   bool get isActive => this == DownloadTaskSection.active;
   bool get isQueue => this == DownloadTaskSection.queue;
+  bool get isFailed => this == DownloadTaskSection.failed;
   bool get isFinished => this == DownloadTaskSection.finished;
 }

@@ -66,6 +66,7 @@
       "sections": {
         "active": "Active download",
         "queue": "Download queue",
+        "failed": "Download errors",
         "finished": "Downloaded"
       },
       "empty": {
@@ -144,6 +145,24 @@
         "success": "Cookies imported: signed in to YouTube."
       },
       "subtitle": "Download folder, interface language and YouTube cookies."
+    },
+    "donations": {
+      "title": "Support the project",
+      "subtitle": "YT Download is free and has no ads. If the app helps you, you can support its development.",
+      "hero_title": "Thank you for using YT Download!",
+      "hero_description": "Your support helps update the app faster when YouTube changes something and add new features.",
+      "platforms_title": "Ways to support",
+      "open": "Open",
+      "copy_link": "Copy link",
+      "link_copied": "Link copied",
+      "qr_hint": "Scan with your phone camera",
+      "open_failed": "Couldn't open the link {url}",
+      "thank_you": "Thank you for your support!",
+      "platforms": {
+        "donation_alerts": "One-time donation with a message",
+        "donate_pay": "One-time donation",
+        "boosty": "Subscription or one-time support"
+      }
     },
     "errors": {
       "unknown": "Something went wrong: {error}",
@@ -254,7 +273,8 @@
     "navigation": {
       "home": "Home",
       "downloads": "Downloads",
-      "settings": "Settings"
+      "settings": "Settings",
+      "donations": "Sponsor"
     },
     "home": {
       "title": "Home",

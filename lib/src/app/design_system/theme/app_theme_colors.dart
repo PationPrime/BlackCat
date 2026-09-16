@@ -76,6 +76,11 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
   final Color windowCloseHover;
   final Color onWindowCloseHover;
 
+  /// QR code plate and modules: dark on light in both themes, as cameras
+  /// read QR codes best
+  final Color qrBackground;
+  final Color qrForeground;
+
   final Color transparent;
 
   const AppThemeColors({
@@ -111,6 +116,8 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
     required this.errorActionHover,
     required this.windowCloseHover,
     required this.onWindowCloseHover,
+    required this.qrBackground,
+    required this.qrForeground,
     required this.transparent,
   });
 
@@ -148,6 +155,8 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
     Color? errorActionHover,
     Color? windowCloseHover,
     Color? onWindowCloseHover,
+    Color? qrBackground,
+    Color? qrForeground,
     Color? transparent,
   }) => AppThemeColors(
     background: background ?? this.background,
@@ -182,6 +191,8 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
     errorActionHover: errorActionHover ?? this.errorActionHover,
     windowCloseHover: windowCloseHover ?? this.windowCloseHover,
     onWindowCloseHover: onWindowCloseHover ?? this.onWindowCloseHover,
+    qrBackground: qrBackground ?? this.qrBackground,
+    qrForeground: qrForeground ?? this.qrForeground,
     transparent: transparent ?? this.transparent,
   );
 
@@ -247,6 +258,8 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
         other.onWindowCloseHover,
         t,
       )!,
+      qrBackground: Color.lerp(qrBackground, other.qrBackground, t)!,
+      qrForeground: Color.lerp(qrForeground, other.qrForeground, t)!,
       transparent: Color.lerp(transparent, other.transparent, t)!,
     );
   }
@@ -284,6 +297,8 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
     errorActionHover: AppColors.redF87171Alpha10,
     windowCloseHover: AppColors.redC42B1C,
     onWindowCloseHover: AppColors.white,
+    qrBackground: AppColors.stoneFAFAF9,
+    qrForeground: AppColors.stone0C0A09,
     transparent: AppColors.transparent,
   );
 
@@ -320,6 +335,8 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
     errorActionHover: AppColors.redF87171Alpha10,
     windowCloseHover: AppColors.redC42B1C,
     onWindowCloseHover: AppColors.white,
+    qrBackground: AppColors.stoneFAFAF9,
+    qrForeground: AppColors.stone0C0A09,
     transparent: AppColors.transparent,
   );
 }

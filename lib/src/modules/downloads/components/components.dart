@@ -5,4 +5,5 @@ export 'download_task_preview/download_task_preview.dart';
 export 'downloaded_video_tile/downloaded_video_tile.dart';
 export 'downloads_empty_placeholder/downloads_empty_placeholder.dart';
 export 'downloads_section_title/downloads_section_title.dart';
+export 'failed_download_tile/failed_download_tile.dart';
 export 'queued_download_tile/queued_download_tile.dart';

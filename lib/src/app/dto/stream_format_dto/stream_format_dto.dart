@@ -136,5 +136,8 @@ class StreamFormatDto {
     'tbr': bitrate == null ? null : bitrate! / 1000,
     'abr': hasAudio && !hasVideo && bitrate != null ? bitrate! / 1000 : null,
     'filesize': contentLength,
+
+    /// The original track of a dubbed video, as yt-dlp marks it
+    if (audioIsDefault) 'language_preference': 10,
   };
 }

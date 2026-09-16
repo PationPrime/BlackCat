@@ -82,6 +82,7 @@ class CodegenLoader extends AssetLoader{
       "sections": {
         "active": "Active download",
         "queue": "Download queue",
+        "failed": "Download errors",
         "finished": "Downloaded"
       },
       "empty": {
@@ -160,6 +161,24 @@ class CodegenLoader extends AssetLoader{
         "success": "Cookies imported: signed in to YouTube."
       },
       "subtitle": "Download folder, interface language and YouTube cookies."
+    },
+    "donations": {
+      "title": "Support the project",
+      "subtitle": "YT Download is free and has no ads. If the app helps you, you can support its development.",
+      "hero_title": "Thank you for using YT Download!",
+      "hero_description": "Your support helps update the app faster when YouTube changes something and add new features.",
+      "platforms_title": "Ways to support",
+      "open": "Open",
+      "copy_link": "Copy link",
+      "link_copied": "Link copied",
+      "qr_hint": "Scan with your phone camera",
+      "open_failed": "Couldn't open the link {url}",
+      "thank_you": "Thank you for your support!",
+      "platforms": {
+        "donation_alerts": "One-time donation with a message",
+        "donate_pay": "One-time donation",
+        "boosty": "Subscription or one-time support"
+      }
     },
     "errors": {
       "unknown": "Something went wrong: {error}",
@@ -270,7 +289,8 @@ class CodegenLoader extends AssetLoader{
     "navigation": {
       "home": "Home",
       "downloads": "Downloads",
-      "settings": "Settings"
+      "settings": "Settings",
+      "donations": "Sponsor"
     },
     "home": {
       "title": "Home",
@@ -359,6 +379,7 @@ static const Map<String,dynamic> _ru_RU = {
       "sections": {
         "active": "Активная загрузка",
         "queue": "Очередь скачивания",
+        "failed": "Ошибка скачивания",
         "finished": "Скачанные"
       },
       "empty": {
@@ -437,6 +458,24 @@ static const Map<String,dynamic> _ru_RU = {
         "success": "Cookies импортированы: вход в YouTube выполнен."
       },
       "subtitle": "Папка для загрузок, язык интерфейса и cookies YouTube."
+    },
+    "donations": {
+      "title": "Поддержать проект",
+      "subtitle": "YT Download бесплатный и без рекламы. Если приложение вам помогает, вы можете поддержать его развитие.",
+      "hero_title": "Спасибо, что пользуетесь YT Download!",
+      "hero_description": "Поддержка помогает быстрее обновлять приложение, когда YouTube что-то меняет, и добавлять новые возможности.",
+      "platforms_title": "Способы поддержки",
+      "open": "Открыть",
+      "copy_link": "Скопировать ссылку",
+      "link_copied": "Ссылка скопирована",
+      "qr_hint": "Отсканируйте камерой телефона",
+      "open_failed": "Не удалось открыть ссылку {url}",
+      "thank_you": "Спасибо за поддержку!",
+      "platforms": {
+        "donation_alerts": "Разовый донат с сообщением",
+        "donate_pay": "Разовый донат",
+        "boosty": "Подписка или разовая поддержка"
+      }
     },
     "errors": {
       "unknown": "Что-то пошло не так: {error}",
@@ -547,7 +586,8 @@ static const Map<String,dynamic> _ru_RU = {
     "navigation": {
       "home": "Главная",
       "downloads": "Загрузки",
-      "settings": "Настройки"
+      "settings": "Настройки",
+      "donations": "Поддержать"
     },
     "home": {
       "title": "Главная",

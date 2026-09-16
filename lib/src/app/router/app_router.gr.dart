@@ -27,6 +27,22 @@ class AuthorizationWrapperRouter extends PageRouteInfo<void> {
 }
 
 /// generated route for
+/// [DonationsScreen]
+class DonationsRoute extends PageRouteInfo<void> {
+  const DonationsRoute({List<PageRouteInfo>? children})
+    : super(DonationsRoute.name, initialChildren: children);
+
+  static const String name = 'DonationsRoute';
+
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      return const DonationsScreen();
+    },
+  );
+}
+
+/// generated route for
 /// [DownloadsScreen]
 class DownloadsRoute extends PageRouteInfo<void> {
   const DownloadsRoute({List<PageRouteInfo>? children})

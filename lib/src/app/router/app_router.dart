@@ -38,6 +38,10 @@ class AppRouter extends RootStackRouter {
                   page: DownloadsRoute.page,
                 ),
                 AutoRoute(path: RoutePaths.settings, page: SettingsRoute.page),
+                AutoRoute(
+                  path: RoutePaths.donations,
+                  page: DonationsRoute.page,
+                ),
               ],
             ),
           ],

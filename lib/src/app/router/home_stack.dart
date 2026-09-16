@@ -12,7 +12,7 @@ import '../widgets/widgets.dart';
 import 'app_router.dart';
 
 /// Pages of the app: the navigation bar on the left, the current download
-/// along the bottom of the window. [AppNavigationController] picks the page,
+/// over the bottom of the pages. [AppNavigationController] picks the page,
 /// the tabs keep the state of the pages visited before
 @RoutePage()
 class HomeStackScreen extends StatelessWidget {
@@ -23,6 +23,7 @@ class HomeStackScreen extends StatelessWidget {
     HomeRoute(),
     DownloadsRoute(),
     SettingsRoute(),
+    DonationsRoute(),
   ];
 
   @override
@@ -62,28 +63,52 @@ class _HomeStackLayout extends StatelessWidget {
       builder: (context, constraints) {
         final compact = constraints.maxWidth < _compactBreakpoint;
 
-        return Column(
+        return Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            /// The navigation bar ends above the footer
-            Expanded(
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  _HomeStackNavigationBar(
-                    activeTab: activeTab,
-                    compact: compact,
-                  ),
-                  Expanded(child: child),
-                ],
-              ),
-            ),
-            const _HomeStackFooter(),
+            /// The navigation bar takes the whole height of the window
+            _HomeStackNavigationBar(activeTab: activeTab, compact: compact),
+            Expanded(child: _HomeStackPages(child: child)),
           ],
         );
       },
     ),
   );
+}
+
+/// Pages with the footer over their bottom. Pages get the footer height
+/// as the bottom [MediaQueryData.padding], so their content scrolls
+/// out from under it
+class _HomeStackPages extends StatelessWidget {
+  final Widget child;
+
+  const _HomeStackPages({required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    final mediaQuery = MediaQuery.of(context);
+
+    return Stack(
+      children: [
+        Positioned.fill(
+          child: MediaQuery(
+            data: mediaQuery.copyWith(
+              padding: mediaQuery.padding.copyWith(
+                bottom: mediaQuery.padding.bottom + DownloadFooter.height,
+              ),
+            ),
+            child: child,
+          ),
+        ),
+        const Positioned(
+          left: 0,
+          right: 0,
+          bottom: 0,
+          child: _HomeStackFooter(),
+        ),
+      ],
+    );
+  }
 }
 
 class _HomeStackNavigationBar extends StatelessWidget {
@@ -141,9 +166,6 @@ class _HomeStackNavigationBar extends StatelessWidget {
           controller.state.queue.length +
           (controller.state.activeTask == null ? 0 : 1),
     );
-    final hasRunningTask = context.select(
-      (DownloadQueueController controller) => controller.state.hasRunningTask,
-    );
 
     return AppNavigationBar(
       compact: compact,
@@ -168,24 +190,12 @@ class _HomeStackNavigationBar extends StatelessWidget {
               title: LocaleKeys.app_navigation_settings.tr(),
               icon: Icons.settings_rounded,
             ),
+            AppTabModel.donations => AppNavigationBarItemData(
+              title: LocaleKeys.app_navigation_donations.tr(),
+              icon: Icons.favorite_rounded,
+            ),
           },
       ],
-      footer: BlocBuilder<AuthorizationController, AuthorizationState>(
-        builder: (context, authorizationState) {
-          final authorizationController = context
-              .read<AuthorizationController>();
-
-          return AppAccountStatus(
-            compact: compact,
-            isChecking: authorizationState.isChecking,
-            isSigningIn: authorizationState.isInProgress,
-            isSignedIn: authorizationState.isAuthorized,
-            signOutEnabled: !hasRunningTask,
-            onSignInPressed: authorizationController.signIn,
-            onSignOutPressed: authorizationController.signOut,
-          );
-        },
-      ),
     );
   }
 }

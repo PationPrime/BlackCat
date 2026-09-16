@@ -121,7 +121,49 @@ void main() {
     await app.close();
   });
 
-  testWidgets('ошибка входа в очереди: «Войти» повторяет загрузку, импорт cookies — все такие загрузки', (tester) async {
+  testWidgets('«Ошибка скачивания» появляется после очереди только с упавшими видео', (tester) async {
+    final app = TestApp();
+
+    await app.pumpPage(tester, const DownloadsScreen());
+
+    expect(find.text('ОШИБКА СКАЧИВАНИЯ'), findsNothing);
+
+    await app.addTask(tester, 'a');
+    await app.addTask(tester, 'b');
+
+    app.videoRepository.downloads.single.failWith(
+      const VideoFailure(code: 'mux', message: 'Не удалось собрать файл: нет места'),
+    );
+    await app.settle(tester);
+
+    final failedTitle = find.text('ОШИБКА СКАЧИВАНИЯ');
+
+    expect(failedTitle, findsOneWidget);
+    expect(find.byType(FailedDownloadTile), findsOneWidget);
+    expect(find.byType(QueuedDownloadTile), findsNothing);
+    expect(find.text('Не удалось собрать файл: нет места'), findsOneWidget);
+    expect(
+      tester.getTopLeft(find.text('ОЧЕРЕДЬ СКАЧИВАНИЯ')).dy,
+      lessThan(tester.getTopLeft(failedTitle).dy),
+    );
+    expect(
+      tester.getTopLeft(failedTitle).dy,
+      lessThan(tester.getTopLeft(find.text('СКАЧАННЫЕ')).dy),
+    );
+
+    /// No sign-in buttons for errors that signing in will not fix
+    expect(find.descendant(of: find.byType(FailedDownloadTile), matching: find.text('Войти')), findsNothing);
+
+    await tester.tap(find.descendant(of: find.byType(FailedDownloadTile), matching: find.text('Повторить')));
+    await app.settle(tester);
+
+    expect(find.text('ОШИБКА СКАЧИВАНИЯ'), findsNothing);
+    expect(app.queueController.state.queue.first.video.id, 'a');
+
+    await app.close();
+  });
+
+  testWidgets('ошибка входа: «Войти» повторяет загрузку, импорт cookies — все такие загрузки', (tester) async {
     final app = TestApp();
 
     await app.pumpPage(tester, const DownloadsScreen());
@@ -130,23 +172,24 @@ void main() {
     app.videoRepository.downloads.single.failWith(_signInFailure);
     await app.settle(tester);
 
-    final failure = find.byType(DownloadTaskFailure);
+    final failed = find.byType(FailedDownloadTile);
 
-    expect(failure, findsOneWidget);
-    expect(find.descendant(of: failure, matching: find.text('Войти')), findsOneWidget);
+    expect(failed, findsOneWidget);
+    expect(find.descendant(of: failed, matching: find.text('Войти')), findsOneWidget);
 
-    await tester.tap(find.descendant(of: failure, matching: find.text('Войти')));
+    await tester.tap(find.descendant(of: failed, matching: find.text('Войти')));
     await app.settle(tester);
 
     expect(app.authenticationRepository.signInCalls, 1);
     expect(app.videoRepository.downloads, hasLength(2));
+    expect(find.byType(FailedDownloadTile), findsNothing);
 
     app.videoRepository.downloads.last.failWith(_signInFailure);
     await app.settle(tester);
 
     app.navigationController.selectTab(AppTabModel.downloads);
 
-    await tester.tap(find.descendant(of: find.byType(DownloadTaskFailure), matching: find.text('Импортировать cookies.txt')));
+    await tester.tap(find.descendant(of: find.byType(FailedDownloadTile), matching: find.text('Импортировать cookies.txt')));
     await app.settle(tester);
 
     expect(app.navigationController.state.tab, AppTabModel.settings);
@@ -160,7 +203,7 @@ void main() {
     await app.settle(tester);
 
     expect(app.videoRepository.downloads, hasLength(3));
-    expect(find.byType(DownloadTaskFailure), findsNothing);
+    expect(find.byType(FailedDownloadTile), findsNothing);
 
     await app.close();
   });

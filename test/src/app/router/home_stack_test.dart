@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:youtube_downloader/src/app/errors/errors.dart';
 import 'package:youtube_downloader/src/app/models/models.dart';
-import 'package:youtube_downloader/src/app/shared_controllers/shared_controllers.dart';
 import 'package:youtube_downloader/src/app/widgets/widgets.dart';
 import 'package:youtube_downloader/src/modules/modules.dart';
 
@@ -68,35 +67,37 @@ void main() {
     await app.close();
   });
 
-  testWidgets('вход в YouTube внизу навбара', (tester) async {
+  testWidgets('вход в YouTube — в заголовке главной, а не в навбаре', (tester) async {
     final app = TestApp();
 
     await app.pumpApp(tester);
 
-    expect(_inNavigationBar('Войти в YouTube'), findsOneWidget);
+    final signIn = find.descendant(of: find.byType(HomeScreen), matching: find.text('Войти в YouTube'));
 
-    await tester.tap(_inNavigationBar('Войти в YouTube'));
+    expect(signIn, findsOneWidget);
+    expect(_inNavigationBar('Войти в YouTube'), findsNothing);
+
+    await tester.tap(signIn);
     await app.settle(tester);
 
     expect(app.authenticationRepository.signInCalls, 1);
-    expect(_inNavigationBar('Аккаунт подключён'), findsOneWidget);
-
-    await tester.tap(_inNavigationBar('Выйти'));
-    await app.settle(tester);
-
-    expect(app.authorizationController.state.isAuthorized, isFalse);
-    expect(_inNavigationBar('Войти в YouTube'), findsOneWidget);
+    expect(find.descendant(of: find.byType(HomeScreen), matching: find.text('Аккаунт подключён')), findsOneWidget);
 
     await app.close();
   });
 
-  testWidgets('нижняя панель: текущая загрузка на всех страницах, на всю ширину под навбаром', (tester) async {
+  testWidgets('нижняя панель: текущая загрузка поверх низа всех страниц, навбар не перекрывает', (tester) async {
     final app = TestApp();
 
     await app.pumpApp(tester);
 
-    expect(tester.getRect(_footer), const Rect.fromLTRB(0, 900 - DownloadFooter.height, 1200, 900));
-    expect(tester.getRect(_navigationBar).bottom, tester.getRect(_footer).top);
+    final navigationBarRect = tester.getRect(_navigationBar);
+
+    expect(navigationBarRect, const Rect.fromLTRB(0, 0, AppNavigationBar.expandedWidth, 900));
+    expect(
+      tester.getRect(_footer),
+      const Rect.fromLTRB(AppNavigationBar.expandedWidth, 900 - DownloadFooter.height, 1200, 900),
+    );
     expect(_inFooter(find.text('Нет активных загрузок')), findsOneWidget);
 
     await app.addTask(tester, 'a');
@@ -140,15 +141,50 @@ void main() {
     await app.close();
   });
 
+  testWidgets('низ страницы прокручивается из-под нижней панели', (tester) async {
+    final app = TestApp();
+
+    await app.pumpApp(tester, size: const Size(1200, 520));
+    await app.addTask(tester, 'a');
+    await app.addTask(tester, 'b');
+    await tester.tap(_inNavigationBar('Загрузки'));
+    await app.settle(tester);
+    await tester.drag(find.byType(CustomScrollView), const Offset(0, -2000));
+    await app.settle(tester);
+
+    final placeholder = find.ancestor(
+      of: find.text('Здесь появятся скачанные видео.'),
+      matching: find.byType(DownloadsEmptyPlaceholder),
+    );
+
+    expect(tester.getRect(placeholder).bottom, lessThanOrEqualTo(tester.getRect(_footer).top));
+
+    await app.close();
+  });
+
+  testWidgets('«Поддержать» в навбаре открывает страницу поддержки', (tester) async {
+    final app = TestApp();
+
+    await app.pumpApp(tester);
+    await tester.tap(_inNavigationBar('Поддержать'));
+    await app.settle(tester);
+
+    expect(app.navigationController.state.tab, AppTabModel.donations);
+    expect(find.byType(DonationsScreen), findsOneWidget);
+    expect(find.byType(DonationPlatformCard), findsNWidgets(3));
+
+    await app.close();
+  });
+
   testWidgets('в узком окне навбар из одних значков, названия — в подсказках', (tester) async {
     final app = TestApp();
 
     await app.pumpApp(tester, size: const Size(700, 800));
 
     expect(tester.getSize(_navigationBar).width, AppNavigationBar.compactWidth);
+    expect(tester.getRect(_footer).left, AppNavigationBar.compactWidth);
     expect(_inNavigationBar('Загрузки'), findsNothing);
     expect(find.byTooltip('Загрузки'), findsOneWidget);
-    expect(find.byTooltip('Войти в YouTube'), findsOneWidget);
 
     await tester.tap(find.byTooltip('Настройки'));
     await app.settle(tester);
@@ -259,7 +295,7 @@ void main() {
     expect(app.videoRepository.requestedUrls, [_url, _url]);
     expect(find.text('Обзор'), findsOneWidget);
     expect(find.byType(AppFailureBanner), findsNothing);
-    expect(_inNavigationBar('Аккаунт подключён'), findsOneWidget);
+    expect(find.descendant(of: find.byType(HomeScreen), matching: find.text('Аккаунт подключён')), findsOneWidget);
 
     await tester.tap(_inNavigationBar('Настройки'));
     await app.settle(tester);

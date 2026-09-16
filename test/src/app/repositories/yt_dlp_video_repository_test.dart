@@ -135,7 +135,9 @@ final class _LocalInfoYtDlpService implements YtDlpService {
   }
 }
 
-String _info(_StreamServer server) => jsonEncode({
+/// [dubbed]: YouTube auto-dubbing, the English track and the Russian
+/// original share itag 140
+String _info(_StreamServer server, {bool dubbed = false}) => jsonEncode({
   'id': 'kgA8JPY2lIA',
   'title': _title,
   'channel': 'Канал',
@@ -164,17 +166,46 @@ String _info(_StreamServer server) => jsonEncode({
       'filesize': server.files['video']!.length,
       'http_headers': {'User-Agent': 'test'},
     },
-    {
-      'format_id': '140',
-      'url': server.urlOf('audio'),
-      'ext': 'm4a',
-      'protocol': 'https',
-      'vcodec': 'none',
-      'acodec': 'mp4a.40.2',
-      'abr': 129,
-      'filesize': server.files['audio']!.length,
-      'http_headers': {'User-Agent': 'test'},
-    },
+    if (!dubbed)
+      {
+        'format_id': '140',
+        'url': server.urlOf('audio'),
+        'ext': 'm4a',
+        'protocol': 'https',
+        'vcodec': 'none',
+        'acodec': 'mp4a.40.2',
+        'abr': 129,
+        'filesize': server.files['audio']!.length,
+        'http_headers': {'User-Agent': 'test'},
+      }
+    else ...[
+      {
+        'format_id': '140-0',
+        'url': server.urlOf('audio-en'),
+        'ext': 'm4a',
+        'protocol': 'https',
+        'vcodec': 'none',
+        'acodec': 'mp4a.40.2',
+        'abr': 129,
+        'language': 'en-US',
+        'language_preference': -1,
+        'filesize': server.files['audio-en']!.length,
+        'http_headers': {'User-Agent': 'test'},
+      },
+      {
+        'format_id': '140-1',
+        'url': server.urlOf('audio'),
+        'ext': 'm4a',
+        'protocol': 'https',
+        'vcodec': 'none',
+        'acodec': 'mp4a.40.2',
+        'abr': 129,
+        'language': 'ru',
+        'language_preference': 10,
+        'filesize': server.files['audio']!.length,
+        'http_headers': {'User-Agent': 'test'},
+      },
+    ],
   ],
 });
 
@@ -184,6 +215,7 @@ void main() {
   late _LocalInfoYtDlpService ytDlpService;
   late YtDlpVideoRepository repository;
   String? skipReason;
+  var dubbed = false;
 
   /// About 4 MiB of video: long enough to stop the download midway
   final video = dashStream(
@@ -201,6 +233,13 @@ void main() {
       (0, [('A0', 22050, true, 0), ('A1', 22050, true, 0)]),
     ],
   );
+  final englishAudio = dashStream(
+    handler: 'soun',
+    timescale: 44100,
+    fragments: [
+      (0, [('E0-dubbed', 22050, true, 0), ('E1-dubbed', 22050, true, 0)]),
+    ],
+  );
 
   setUpAll(() async {
     final tools = await Directory.systemTemp.createTemp('yt-dlp-tools');
@@ -215,7 +254,8 @@ void main() {
 
   setUp(() async {
     root = await Directory.systemTemp.createTemp('yt-dlp-repository');
-    server = _StreamServer({'video': video, 'audio': audio});
+    dubbed = false;
+    server = _StreamServer({'video': video, 'audio': audio, 'audio-en': englishAudio});
     await server.start();
 
     final fileSystemService = _TestFileSystemService(root);
@@ -223,7 +263,7 @@ void main() {
 
     ytDlpService = _LocalInfoYtDlpService(
       YtDlpServiceImpl(fileSystemService: fileSystemService),
-      () => _info(server),
+      () => _info(server, dubbed: dubbed),
     );
     repository = YtDlpVideoRepository(
       ytDlpService: ytDlpService,
@@ -271,6 +311,16 @@ void main() {
     );
 
     expect(result.failure, isNull, reason: result.failure?.message);
+
+    /// Once measured, the speed does not vanish between chunks and streams
+    expect(
+      progress.where((item) => item.stage.isDownloading).skipWhile((item) => item.speed == null),
+      isNotEmpty,
+    );
+    expect(
+      progress.where((item) => item.stage.isDownloading).skipWhile((item) => item.speed == null),
+      everyElement(isA<DownloadProgressModel>().having((item) => item.speed, 'speed', isNotNull)),
+    );
     expect(result.requireData.path, p.join(root.path, 'Downloads', '$_title.mp4'));
     expect(result.requireData.sizeBytes, await File(result.requireData.path).length());
     expect(topLevelBoxes(await File(result.requireData.path).readAsBytes()), ['ftyp', 'moov', 'mdat']);
@@ -330,5 +380,52 @@ void main() {
     expect(progress.first.downloadedBytes, greaterThanOrEqualTo(stoppedAt));
     expect(server.ranges['video']!.last, startsWith('bytes=$stoppedAt-'));
     expect(topLevelBoxes(await File(resumed.requireData.path).readAsBytes()), ['ftyp', 'moov', 'mdat']);
+  }, timeout: const Timeout(Duration(minutes: 2)));
+
+  test('дублированное видео: скачивается оригинальная дорожка, у которой свой номер у yt-dlp', () async {
+    if (skipReason != null) return markTestSkipped(skipReason!);
+
+    dubbed = true;
+
+    final info = await repository.getVideoInfo(_url);
+
+    expect(info.failure, isNull, reason: info.failure?.message);
+    expect([for (final quality in info.requireData.qualities) quality.id], ['1080', QualityModel.audioId]);
+
+    final cancellation = DownloadCancellation();
+    var streams = <DownloadStreamModel>[];
+
+    final stopped = await repository.downloadVideo(
+      taskId: 'task-3',
+      url: _url,
+      quality: QualityModel.audioId,
+      cancellation: cancellation,
+      onStreamsSelected: (selected) => streams = selected,
+      onProgress: (progress) {
+        if ((progress.downloadedBytes ?? 0) > 0) {
+          cancellation.cancel();
+        }
+      },
+    );
+
+    /// The audio is tiny: it may finish before the stop
+    expect(stopped.failure?.code, anyOf(isNull, const VideoErrorCodes().canceled));
+    expect(streams, [DownloadStreamModel(role: DownloadStreamRole.audio, itag: 140, contentLength: audio.length)]);
+
+    final resumed = await repository.downloadVideo(
+      taskId: 'task-3',
+      url: _url,
+      quality: QualityModel.audioId,
+      streams: streams,
+    );
+
+    expect(resumed.failure, isNull, reason: resumed.failure?.message);
+    expect(server.ranges['audio-en'], isNull);
+    expect(server.ranges['audio'], isNotEmpty);
+
+    final file = await File(resumed.requireData.path).readAsBytes();
+
+    expect(String.fromCharCodes(file).contains('A0'), isTrue);
+    expect(String.fromCharCodes(file).contains('dubbed'), isFalse);
   }, timeout: const Timeout(Duration(minutes: 2)));
 }

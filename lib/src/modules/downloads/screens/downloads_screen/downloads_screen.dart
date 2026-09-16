@@ -114,6 +114,7 @@ class DownloadsScreen extends StatelessWidget {
               final downloadQueueController = context
                   .read<DownloadQueueController>();
               final queue = queueState.queue;
+              final failed = queueState.failed;
               final finished = queueState.finished;
 
               return AppScaffold(
@@ -236,19 +237,6 @@ class DownloadsScreen extends StatelessWidget {
                                       .startTask(task.id),
                                   onRemovePressed: () =>
                                       _removeTask(context, task),
-                                  onRetryPressed: () => downloadQueueController
-                                      .retryTask(task.id),
-                                  signInTitle: _signInActionTitle(
-                                    authorizationState,
-                                  ),
-                                  onSignInPressed: authorizationState.isBusy
-                                      ? null
-                                      : () => downloadQueueController
-                                            .signInAndRetry(task.id),
-                                  onImportCookiesPressed:
-                                      authorizationState.isBusy
-                                      ? null
-                                      : () => _importCookies(context),
                                 ),
                               );
                             },
@@ -263,6 +251,48 @@ class DownloadsScreen extends StatelessWidget {
                           ),
                           sliver: SliverList.list(
                             children: [
+                              /// Shown only while something has failed
+                              if (failed.isNotEmpty) ...[
+                                DownloadsSectionTitle(
+                                  title: LocaleKeys
+                                      .app_downloader_sections_failed
+                                      .tr(),
+                                  count: failed.length,
+                                ),
+                                const SizedBox(height: 12),
+                                for (final task in failed)
+                                  Padding(
+                                    key: ValueKey(task.id),
+                                    padding: const EdgeInsets.only(
+                                      bottom: _tileSpacing,
+                                    ),
+                                    child: FailedDownloadTile(
+                                      task: task,
+                                      onStartPressed: () =>
+                                          downloadQueueController.startTask(
+                                            task.id,
+                                          ),
+                                      onRemovePressed: () =>
+                                          _removeTask(context, task),
+                                      onRetryPressed: () =>
+                                          downloadQueueController.retryTask(
+                                            task.id,
+                                          ),
+                                      signInTitle: _signInActionTitle(
+                                        authorizationState,
+                                      ),
+                                      onSignInPressed: authorizationState.isBusy
+                                          ? null
+                                          : () => downloadQueueController
+                                                .signInAndRetry(task.id),
+                                      onImportCookiesPressed:
+                                          authorizationState.isBusy
+                                          ? null
+                                          : () => _importCookies(context),
+                                    ),
+                                  ),
+                                const SizedBox(height: 24),
+                              ],
                               DownloadsSectionTitle(
                                 title: LocaleKeys
                                     .app_downloader_sections_finished
@@ -306,8 +336,14 @@ class DownloadsScreen extends StatelessWidget {
                             ],
                           ),
                         ),
+
+                        /// The download footer lies over the bottom
                         SliverToBoxAdapter(
-                          child: SizedBox(height: verticalPadding),
+                          child: SizedBox(
+                            height:
+                                verticalPadding +
+                                MediaQuery.paddingOf(context).bottom,
+                          ),
                         ),
                       ],
                     );

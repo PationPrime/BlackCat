@@ -1,5 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:youtube_downloader/src/app/constants/constants.dart';
 import 'package:youtube_downloader/src/app/design_system/design_system.dart';
 import 'package:youtube_downloader/src/app/localization/lang/locale_keys.g.dart';
 import 'package:youtube_downloader/src/app/models/models.dart';
@@ -9,7 +10,7 @@ import 'package:youtube_downloader/src/app/widgets/widgets.dart';
 /// Current download along the bottom of the window, like in Steam: the video,
 /// its progress and a pause. The whole bar opens the downloads page
 class DownloadFooter extends StatelessWidget {
-  static const height = 72.0;
+  static const height = 85.0;
   static const _thumbnailWidth = 64.0;
 
   /// `null` when nothing is downloading
@@ -90,6 +91,9 @@ class DownloadFooter extends StatelessWidget {
         if (task != null) ...[
           const SizedBox(height: 6),
           AppProgressBar(
+            /// Progress changes once per interval: the bar moves between
+            /// the values all this time
+            animationDuration: DownloadConstants.progressUpdateInterval,
             value: task.percent / 100,
             pulsing: DownloadTaskText.isIndeterminate(task),
             height: 4,
@@ -97,12 +101,14 @@ class DownloadFooter extends StatelessWidget {
         ],
         if (status.isNotEmpty) ...[
           const SizedBox(height: 4),
-          Text(
-            status,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: context.text.footnoteRegular.copyWith(
-              color: context.color.textTertiary,
+          Expanded(
+            child: Text(
+              status,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: context.text.footnoteRegular.copyWith(
+                color: context.color.textTertiary,
+              ),
             ),
           ),
         ],

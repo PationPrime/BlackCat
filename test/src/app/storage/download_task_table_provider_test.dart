@@ -53,13 +53,15 @@ void main() {
     await provider.saveTasks([
       _task('finished', section: DownloadTaskSection.finished, status: DownloadTaskStatus.done),
       _task('second', position: 1),
+      _task('failed', section: DownloadTaskSection.failed, status: DownloadTaskStatus.failed),
       _task('active', section: DownloadTaskSection.active, status: DownloadTaskStatus.paused, streams: _streams),
       _task('first'),
     ]);
 
     final tasks = await provider.getTasks();
 
-    expect([for (final task in tasks) task.id], ['active', 'first', 'second', 'finished']);
+    expect([for (final task in tasks) task.id], ['active', 'first', 'second', 'failed', 'finished']);
+    expect(tasks[3].section, DownloadTaskSection.failed);
 
     final active = tasks.first;
 

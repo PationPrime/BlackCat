@@ -201,4 +201,35 @@ void main() {
 
     await app.close();
   });
+
+  testWidgets('вход и выход из YouTube в заголовке главной; выход недоступен во время загрузки', (tester) async {
+    final app = TestApp();
+
+    await app.pumpPage(tester, const HomeScreen());
+
+    final header = find.byType(AppPageHeader);
+
+    expect(find.descendant(of: header, matching: find.text('Войти в YouTube')), findsOneWidget);
+
+    await tester.tap(find.descendant(of: header, matching: find.text('Войти в YouTube')));
+    await app.settle(tester);
+
+    expect(app.authenticationRepository.signInCalls, 1);
+    expect(find.descendant(of: header, matching: find.text('Аккаунт подключён')), findsOneWidget);
+
+    await app.addTask(tester, 'a');
+
+    expect(tester.widget<AppLinkButton>(find.widgetWithText(AppLinkButton, 'Выйти')).onPressed, isNull);
+
+    app.videoRepository.downloads.single.succeed(r'C:\Downloads\a.mp4');
+    await app.settle(tester);
+
+    await tester.tap(find.descendant(of: header, matching: find.text('Выйти')));
+    await app.settle(tester);
+
+    expect(app.authenticationRepository.signOutCalls, 1);
+    expect(find.descendant(of: header, matching: find.text('Войти в YouTube')), findsOneWidget);
+
+    await app.close();
+  });
 }

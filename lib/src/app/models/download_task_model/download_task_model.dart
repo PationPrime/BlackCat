@@ -132,6 +132,8 @@ class DownloadTaskModel extends Equatable {
   ];
 
   DownloadTaskModel copyWith({
+    VideoInfoModel? video,
+    QualityModel? quality,
     DownloadTaskStatus? status,
     DownloadTaskSection? section,
     DownloadEngineModel? engine,
@@ -152,8 +154,8 @@ class DownloadTaskModel extends Equatable {
     bool clearFailure = false,
   }) => DownloadTaskModel(
     id: id,
-    video: video,
-    quality: quality,
+    video: video ?? this.video,
+    quality: quality ?? this.quality,
     status: status ?? this.status,
     section: section ?? this.section,
     engine: engine ?? this.engine,
