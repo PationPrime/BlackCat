@@ -105,4 +105,36 @@ void main() {
     expect([for (final task in await provider.getTasks()) task.id], ['b']);
     expect(await database.select(database.downloadTaskStreamsTable).get(), isEmpty);
   });
+
+  test('способ скачивания сохраняется: встроенный по умолчанию, yt-dlp как указан', () async {
+    await provider.saveTasks([
+      _task('built-in'),
+      DownloadTaskDto.fromModel(
+        _task('yt-dlp', position: 1).toModel().copyWith(),
+      ),
+    ]);
+
+    final ytDlpTask = DownloadTaskDto.fromModel(
+      DownloadTaskModel(
+        id: 'yt-dlp',
+        video: const VideoInfoModel(id: 'video', title: 'Видео', url: 'https://youtu.be/video', qualities: []),
+        quality: const QualityModel(id: '1080', kind: QualityKind.video),
+        status: DownloadTaskStatus.queued,
+        section: DownloadTaskSection.queue,
+        engine: DownloadEngineModel.ytDlp,
+        position: 1,
+        createdAt: DateTime(2026, 9, 1),
+        updatedAt: DateTime(2026, 9, 1),
+      ),
+    );
+
+    await provider.saveTasks([ytDlpTask]);
+
+    final tasks = await provider.getTasks();
+
+    expect({for (final task in tasks) task.id: task.engine}, {
+      'built-in': DownloadEngineModel.builtIn,
+      'yt-dlp': DownloadEngineModel.ytDlp,
+    });
+  });
 }

@@ -29,6 +29,7 @@ Future<void> _settle() async {
 
 final class _Harness {
   final videoRepository = FakeVideoRepository();
+  final ytDlpVideoRepository = FakeYtDlpVideoRepository();
   final queueRepository = FakeDownloadQueueRepository();
   final settingsRepository = FakeSettingsRepository();
   final authenticationRepository = FakeAuthenticationRepository();
@@ -36,6 +37,7 @@ final class _Harness {
   late final controller = DownloadQueueController(
     downloadQueueRepository: queueRepository,
     videoRepository: videoRepository,
+    ytDlpVideoRepository: ytDlpVideoRepository,
     settingsRepository: settingsRepository,
     authorizationController: AuthorizationController(authenticationRepository: authenticationRepository),
   );
@@ -44,8 +46,12 @@ final class _Harness {
 
   List<FakeDownloadCall> get downloads => videoRepository.downloads;
 
-  Future<void> add(String id, {QualityModel quality = _quality1080}) async {
-    await controller.addTask(video: _video(id), quality: quality);
+  Future<void> add(
+    String id, {
+    QualityModel quality = _quality1080,
+    DownloadEngineModel engine = DownloadEngineModel.builtIn,
+  }) async {
+    await controller.addTask(video: _video(id), quality: quality, engine: engine);
     await _settle();
   }
 
@@ -349,6 +355,83 @@ void main() {
 
     expect(harness.state.finished, isEmpty);
     expect(harness.queueRepository.removedTaskIds, [taskId]);
+  });
+
+  test('загрузка через yt-dlp качается им до конца, даже после паузы', () async {
+    final harness = _Harness();
+
+    await harness.add('a', engine: DownloadEngineModel.ytDlp);
+    await harness.add('b');
+
+    final ytDlpDownload = harness.ytDlpVideoRepository.downloads.single;
+    final taskId = harness.taskIdOf('a');
+
+    expect(harness.downloads, isEmpty);
+    expect(ytDlpDownload.taskId, taskId);
+    expect(harness.state.activeTask?.engine, DownloadEngineModel.ytDlp);
+    expect(harness.queueRepository.saved[taskId]?.engine, DownloadEngineModel.ytDlp);
+
+    ytDlpDownload.selectStreams(_videoStreams);
+
+    await harness.controller.pauseActiveTask();
+    await _settle();
+    await harness.controller.resumeActiveTask();
+    await _settle();
+
+    expect(harness.ytDlpVideoRepository.downloads, hasLength(2));
+    expect(harness.ytDlpVideoRepository.downloads.last.streams, _videoStreams);
+
+    harness.ytDlpVideoRepository.downloads.last.succeed(r'C:\Downloads.mp4');
+    await _settle();
+
+    /// The next video was added for the built-in downloader
+    expect(harness.downloads.single.taskId, harness.taskIdOf('b'));
+  });
+
+  test('yt-dlp пропал: загрузка продолжается встроенным загрузчиком с тех же потоков', () async {
+    final harness = _Harness();
+
+    await harness.add('a', engine: DownloadEngineModel.ytDlp);
+
+    final taskId = harness.taskIdOf('a');
+    final ytDlpDownload = harness.ytDlpVideoRepository.downloads.single;
+
+    ytDlpDownload.selectStreams(_videoStreams);
+    await _settle();
+
+    ytDlpDownload.failWith(
+      const VideoFailure(code: 'ytdlp_not_found', message: 'yt-dlp не найден'),
+    );
+    await _settle();
+
+    final builtIn = harness.downloads.single;
+
+    expect(builtIn.taskId, taskId);
+    expect(builtIn.streams, _videoStreams);
+    expect(harness.state.activeTask?.engine, DownloadEngineModel.builtIn);
+    expect(harness.state.activeTask?.status, DownloadTaskStatus.downloading);
+    expect(harness.queueRepository.saved[taskId]?.engine, DownloadEngineModel.builtIn);
+
+    builtIn.succeed(r'C:\Downloads\a.mp4');
+    await _settle();
+
+    expect(harness.state.finished.single.engine, DownloadEngineModel.builtIn);
+  });
+
+  test('другие ошибки yt-dlp не переключают загрузку на встроенный загрузчик', () async {
+    final harness = _Harness();
+
+    await harness.add('a', engine: DownloadEngineModel.ytDlp);
+
+    harness.ytDlpVideoRepository.downloads.single.failWith(
+      const VideoFailure(code: 'bot_check', message: 'Войдите', needsSignIn: true),
+    );
+    await _settle();
+
+    expect(harness.downloads, isEmpty);
+    expect(harness.state.queue.single.status, DownloadTaskStatus.failed);
+    expect(harness.state.queue.single.failureNeedsSignIn, isTrue);
+    expect(harness.state.queue.single.engine, DownloadEngineModel.ytDlp);
   });
 
   group('restoreQueue', () {

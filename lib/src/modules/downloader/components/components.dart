@@ -1,5 +1,9 @@
 export 'active_download_card/active_download_card.dart';
 export 'add_video_dialog/add_video_dialog.dart';
+export 'dependencies_fallback_dialog/dependencies_fallback_dialog.dart';
+export 'dependencies_hint/dependencies_hint.dart';
+export 'dependencies_install_dialog/dependencies_install_dialog.dart';
+export 'dependencies_install_prompt/dependencies_install_prompt.dart';
 export 'download_task_failure/download_task_failure.dart';
 export 'download_task_preview/download_task_preview.dart';
 export 'downloaded_video_tile/downloaded_video_tile.dart';

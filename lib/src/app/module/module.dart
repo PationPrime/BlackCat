@@ -34,10 +34,13 @@ final class AppModule {
   static late final DownloadTaskTableProvider _downloadTaskTableProvider;
   static late final AuthenticationRepositoryInterface _authenticationRepository;
   static late final VideoRepositoryInterface _videoRepository;
+  static late final YtDlpVideoRepositoryInterface _ytDlpVideoRepository;
+  static late final DependenciesRepositoryInterface _dependenciesRepository;
   static late final SettingsRepositoryInterface _settingsRepository;
   static late final DownloadQueueRepositoryInterface _downloadQueueRepository;
   static late final AuthorizationController _authorizationController;
   static late final SettingsController _settingsController;
+  static late final DependenciesController _dependenciesController;
   static late final AppWindowController _appWindowController;
   static late final SystemTrayController _systemTrayController;
   static late final AppRouter _appRouter;
@@ -66,6 +69,8 @@ final class AppModule {
 
         _fileSystemService = FileSystemServiceImpl();
 
+        const fileSelectorService = FileSelectorServiceImpl();
+
         final localAuthenticationDataSource = LocalAuthenticationDataSourceImpl(
           fileSystemService: _fileSystemService,
         );
@@ -84,6 +89,7 @@ final class AppModule {
             signInWebViewPlatform: signInWebViewPlatform,
             localAuthenticationDataSource: localAuthenticationDataSource,
           ),
+          fileSelectorService: fileSelectorService,
         );
 
         final sessionStore = SessionStore(
@@ -112,9 +118,29 @@ final class AppModule {
           sessionStore: sessionStore,
         );
 
+        final ytDlpService = YtDlpServiceImpl(
+          fileSystemService: _fileSystemService,
+        );
+
+        _ytDlpVideoRepository = YtDlpVideoRepository(
+          ytDlpService: ytDlpService,
+          mediaMuxerService: const Mp4MediaMuxerServiceImpl(),
+          fileSystemService: _fileSystemService,
+          sessionStore: sessionStore,
+          localAuthenticationDataSource: localAuthenticationDataSource,
+        );
+
+        _dependenciesRepository = DependenciesRepository(
+          ytDlpService: ytDlpService,
+          remoteDependencyDataSource: RemoteDependencyDataSourceImpl(
+            apiProvider: _apiProvider,
+          ),
+          fileSystemService: _fileSystemService,
+        );
+
         _settingsRepository = SettingsRepository(
           localSettingsDataSource: LocalSettingsDataSourceImpl(),
-          directoryPickerService: const DirectoryPickerServiceImpl(),
+          fileSelectorService: fileSelectorService,
           fileSystemService: _fileSystemService,
         );
 
@@ -140,6 +166,11 @@ final class AppModule {
           initialLanguage: initialLanguage,
         )..loadSettings();
 
+        /// A missing yt-dlp is offered for installation on the main screen
+        _dependenciesController = DependenciesController(
+          dependenciesRepository: _dependenciesRepository,
+        )..check();
+
         /// The app title bar and the tray icon are ready before the first frame:
         /// the window never shows the system title bar
         _appWindowController = AppWindowController(
@@ -162,10 +193,14 @@ final class AppModule {
             fileSystemService: _fileSystemService,
             authenticationRepository: _authenticationRepository,
             videoRepository: _videoRepository,
+            ytDlpVideoRepository: _ytDlpVideoRepository,
+            dependenciesRepository: _dependenciesRepository,
             settingsRepository: _settingsRepository,
             downloadQueueRepository: _downloadQueueRepository,
             authorizationController: _authorizationController,
             settingsController: _settingsController,
+            dependenciesController: _dependenciesController,
+            urlLauncherService: const UrlLauncherServiceImpl(),
             appWindowController: _appWindowController,
             systemTrayController: _systemTrayController,
             initialLanguage: initialLanguage,
@@ -206,6 +241,7 @@ final class AppModule {
   Future<void> dispose() async {
     await _authorizationController.close();
     await _settingsController.close();
+    await _dependenciesController.close();
     await _systemTrayController.close();
     await _appWindowController.close();
   }

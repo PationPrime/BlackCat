@@ -21,7 +21,15 @@ final class AuthorizationInProgress extends AuthorizationState {
 }
 
 final class Authorized extends AuthorizationState {
-  const Authorized({super.failure});
+  final AccountSessionModel session;
+
+  const Authorized({
+    this.session = const AccountSessionModel.signInWindow(),
+    super.failure,
+  });
+
+  @override
+  List<Object?> get props => [session, failure];
 }
 
 final class Unauthorized extends AuthorizationState {
@@ -32,6 +40,12 @@ extension AuthorizationStateX on AuthorizationState {
   bool get isChecking => this is AuthorizationInitial;
   bool get isInProgress => this is AuthorizationInProgress;
   bool get isAuthorized => this is Authorized;
+
+  /// Where the signed-in account came from; `null` when signed out
+  AccountSessionModel? get session => switch (this) {
+    Authorized(:final session) => session,
+    _ => null,
+  };
 
   /// Checking or signing in: sign-in buttons are unavailable
   bool get isBusy => isChecking || isInProgress;

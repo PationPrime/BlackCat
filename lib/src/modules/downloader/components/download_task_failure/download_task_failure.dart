@@ -5,14 +5,16 @@ import 'package:youtube_downloader/src/app/localization/lang/locale_keys.g.dart'
 import 'package:youtube_downloader/src/app/models/models.dart';
 import 'package:youtube_downloader/src/app/widgets/widgets.dart';
 
-/// Failed download reason with retry and sign-in buttons
+/// Failed download reason with retry, sign-in and cookies import buttons
 class DownloadTaskFailure extends StatelessWidget {
   final DownloadTaskModel task;
   final VoidCallback? onRetryPressed;
 
-  /// The sign-in button is shown if signing in to YouTube will most likely help
+  /// The sign-in and cookies import buttons are shown if signing in
+  /// to YouTube will most likely help
   final String? signInTitle;
   final VoidCallback? onSignInPressed;
+  final VoidCallback? onImportCookiesPressed;
 
   const DownloadTaskFailure({
     super.key,
@@ -20,6 +22,7 @@ class DownloadTaskFailure extends StatelessWidget {
     this.onRetryPressed,
     this.signInTitle,
     this.onSignInPressed,
+    this.onImportCookiesPressed,
   });
 
   @override
@@ -42,12 +45,19 @@ class DownloadTaskFailure extends StatelessWidget {
             onPressed: onRetryPressed,
             compact: true,
           ),
-          if (task.failureNeedsSignIn && signInTitle is String)
+          if (task.failureNeedsSignIn) ...[
+            if (signInTitle case final title?)
+              AppSecondaryButton(
+                title: title,
+                onPressed: onSignInPressed,
+                compact: true,
+              ),
             AppSecondaryButton(
-              title: signInTitle!,
-              onPressed: onSignInPressed,
+              title: LocaleKeys.app_downloader_buttons_import_cookies.tr(),
+              onPressed: onImportCookiesPressed,
               compact: true,
             ),
+          ],
         ],
       ),
     ],

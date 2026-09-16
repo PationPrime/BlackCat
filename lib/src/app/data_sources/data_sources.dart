@@ -1,5 +1,6 @@
 export 'authentication/local_authentication_data_source.dart';
 export 'authentication/web_authentication_data_source.dart';
+export 'dependency/remote_dependency_data_source.dart';
 export 'media_stream/remote_media_stream_data_source.dart';
 export 'settings/local_settings_data_source.dart';
 export 'thumbnail/remote_thumbnail_data_source.dart';

@@ -1,5 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:youtube_downloader/src/app/errors/errors.dart';
 import 'package:youtube_downloader/src/app/failure/failure.dart';
 import 'package:youtube_downloader/src/app/logger/app_logger.dart';
 import 'package:youtube_downloader/src/app/models/models.dart';
@@ -10,15 +11,20 @@ import 'package:youtube_downloader/src/app/tools/tools.dart';
 
 part 'add_video_state.dart';
 
-/// Add video dialog: search by link and quality selection
+/// Add video dialog: search by link and quality selection.
+///
+/// yt-dlp searches first; when yt-dlp itself fails (not the video),
+/// the built-in downloader searches instead
 class AddVideoController extends Cubit<AddVideoState> {
   static const _appLogger = AppLogger(where: 'AddVideoController');
 
   final VideoRepositoryInterface _videoRepository;
+  final YtDlpVideoRepositoryInterface _ytDlpVideoRepository;
   final AuthorizationController _authorizationController;
 
   AddVideoController({
     required this._videoRepository,
+    required this._ytDlpVideoRepository,
     required this._authorizationController,
   }) : super(const AddVideoInitialState());
 
@@ -28,7 +34,18 @@ class AddVideoController extends Cubit<AddVideoState> {
     emit(state);
   }
 
-  Future<void> fetchVideoInfo(String url) async {
+  VideoRepositoryInterface _videoRepositoryOf(DownloadEngineModel engine) =>
+      switch (engine) {
+        DownloadEngineModel.builtIn => _videoRepository,
+        DownloadEngineModel.ytDlp => _ytDlpVideoRepository,
+      };
+
+  /// Finds the video with [engine]: the video is downloaded with the engine
+  /// that found it
+  Future<void> fetchVideoInfo(
+    String url, {
+    DownloadEngineModel engine = DownloadEngineModel.fallback,
+  }) async {
     if (url.trim().isEmpty || state.isInfoLoading) {
       return;
     }
@@ -36,13 +53,27 @@ class AddVideoController extends Cubit<AddVideoState> {
     _safeEmit(
       state.copyWith(
         requestedUrl: url,
+        requestedEngine: engine,
+        engine: engine,
         isInfoLoading: true,
         clearVideoInfo: true,
         clearFailure: true,
       ),
     );
 
-    final videoInfoResponse = await _videoRepository.getVideoInfo(url);
+    var videoInfoResponse = await _videoRepositoryOf(engine).getVideoInfo(url);
+
+    if (engine == DownloadEngineModel.ytDlp &&
+        _isYtDlpFailure(videoInfoResponse.failure)) {
+      _appLogger.logFailure(
+        videoInfoResponse.failure!,
+        'yt-dlp failed, searching with the built-in downloader',
+      );
+
+      _safeEmit(state.copyWith(engine: DownloadEngineModel.builtIn));
+
+      videoInfoResponse = await _videoRepository.getVideoInfo(url);
+    }
 
     if (videoInfoResponse.isFailed) {
       final failure = videoInfoResponse.failure ?? const OtherFailure();
@@ -67,6 +98,15 @@ class AddVideoController extends Cubit<AddVideoState> {
     );
   }
 
+  /// yt-dlp is missing or broke on its own: the built-in downloader may
+  /// still find the video. Video errors (sign-in, private…) are final
+  static bool _isYtDlpFailure(Failure? failure) {
+    const codes = VideoErrorCodes();
+
+    return failure?.code == codes.ytDlpNotFound ||
+        failure?.code == codes.ytDlpFailed;
+  }
+
   void selectQuality(String qualityId) {
     _safeEmit(state.copyWith(selectedQualityId: qualityId));
   }
@@ -77,8 +117,12 @@ class AddVideoController extends Cubit<AddVideoState> {
       return;
     }
 
-    await fetchVideoInfo(state.requestedUrl);
+    await retry();
   }
+
+  /// Repeats the last search, e.g. after importing cookies
+  Future<void> retry() =>
+      fetchVideoInfo(state.requestedUrl, engine: state.requestedEngine);
 
   /// An error from another controller to show in the dialog
   void showFailure(Failure failure) {

@@ -6,8 +6,11 @@ import 'package:youtube_downloader/src/app/localization/lang/locale_keys.g.dart'
 import 'package:youtube_downloader/src/app/repositories/repositories.dart';
 import 'package:youtube_downloader/src/app/shared_controllers/shared_controllers.dart';
 import 'package:youtube_downloader/src/app/widgets/widgets.dart';
+import 'package:youtube_downloader/src/modules/settings/module.dart';
 
 import '../../controllers/controllers.dart';
+import '../dependencies_hint/dependencies_hint.dart';
+import '../dependencies_install_dialog/dependencies_install_dialog.dart';
 import '../quality_picker/quality_picker.dart';
 import '../url_search_form/url_search_form.dart';
 import '../video_card/video_card.dart';
@@ -22,26 +25,69 @@ class AddVideoDialog extends StatefulWidget {
   /// The field and the Search button go into one row already at the dialog width
   static const _searchRowBreakpoint = 400.0;
 
-  const AddVideoDialog({super.key});
+  final String initialUrl;
 
-  static Future<void> show(BuildContext context) => AppDialog.show<void>(
-    context,
-    builder: (dialogContext) => BlocProvider<AddVideoController>(
-      create: (_) => AddVideoController(
-        videoRepository: dialogContext.read<VideoRepositoryInterface>(),
-        authorizationController: dialogContext.read<AuthorizationController>(),
+  /// Searches [initialUrl] as soon as the dialog opens
+  final bool searchOnOpen;
+
+  const AddVideoDialog({
+    super.key,
+    this.initialUrl = '',
+    this.searchOnOpen = false,
+  });
+
+  /// The dialog closes for the cookies import in the settings and opens again
+  /// with the same link afterwards; the search is repeated if cookies were
+  /// imported
+  static Future<void> show(
+    BuildContext context, {
+    String initialUrl = '',
+    bool searchOnOpen = false,
+  }) async {
+    final cookiesImportUrl = await AppDialog.show<String>(
+      context,
+      builder: (dialogContext) => BlocProvider<AddVideoController>(
+        create: (_) => AddVideoController(
+          videoRepository: dialogContext.read<VideoRepositoryInterface>(),
+          ytDlpVideoRepository: dialogContext
+              .read<YtDlpVideoRepositoryInterface>(),
+          authorizationController: dialogContext
+              .read<AuthorizationController>(),
+        ),
+        child: AddVideoDialog(
+          initialUrl: initialUrl,
+          searchOnOpen: searchOnOpen,
+        ),
       ),
-      child: const AddVideoDialog(),
-    ),
-  );
+    );
+
+    if (cookiesImportUrl == null || !context.mounted) return;
+
+    final imported = await SettingsScreen.openCookiesImport(context);
+
+    if (!context.mounted) return;
+
+    await show(context, initialUrl: cookiesImportUrl, searchOnOpen: imported);
+  }
 
   @override
   State<AddVideoDialog> createState() => _AddVideoDialogState();
 }
 
 class _AddVideoDialogState extends State<AddVideoDialog> {
-  final _urlController = TextEditingController();
+  late final _urlController = TextEditingController(text: widget.initialUrl);
   final _urlFocusNode = FocusNode();
+
+  @override
+  void initState() {
+    super.initState();
+
+    if (widget.searchOnOpen) {
+      WidgetsBinding.instance.addPostFrameCallback(
+        (_) => _onUrlSubmitted(widget.initialUrl),
+      );
+    }
+  }
 
   @override
   void dispose() {
@@ -51,13 +97,18 @@ class _AddVideoDialogState extends State<AddVideoDialog> {
   }
 
   void _onUrlSubmitted(String url) {
+    if (!mounted) return;
+
     if (url.trim().isEmpty) {
       _urlFocusNode.requestFocus();
 
       return;
     }
 
-    context.read<AddVideoController>().fetchVideoInfo(url);
+    context.read<AddVideoController>().fetchVideoInfo(
+      url,
+      engine: context.read<DependenciesController>().state.preferredEngine,
+    );
   }
 
   void _addVideo(AddVideoState addVideoState) {
@@ -69,6 +120,7 @@ class _AddVideoDialogState extends State<AddVideoDialog> {
     context.read<DownloadQueueController>().addTask(
       video: videoInfo,
       quality: quality,
+      engine: addVideoState.engine,
     );
 
     Navigator.of(context).pop();
@@ -86,6 +138,9 @@ class _AddVideoDialogState extends State<AddVideoDialog> {
   Widget build(BuildContext context) {
     final hasActiveTask = context.select(
       (DownloadQueueController controller) => controller.state.hasActiveTask,
+    );
+    final dependenciesStatus = context.select(
+      (DependenciesController controller) => controller.state.status,
     );
 
     return BlocListener<AuthorizationController, AuthorizationState>(
@@ -127,21 +182,42 @@ class _AddVideoDialogState extends State<AddVideoDialog> {
                         rowBreakpoint: AddVideoDialog._searchRowBreakpoint,
                         onSubmitted: _onUrlSubmitted,
                       ),
+                      const SizedBox(height: 8),
+                      DependenciesHint(
+                        status: dependenciesStatus,
+                        onInstallPressed: () =>
+                            DependenciesInstallDialog.show(context),
+                      ),
 
-                      /// Error message; with a sign-in button if signing in to YouTube will help
+                      /// Error message; if signing in to YouTube will help,
+                      /// with the sign-in and the cookies import
                       if (addVideoState.failure case final failure?) ...[
                         const SizedBox(height: 16),
                         AppFailureBanner(
                           message: failure.message,
-                          actionTitle:
-                              failure is VideoFailure && failure.needsSignIn
-                              ? _signInActionTitle(authorizationState)
-                              : null,
-                          onActionPressed: authorizationState.isBusy
-                              ? null
-                              : context
-                                    .read<AddVideoController>()
-                                    .signInAndRetry,
+                          actions: [
+                            if (failure is VideoFailure &&
+                                failure.needsSignIn) ...[
+                              AppFailureBannerAction(
+                                title: _signInActionTitle(authorizationState),
+                                onPressed: authorizationState.isBusy
+                                    ? null
+                                    : context
+                                          .read<AddVideoController>()
+                                          .signInAndRetry,
+                              ),
+                              AppFailureBannerAction(
+                                title: LocaleKeys
+                                    .app_downloader_buttons_import_cookies
+                                    .tr(),
+                                onPressed: authorizationState.isBusy
+                                    ? null
+                                    : () => Navigator.of(
+                                        context,
+                                      ).pop(addVideoState.requestedUrl),
+                              ),
+                            ],
+                          ],
                         ),
                       ],
                       if (addVideoState.videoInfo case final videoInfo?) ...[

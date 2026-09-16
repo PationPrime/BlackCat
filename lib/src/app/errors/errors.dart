@@ -1,6 +1,7 @@
 export 'api/api_errors.dart';
 export 'app_error_handler/error_codes.dart';
 export 'authentication_errors/authentication_errors.dart';
+export 'dependency_errors/dependency_errors.dart';
 export 'download_queue_errors/download_queue_errors.dart';
 export 'error_handler/error_handler.dart';
 export 'settings_errors/settings_errors.dart';

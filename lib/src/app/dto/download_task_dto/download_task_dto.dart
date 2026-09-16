@@ -25,6 +25,7 @@ class DownloadTaskDto {
 
   final DownloadTaskStatus status;
   final DownloadTaskSection section;
+  final DownloadEngineModel engine;
   final int position;
   final int downloadedBytes;
   final int? totalBytes;
@@ -52,6 +53,7 @@ class DownloadTaskDto {
     required this.section,
     required this.createdAt,
     required this.updatedAt,
+    this.engine = DownloadEngineModel.builtIn,
     this.channel,
     this.durationSeconds,
     this.thumbnail,
@@ -89,6 +91,7 @@ class DownloadTaskDto {
     qualityIsAac: task.quality.isAac,
     status: task.status,
     section: task.section,
+    engine: task.engine,
     position: task.position,
     downloadedBytes: task.downloadedBytes,
     totalBytes: task.totalBytes,
@@ -127,6 +130,7 @@ class DownloadTaskDto {
     ),
     status: status,
     section: section,
+    engine: engine,
     position: position,
     streams: [for (final stream in streams) stream.toModel()],
     downloadedBytes: downloadedBytes,

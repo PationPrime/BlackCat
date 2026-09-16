@@ -188,6 +188,19 @@ class $DownloadTasksTableTable extends DownloadTasksTable
       ).withConverter<DownloadTaskSection>(
         $DownloadTasksTableTable.$convertersection,
       );
+  @override
+  late final GeneratedColumnWithTypeConverter<DownloadEngineModel, String>
+  engine =
+      GeneratedColumn<String>(
+        'engine',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+        defaultValue: Constant(DownloadEngineModel.builtIn.name),
+      ).withConverter<DownloadEngineModel>(
+        $DownloadTasksTableTable.$converterengine,
+      );
   static const VerificationMeta _positionMeta = const VerificationMeta(
     'position',
   );
@@ -332,6 +345,7 @@ class $DownloadTasksTableTable extends DownloadTasksTable
     qualityIsAac,
     status,
     section,
+    engine,
     position,
     downloadedBytes,
     totalBytes,
@@ -623,6 +637,12 @@ class $DownloadTasksTableTable extends DownloadTasksTable
           data['${effectivePrefix}section'],
         )!,
       ),
+      engine: $DownloadTasksTableTable.$converterengine.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}engine'],
+        )!,
+      ),
       position: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}position'],
@@ -685,6 +705,10 @@ class $DownloadTasksTableTable extends DownloadTasksTable
   $convertersection = const EnumNameConverter<DownloadTaskSection>(
     DownloadTaskSection.values,
   );
+  static JsonTypeConverter2<DownloadEngineModel, String, String>
+  $converterengine = const EnumNameConverter<DownloadEngineModel>(
+    DownloadEngineModel.values,
+  );
 }
 
 class DownloadTasksTableData extends DataClass
@@ -707,6 +731,9 @@ class DownloadTasksTableData extends DataClass
   final bool qualityIsAac;
   final DownloadTaskStatus status;
   final DownloadTaskSection section;
+
+  /// Downloads of older versions were all built-in
+  final DownloadEngineModel engine;
   final int position;
 
   /// Downloaded bytes as of the last save. On app launch it is checked
@@ -742,6 +769,7 @@ class DownloadTasksTableData extends DataClass
     required this.qualityIsAac,
     required this.status,
     required this.section,
+    required this.engine,
     required this.position,
     required this.downloadedBytes,
     this.totalBytes,
@@ -795,6 +823,11 @@ class DownloadTasksTableData extends DataClass
     {
       map['section'] = Variable<String>(
         $DownloadTasksTableTable.$convertersection.toSql(section),
+      );
+    }
+    {
+      map['engine'] = Variable<String>(
+        $DownloadTasksTableTable.$converterengine.toSql(engine),
       );
     }
     map['position'] = Variable<int>(position);
@@ -853,6 +886,7 @@ class DownloadTasksTableData extends DataClass
       qualityIsAac: Value(qualityIsAac),
       status: Value(status),
       section: Value(section),
+      engine: Value(engine),
       position: Value(position),
       downloadedBytes: Value(downloadedBytes),
       totalBytes: totalBytes == null && nullToAbsent
@@ -907,6 +941,9 @@ class DownloadTasksTableData extends DataClass
       section: $DownloadTasksTableTable.$convertersection.fromJson(
         serializer.fromJson<String>(json['section']),
       ),
+      engine: $DownloadTasksTableTable.$converterengine.fromJson(
+        serializer.fromJson<String>(json['engine']),
+      ),
       position: serializer.fromJson<int>(json['position']),
       downloadedBytes: serializer.fromJson<int>(json['downloadedBytes']),
       totalBytes: serializer.fromJson<int?>(json['totalBytes']),
@@ -946,6 +983,9 @@ class DownloadTasksTableData extends DataClass
       'section': serializer.toJson<String>(
         $DownloadTasksTableTable.$convertersection.toJson(section),
       ),
+      'engine': serializer.toJson<String>(
+        $DownloadTasksTableTable.$converterengine.toJson(engine),
+      ),
       'position': serializer.toJson<int>(position),
       'downloadedBytes': serializer.toJson<int>(downloadedBytes),
       'totalBytes': serializer.toJson<int?>(totalBytes),
@@ -977,6 +1017,7 @@ class DownloadTasksTableData extends DataClass
     bool? qualityIsAac,
     DownloadTaskStatus? status,
     DownloadTaskSection? section,
+    DownloadEngineModel? engine,
     int? position,
     int? downloadedBytes,
     Value<int?> totalBytes = const Value.absent(),
@@ -1009,6 +1050,7 @@ class DownloadTasksTableData extends DataClass
     qualityIsAac: qualityIsAac ?? this.qualityIsAac,
     status: status ?? this.status,
     section: section ?? this.section,
+    engine: engine ?? this.engine,
     position: position ?? this.position,
     downloadedBytes: downloadedBytes ?? this.downloadedBytes,
     totalBytes: totalBytes.present ? totalBytes.value : this.totalBytes,
@@ -1057,6 +1099,7 @@ class DownloadTasksTableData extends DataClass
           : this.qualityIsAac,
       status: data.status.present ? data.status.value : this.status,
       section: data.section.present ? data.section.value : this.section,
+      engine: data.engine.present ? data.engine.value : this.engine,
       position: data.position.present ? data.position.value : this.position,
       downloadedBytes: data.downloadedBytes.present
           ? data.downloadedBytes.value
@@ -1104,6 +1147,7 @@ class DownloadTasksTableData extends DataClass
           ..write('qualityIsAac: $qualityIsAac, ')
           ..write('status: $status, ')
           ..write('section: $section, ')
+          ..write('engine: $engine, ')
           ..write('position: $position, ')
           ..write('downloadedBytes: $downloadedBytes, ')
           ..write('totalBytes: $totalBytes, ')
@@ -1137,6 +1181,7 @@ class DownloadTasksTableData extends DataClass
     qualityIsAac,
     status,
     section,
+    engine,
     position,
     downloadedBytes,
     totalBytes,
@@ -1169,6 +1214,7 @@ class DownloadTasksTableData extends DataClass
           other.qualityIsAac == this.qualityIsAac &&
           other.status == this.status &&
           other.section == this.section &&
+          other.engine == this.engine &&
           other.position == this.position &&
           other.downloadedBytes == this.downloadedBytes &&
           other.totalBytes == this.totalBytes &&
@@ -1200,6 +1246,7 @@ class DownloadTasksTableCompanion
   final Value<bool> qualityIsAac;
   final Value<DownloadTaskStatus> status;
   final Value<DownloadTaskSection> section;
+  final Value<DownloadEngineModel> engine;
   final Value<int> position;
   final Value<int> downloadedBytes;
   final Value<int?> totalBytes;
@@ -1229,6 +1276,7 @@ class DownloadTasksTableCompanion
     this.qualityIsAac = const Value.absent(),
     this.status = const Value.absent(),
     this.section = const Value.absent(),
+    this.engine = const Value.absent(),
     this.position = const Value.absent(),
     this.downloadedBytes = const Value.absent(),
     this.totalBytes = const Value.absent(),
@@ -1259,6 +1307,7 @@ class DownloadTasksTableCompanion
     this.qualityIsAac = const Value.absent(),
     required DownloadTaskStatus status,
     required DownloadTaskSection section,
+    this.engine = const Value.absent(),
     this.position = const Value.absent(),
     this.downloadedBytes = const Value.absent(),
     this.totalBytes = const Value.absent(),
@@ -1298,6 +1347,7 @@ class DownloadTasksTableCompanion
     Expression<bool>? qualityIsAac,
     Expression<String>? status,
     Expression<String>? section,
+    Expression<String>? engine,
     Expression<int>? position,
     Expression<int>? downloadedBytes,
     Expression<int>? totalBytes,
@@ -1328,6 +1378,7 @@ class DownloadTasksTableCompanion
       if (qualityIsAac != null) 'quality_is_aac': qualityIsAac,
       if (status != null) 'status': status,
       if (section != null) 'section': section,
+      if (engine != null) 'engine': engine,
       if (position != null) 'position': position,
       if (downloadedBytes != null) 'downloaded_bytes': downloadedBytes,
       if (totalBytes != null) 'total_bytes': totalBytes,
@@ -1361,6 +1412,7 @@ class DownloadTasksTableCompanion
     Value<bool>? qualityIsAac,
     Value<DownloadTaskStatus>? status,
     Value<DownloadTaskSection>? section,
+    Value<DownloadEngineModel>? engine,
     Value<int>? position,
     Value<int>? downloadedBytes,
     Value<int?>? totalBytes,
@@ -1391,6 +1443,7 @@ class DownloadTasksTableCompanion
       qualityIsAac: qualityIsAac ?? this.qualityIsAac,
       status: status ?? this.status,
       section: section ?? this.section,
+      engine: engine ?? this.engine,
       position: position ?? this.position,
       downloadedBytes: downloadedBytes ?? this.downloadedBytes,
       totalBytes: totalBytes ?? this.totalBytes,
@@ -1463,6 +1516,11 @@ class DownloadTasksTableCompanion
         $DownloadTasksTableTable.$convertersection.toSql(section.value),
       );
     }
+    if (engine.present) {
+      map['engine'] = Variable<String>(
+        $DownloadTasksTableTable.$converterengine.toSql(engine.value),
+      );
+    }
     if (position.present) {
       map['position'] = Variable<int>(position.value);
     }
@@ -1521,6 +1579,7 @@ class DownloadTasksTableCompanion
           ..write('qualityIsAac: $qualityIsAac, ')
           ..write('status: $status, ')
           ..write('section: $section, ')
+          ..write('engine: $engine, ')
           ..write('position: $position, ')
           ..write('downloadedBytes: $downloadedBytes, ')
           ..write('totalBytes: $totalBytes, ')
@@ -1922,6 +1981,7 @@ typedef $$DownloadTasksTableTableCreateCompanionBuilder =
       Value<bool> qualityIsAac,
       required DownloadTaskStatus status,
       required DownloadTaskSection section,
+      Value<DownloadEngineModel> engine,
       Value<int> position,
       Value<int> downloadedBytes,
       Value<int?> totalBytes,
@@ -1953,6 +2013,7 @@ typedef $$DownloadTasksTableTableUpdateCompanionBuilder =
       Value<bool> qualityIsAac,
       Value<DownloadTaskStatus> status,
       Value<DownloadTaskSection> section,
+      Value<DownloadEngineModel> engine,
       Value<int> position,
       Value<int> downloadedBytes,
       Value<int?> totalBytes,
@@ -2100,6 +2161,16 @@ class $$DownloadTasksTableTableFilterComposer
   >
   get section => $composableBuilder(
     column: $table.section,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<
+    DownloadEngineModel,
+    DownloadEngineModel,
+    String
+  >
+  get engine => $composableBuilder(
+    column: $table.engine,
     builder: (column) => ColumnWithTypeConverterFilters(column),
   );
 
@@ -2275,6 +2346,11 @@ class $$DownloadTasksTableTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get engine => $composableBuilder(
+    column: $table.engine,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<int> get position => $composableBuilder(
     column: $table.position,
     builder: (column) => ColumnOrderings(column),
@@ -2401,6 +2477,9 @@ class $$DownloadTasksTableTableAnnotationComposer
   GeneratedColumnWithTypeConverter<DownloadTaskSection, String> get section =>
       $composableBuilder(column: $table.section, builder: (column) => column);
 
+  GeneratedColumnWithTypeConverter<DownloadEngineModel, String> get engine =>
+      $composableBuilder(column: $table.engine, builder: (column) => column);
+
   GeneratedColumn<int> get position =>
       $composableBuilder(column: $table.position, builder: (column) => column);
 
@@ -2525,6 +2604,7 @@ class $$DownloadTasksTableTableTableManager
                 Value<bool> qualityIsAac = const Value.absent(),
                 Value<DownloadTaskStatus> status = const Value.absent(),
                 Value<DownloadTaskSection> section = const Value.absent(),
+                Value<DownloadEngineModel> engine = const Value.absent(),
                 Value<int> position = const Value.absent(),
                 Value<int> downloadedBytes = const Value.absent(),
                 Value<int?> totalBytes = const Value.absent(),
@@ -2554,6 +2634,7 @@ class $$DownloadTasksTableTableTableManager
                 qualityIsAac: qualityIsAac,
                 status: status,
                 section: section,
+                engine: engine,
                 position: position,
                 downloadedBytes: downloadedBytes,
                 totalBytes: totalBytes,
@@ -2585,6 +2666,7 @@ class $$DownloadTasksTableTableTableManager
                 Value<bool> qualityIsAac = const Value.absent(),
                 required DownloadTaskStatus status,
                 required DownloadTaskSection section,
+                Value<DownloadEngineModel> engine = const Value.absent(),
                 Value<int> position = const Value.absent(),
                 Value<int> downloadedBytes = const Value.absent(),
                 Value<int?> totalBytes = const Value.absent(),
@@ -2614,6 +2696,7 @@ class $$DownloadTasksTableTableTableManager
                 qualityIsAac: qualityIsAac,
                 status: status,
                 section: section,
+                engine: engine,
                 position: position,
                 downloadedBytes: downloadedBytes,
                 totalBytes: totalBytes,

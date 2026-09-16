@@ -19,9 +19,11 @@ class QueuedDownloadTile extends StatelessWidget {
   final VoidCallback? onRemovePressed;
   final VoidCallback? onRetryPressed;
 
-  /// The sign-in button is shown if signing in to YouTube will most likely help
+  /// The sign-in and cookies import buttons are shown if signing in
+  /// to YouTube will most likely help
   final String? signInTitle;
   final VoidCallback? onSignInPressed;
+  final VoidCallback? onImportCookiesPressed;
 
   const QueuedDownloadTile({
     super.key,
@@ -32,6 +34,7 @@ class QueuedDownloadTile extends StatelessWidget {
     this.onRetryPressed,
     this.signInTitle,
     this.onSignInPressed,
+    this.onImportCookiesPressed,
   });
 
   String get _status {
@@ -85,6 +88,7 @@ class QueuedDownloadTile extends StatelessWidget {
                     onRetryPressed: onRetryPressed,
                     signInTitle: signInTitle,
                     onSignInPressed: onSignInPressed,
+                    onImportCookiesPressed: onImportCookiesPressed,
                   )
                 : Text(
                     _status,

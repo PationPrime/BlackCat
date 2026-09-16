@@ -148,6 +148,87 @@ abstract final class QualitySelector {
     return (video: candidates.first, audio: audio);
   }
 
+  /// yt-dlp formats the app downloads and muxes itself, as with its own
+  /// downloader: separate MP4 video and M4A audio over plain HTTPS with an
+  /// exact size and a numeric itag
+  static List<RawFormat> muxableRawFormats(List<RawFormat> formats) => [
+    for (final format in formats)
+      if (_isMuxableRaw(format)) format,
+  ];
+
+  static bool _isMuxableRaw(RawFormat format) {
+    final isVideoOnly = _hasVideo(format) && !_hasAudio(format);
+    final isAudioOnly = _hasAudio(format) && !_hasVideo(format);
+
+    return format['protocol'] == 'https' &&
+        format['filesize'] is int &&
+        int.tryParse('${format['format_id']}') != null &&
+        ((isVideoOnly && format['ext'] == 'mp4') ||
+            (isAudioOnly && format['ext'] == 'm4a'));
+  }
+
+  /// Formats for a quality from [buildQualities] over [muxableRawFormats]:
+  /// video and audio or audio only
+  static ({RawFormat? video, RawFormat audio}) selectRawStreams(
+    List<RawFormat> formats,
+    String quality,
+  ) {
+    final muxable = muxableRawFormats(formats);
+    final audio =
+        muxable
+            .where((format) => _hasAudio(format) && !_hasVideo(format))
+            .toList()
+          ..sort((left, right) {
+            /// The original track of a dubbed video, then AAC, then bitrate
+            final byLanguage = (_num(right['language_preference']) ?? 0)
+                .compareTo(_num(left['language_preference']) ?? 0);
+
+            if (byLanguage != 0) return byLanguage;
+
+            final byCodec =
+                (_aacPattern.hasMatch(right['acodec'] as String? ?? '') ? 1 : 0) -
+                (_aacPattern.hasMatch(left['acodec'] as String? ?? '') ? 1 : 0);
+
+            if (byCodec != 0) return byCodec;
+
+            return (_num(right['abr']) ?? _num(right['tbr']) ?? 0).compareTo(
+              _num(left['abr']) ?? _num(left['tbr']) ?? 0,
+            );
+          });
+
+    if (audio.isEmpty) {
+      throw ArgumentError('no M4A audio format');
+    }
+
+    if (quality == QualityModel.audioId) {
+      return (video: null, audio: audio.first);
+    }
+
+    final resolution = int.parse(quality);
+    final candidates =
+        muxable
+            .where(
+              (format) =>
+                  _hasVideo(format) &&
+                  _num(format['height']) != null &&
+                  _resolutionOf(format) == resolution,
+            )
+            .toList()
+          ..sort(
+            (left, right) => _isBetterCandidate(left, right)
+                ? -1
+                : _isBetterCandidate(right, left)
+                ? 1
+                : 0,
+          );
+
+    if (candidates.isEmpty) {
+      throw ArgumentError('no $quality video format');
+    }
+
+    return (video: candidates.first, audio: audio.first);
+  }
+
   static StreamFormatDto? _bestAudioStream(List<StreamFormatDto> formats) {
     final audio =
         formats.where((format) => format.hasAudio && !format.hasVideo).toList()

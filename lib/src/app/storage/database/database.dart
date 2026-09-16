@@ -53,7 +53,7 @@ class AppDatabase extends _$AppDatabase implements DatabaseProvider {
   AppDatabase.forTesting(DatabaseConnection super.connection);
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -74,6 +74,11 @@ class AppDatabase extends _$AppDatabase implements DatabaseProvider {
           downloadTasksTable,
           downloadTasksTable.completedAt,
         );
+      }
+
+      /// A download remembers its engine: built-in or yt-dlp
+      if (from < 3) {
+        await migrator.addColumn(downloadTasksTable, downloadTasksTable.engine);
       }
     },
     beforeOpen: (_) async => await customStatement('PRAGMA foreign_keys = ON'),

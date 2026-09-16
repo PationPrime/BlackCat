@@ -28,6 +28,11 @@ class DownloadTasksTable extends Table {
 
   TextColumn get status => textEnum<DownloadTaskStatus>()();
   TextColumn get section => textEnum<DownloadTaskSection>()();
+
+  /// Downloads of older versions were all built-in
+  TextColumn get engine => textEnum<DownloadEngineModel>().withDefault(
+    Constant(DownloadEngineModel.builtIn.name),
+  )();
   IntColumn get position => integer().withDefault(const Constant(0))();
 
   /// Downloaded bytes as of the last save. On app launch it is checked

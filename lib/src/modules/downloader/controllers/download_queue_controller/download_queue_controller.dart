@@ -30,6 +30,7 @@ class DownloadQueueController extends Cubit<DownloadQueueState> {
 
   final DownloadQueueRepositoryInterface _downloadQueueRepository;
   final VideoRepositoryInterface _videoRepository;
+  final YtDlpVideoRepositoryInterface _ytDlpVideoRepository;
   final SettingsRepositoryInterface _settingsRepository;
   final AuthorizationController _authorizationController;
 
@@ -46,6 +47,7 @@ class DownloadQueueController extends Cubit<DownloadQueueState> {
   DownloadQueueController({
     required this._downloadQueueRepository,
     required this._videoRepository,
+    required this._ytDlpVideoRepository,
     required this._settingsRepository,
     required this._authorizationController,
   }) : super(const DownloadQueueInitialState());
@@ -113,10 +115,12 @@ class DownloadQueueController extends Cubit<DownloadQueueState> {
   });
 
   /// Adds a video: straight to the active download if the slot is free,
-  /// otherwise to the end of the queue
+  /// otherwise to the end of the queue. [engine] downloads it; the built-in
+  /// downloader takes over if yt-dlp disappears
   Future<void> addTask({
     required VideoInfoModel video,
     required QualityModel quality,
+    DownloadEngineModel engine = DownloadEngineModel.fallback,
   }) => _serialized(() async {
     final now = DateTime.now();
 
@@ -133,6 +137,7 @@ class DownloadQueueController extends Cubit<DownloadQueueState> {
         viewCount: video.viewCount,
       ),
       quality: quality,
+      engine: engine,
       status: DownloadTaskStatus.queued,
       section: DownloadTaskSection.queue,
       createdAt: now,
@@ -354,6 +359,12 @@ class DownloadQueueController extends Cubit<DownloadQueueState> {
         }
       });
 
+  VideoRepositoryInterface _videoRepositoryOf(DownloadEngineModel engine) =>
+      switch (engine) {
+        DownloadEngineModel.builtIn => _videoRepository,
+        DownloadEngineModel.ytDlp => _ytDlpVideoRepository,
+      };
+
   String _newTaskId(DateTime now) =>
       '${now.microsecondsSinceEpoch.toRadixString(36)}'
       '-${_random.nextInt(1 << 30).toRadixString(36)}';
@@ -533,20 +544,39 @@ class DownloadQueueController extends Cubit<DownloadQueueState> {
       );
     }
 
-    final downloadResponse = run.cancellation.isCancelled
-        ? fail<DownloadedFileModel>(
-            VideoFailure(code: const VideoErrorCodes().canceled),
+    Future<OperationResult<DownloadedFileModel>> download(
+      DownloadEngineModel engine,
+      List<DownloadStreamModel> streams,
+    ) => run.cancellation.isCancelled
+        ? Future.value(
+            fail(VideoFailure(code: const VideoErrorCodes().canceled)),
           )
-        : await _videoRepository.downloadVideo(
+        : _videoRepositoryOf(engine).downloadVideo(
             taskId: task.id,
             url: task.video.url,
             quality: task.quality.id,
-            streams: task.streams,
+            streams: streams,
             destinationDirectory: directoryResponse.data?.path,
             cancellation: run.cancellation,
             onStreamsSelected: (streams) => _onStreamsSelected(run, streams),
             onProgress: (progress) => _onProgress(run, progress),
           );
+
+    var downloadResponse = await download(task.engine, task.streams);
+
+    /// yt-dlp is gone: both engines keep unfinished streams the same way,
+    /// so the built-in downloader continues from the same bytes
+    if (task.engine == DownloadEngineModel.ytDlp &&
+        downloadResponse.failure?.code ==
+            const VideoErrorCodes().ytDlpNotFound &&
+        !run.cancellation.isCancelled) {
+      final streams = _onEngineChanged(run, DownloadEngineModel.builtIn);
+
+      downloadResponse = await download(
+        DownloadEngineModel.builtIn,
+        streams ?? task.streams,
+      );
+    }
 
     run.complete(downloadResponse);
 
@@ -620,6 +650,31 @@ class DownloadQueueController extends Cubit<DownloadQueueState> {
         clearSpeed: true,
         updatedAt: DateTime.now(),
       );
+
+  /// Streams yt-dlp selected so far: the built-in downloader continues them
+  List<DownloadStreamModel>? _onEngineChanged(
+    _DownloadRun run,
+    DownloadEngineModel engine,
+  ) {
+    final activeTask = state.activeTask;
+
+    if (_run != run || activeTask == null || activeTask.id != run.taskId) {
+      return null;
+    }
+
+    _safeEmit(
+      state.copyWith(
+        activeTask: activeTask.copyWith(
+          engine: engine,
+          updatedAt: DateTime.now(),
+        ),
+      ),
+    );
+
+    unawaited(_serialized(_saveTasks));
+
+    return activeTask.streams;
+  }
 
   void _onStreamsSelected(
     _DownloadRun run,

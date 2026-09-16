@@ -12,12 +12,16 @@ class RunnerApp extends StatelessWidget {
   final AppThemeType appThemeType;
   final AppRouter appRouter;
   final FileSystemService fileSystemService;
+  final UrlLauncherService urlLauncherService;
   final AuthenticationRepositoryInterface authenticationRepository;
   final VideoRepositoryInterface videoRepository;
+  final YtDlpVideoRepositoryInterface ytDlpVideoRepository;
+  final DependenciesRepositoryInterface dependenciesRepository;
   final SettingsRepositoryInterface settingsRepository;
   final DownloadQueueRepositoryInterface downloadQueueRepository;
   final AuthorizationController authorizationController;
   final SettingsController settingsController;
+  final DependenciesController dependenciesController;
   final AppWindowController appWindowController;
   final SystemTrayController systemTrayController;
 
@@ -29,12 +33,16 @@ class RunnerApp extends StatelessWidget {
     required this.appThemeType,
     required this.appRouter,
     required this.fileSystemService,
+    required this.urlLauncherService,
     required this.authenticationRepository,
     required this.videoRepository,
+    required this.ytDlpVideoRepository,
+    required this.dependenciesRepository,
     required this.settingsRepository,
     required this.downloadQueueRepository,
     required this.authorizationController,
     required this.settingsController,
+    required this.dependenciesController,
     required this.appWindowController,
     required this.systemTrayController,
     required this.initialLanguage,
@@ -45,12 +53,16 @@ class RunnerApp extends StatelessWidget {
     appThemeType: appThemeType,
     appRouter: appRouter,
     fileSystemService: fileSystemService,
+    urlLauncherService: urlLauncherService,
     authenticationRepository: authenticationRepository,
     videoRepository: videoRepository,
+    ytDlpVideoRepository: ytDlpVideoRepository,
+    dependenciesRepository: dependenciesRepository,
     settingsRepository: settingsRepository,
     downloadQueueRepository: downloadQueueRepository,
     authorizationController: authorizationController,
     settingsController: settingsController,
+    dependenciesController: dependenciesController,
     appWindowController: appWindowController,
     systemTrayController: systemTrayController,
     initialLanguage: initialLanguage,

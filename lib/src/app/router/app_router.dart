@@ -1,4 +1,5 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:flutter/widgets.dart';
 
 import '../../modules/modules.dart';
 import 'authorization_wrapper_router.dart';

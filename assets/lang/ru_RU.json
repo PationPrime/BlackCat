@@ -35,8 +35,8 @@
         "search": "Найти",
         "searching": "Ищем…",
         "show_in_folder": "Показать в папке",
-        "sign_in_and_retry": "Войти в YouTube и повторить",
-        "refresh_sign_in_and_retry": "Обновить вход и повторить",
+        "sign_in_and_retry": "Войти",
+        "refresh_sign_in_and_retry": "Обновить вход",
         "add_video": "Добавить видео",
         "settings": "Настройки",
         "start_now": "Скачать сейчас",
@@ -46,7 +46,8 @@
         "retry": "Повторить",
         "clear_finished": "Очистить",
         "hide": "Скрыть",
-        "reorder": "Перетащите, чтобы изменить порядок"
+        "reorder": "Перетащите, чтобы изменить порядок",
+        "import_cookies": "Импортировать cookies.txt"
       },
       "video": {
         "views": "{count} просмотров",
@@ -77,13 +78,15 @@
         "queued_with_progress": "В очереди · скачано {percent}%",
         "paused": "На паузе · {percent}%",
         "completed_at": "Скачано {date}",
-        "failed": "Ошибка"
+        "failed": "Ошибка",
+        "ytdlp_badge": "yt-dlp"
       },
       "dialog": {
         "title": "Добавить видео",
         "add_to_queue": "Добавить в очередь",
         "download_now": "Скачать",
-        "cancel": "Отмена"
+        "cancel": "Отмена",
+        "ytdlp_hint": "Поиск через yt-dlp занимает несколько секунд."
       },
       "remove_dialog": {
         "title": "Убрать видео?",
@@ -96,6 +99,12 @@
         "message": "Видео останутся в папке загрузок: из приложения пропадут только записи о них и превью.",
         "confirm": "Очистить",
         "cancel": "Отмена"
+      },
+      "dependencies": {
+        "missing": "yt-dlp не установлен: видео скачается встроенным загрузчиком.",
+        "installing": "Устанавливаем yt-dlp: пока работает встроенный загрузчик.",
+        "install": "Установить",
+        "show": "Показать"
       }
     },
     "settings": {
@@ -113,6 +122,27 @@
       "language": {
         "title": "Язык",
         "description": "Язык интерфейса приложения."
+      },
+      "cookies": {
+        "title": "Cookies YouTube",
+        "description": "Если YouTube просит войти или подтвердить, что вы не бот, а вход через окно приложения не подходит, импортируйте cookies браузера, в котором вы вошли в YouTube. Их используют и yt-dlp, и встроенный загрузчик.",
+        "steps_title": "Как получить cookies.txt",
+        "step_1": "Откройте новое приватное (инкогнито) окно браузера и войдите в YouTube.",
+        "step_2": "В той же вкладке откройте youtube.com/robots.txt и экспортируйте cookies youtube.com в формате Netscape, например расширением «Get cookies.txt LOCALLY» для Chrome или «cookies.txt» для Firefox.",
+        "step_3": "Закройте приватное окно, чтобы YouTube не сменил эти cookies, и выберите сохранённый файл ниже.",
+        "guide": "Подробная инструкция в FAQ yt-dlp",
+        "guide_failed": "Не удалось открыть ссылку {url}",
+        "warning": "Файл cookies даёт доступ к вашему аккаунту: не передавайте его другим людям.",
+        "not_imported": "Файл не выбран",
+        "imported_at": "Импортирован {date}",
+        "imported_badge": "Используется",
+        "sign_in_window_active": "Сейчас используется вход через окно приложения. Импорт cookies заменит его.",
+        "choose": "Выбрать cookies.txt…",
+        "importing": "Импортируем…",
+        "remove": "Удалить cookies",
+        "picker_label": "Текстовые файлы",
+        "picker_confirm": "Импортировать",
+        "success": "Cookies импортированы: вход в YouTube выполнен."
       }
     },
     "errors": {
@@ -139,11 +169,28 @@
         "stream_interrupted": "YouTube обрывает загрузку потока. Попробуйте ещё раз.",
         "web_view_runtime": "Для скачивания нужен Microsoft Edge WebView2 Runtime.",
         "js_engine": "Встроенный JavaScript-движок (WebView2) вернул ошибку: {error}",
-        "destination_unavailable": "Не удалось сохранить файл в папку «{path}»: {error}"
+        "destination_unavailable": "Не удалось сохранить файл в папку «{path}»: {error}",
+        "ytdlp_not_found": "Не найден yt-dlp или среда JavaScript (Deno, Node.js 22+). Установите их из окна «Добавить видео».",
+        "ytdlp_failed": "yt-dlp завершился с ошибкой: {error}",
+        "bot_check": "YouTube просит подтвердить, что вы не бот. Войдите в аккаунт YouTube или импортируйте cookies.txt.",
+        "age_restricted": "Видео с возрастным ограничением: нужен вход в аккаунт YouTube.",
+        "members_only": "Видео только для спонсоров канала: нужен вход в аккаунт с доступом к нему.",
+        "private_video": "Это приватное видео.",
+        "video_unavailable": "Видео недоступно."
       },
       "authentication": {
         "web_view_runtime": "Для входа нужен Microsoft Edge WebView2 Runtime.",
-        "session_not_issued": "Вход не завершён: YouTube не выдал cookies аккаунта. Попробуйте ещё раз."
+        "session_not_issued": "Вход не завершён: YouTube не выдал cookies аккаунта. Попробуйте ещё раз.",
+        "cookies_picker": "Не удалось открыть выбор файла: {error}",
+        "cookies_read": "Не удалось прочитать файл cookies: {error}",
+        "cookies_not_text": "Нужен текстовый файл .txt с cookies в формате Netscape, а выбранный файл не текстовый.",
+        "cookies_too_large": "Файл слишком большой для cookies.txt (больше 5 МБ). Экспортируйте cookies только для youtube.com.",
+        "cookies_json": "Cookies сохранены в формате JSON. Экспортируйте их в формате Netscape (cookies.txt).",
+        "cookies_format": "Файл не похож на cookies.txt: в нём нет ни одной строки в формате Netscape.",
+        "cookies_no_youtube": "В файле нет cookies youtube.com. Экспортируйте cookies, когда открыт сайт youtube.com.",
+        "cookies_no_session": "В файле нет cookies входа в аккаунт YouTube. Войдите в YouTube в браузере и экспортируйте cookies заново.",
+        "cookies_expired": "Срок действия cookies входа истёк. Экспортируйте свежий cookies.txt.",
+        "cookies_save": "Не удалось сохранить cookies: {error}"
       },
       "settings": {
         "picker": "Не удалось открыть выбор папки: {error}",
@@ -151,6 +198,57 @@
       },
       "download_queue": {
         "storage": "Не удалось сохранить очередь загрузок: {error}"
+      },
+      "dependencies": {
+        "unsupported_platform": "Для этой системы нет готовых сборок yt-dlp и Deno. Установите их вручную.",
+        "download": "Не удалось скачать {name}: {error}",
+        "checksum_missing": "Не удалось проверить {name}: на GitHub нет контрольной суммы этого файла.",
+        "checksum_mismatch": "Скачанный {name} не совпал с контрольной суммой на GitHub. Установка остановлена, файл удалён.",
+        "extract": "Не удалось распаковать {name}: {error}",
+        "save": "Не удалось сохранить {name} в папку приложения: {error}",
+        "not_working": "{name} установлен, но не запускается. Возможно, его заблокировал антивирус.",
+        "canceled": "Установка отменена.",
+        "network": {
+          "no_connection": "нет соединения с GitHub.",
+          "timeout": "GitHub слишком долго не отвечает.",
+          "http_status": "GitHub ответил ошибкой {status}."
+        }
+      }
+    },
+    "dependencies": {
+      "install_dialog": {
+        "title": "Установка yt-dlp",
+        "description": "Видео скачиваются через yt-dlp, но на компьютере его не нашлось. Приложение скачает официальные сборки с GitHub в свою папку и сверит их контрольные суммы. Python для этого не нужен.",
+        "checking": "Проверяем, что уже установлено…",
+        "yt_dlp_title": "yt-dlp",
+        "yt_dlp_description": "Программа для скачивания видео",
+        "js_runtime_title": "Deno",
+        "js_runtime_description": "Среда JavaScript для проверок YouTube",
+        "status_waiting": "Ожидает",
+        "status_installed": "Уже установлен · {version}",
+        "status_preparing": "Подготовка…",
+        "status_downloading": "Скачивание: {received} из {total}",
+        "status_downloading_unknown": "Скачивание: {received}",
+        "status_verifying": "Проверка контрольной суммы…",
+        "status_extracting": "Распаковка…",
+        "status_done": "Установлен",
+        "status_failed": "Не установлен",
+        "success": "Готово: видео будут скачиваться через yt-dlp {version}.",
+        "cancel": "Отменить",
+        "retry": "Повторить",
+        "close": "Закрыть",
+        "done": "Готово"
+      },
+      "fallback_dialog": {
+        "title": "yt-dlp не установлен",
+        "message_signed_in": "Не удалось установить компоненты для yt-dlp, но вы всё равно можете попробовать скачать видео: приложение скачает его встроенным загрузчиком с вашим входом в YouTube.",
+        "message_signed_out": "Не удалось установить компоненты для yt-dlp. Встроенный загрузчик тоже скачивает видео, но YouTube обычно требует входа: войдите в аккаунт или импортируйте cookies.txt.",
+        "reason": "Причина: {error}",
+        "retry": "Повторить установку",
+        "add_video": "Добавить видео",
+        "sign_in": "Войти",
+        "import_cookies": "Импортировать cookies.txt",
+        "close": "Закрыть"
       }
     }
   }

@@ -21,9 +21,18 @@ final class MediaApiClient extends ApiClient {
       );
 }
 
+/// yt-dlp and Deno releases on GitHub
+final class GitHubApiClient extends ApiClient {
+  static const _userAgent = 'YT-Download';
+
+  GitHubApiClient({super.interceptors})
+    : super(headers: const {'User-Agent': _userAgent});
+}
+
 base class ApiProvider {
   late final YouTubeApiClient youtube;
   late final MediaApiClient media;
+  late final GitHubApiClient github;
 
   ApiProvider({List<Interceptor> interceptors = const []}) {
     _init(interceptors: interceptors);
@@ -33,6 +42,7 @@ base class ApiProvider {
     try {
       youtube = YouTubeApiClient(interceptors: interceptors);
       media = MediaApiClient(interceptors: interceptors);
+      github = GitHubApiClient(interceptors: interceptors);
     } catch (error, stackTrace) {
       Error.throwWithStackTrace(
         Exception('Init API Provider error: $error'),

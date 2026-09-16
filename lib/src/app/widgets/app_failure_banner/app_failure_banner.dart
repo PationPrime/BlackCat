@@ -3,17 +3,23 @@ import 'package:flutter/material.dart';
 import '../../design_system/design_system.dart';
 import '../app_buttons/app_buttons.dart';
 
-/// Error message with an optional action button
+/// Button under the error message
+class AppFailureBannerAction {
+  final String title;
+  final VoidCallback? onPressed;
+
+  const AppFailureBannerAction({required this.title, this.onPressed});
+}
+
+/// Error message with optional action buttons
 class AppFailureBanner extends StatelessWidget {
   final String message;
-  final String? actionTitle;
-  final VoidCallback? onActionPressed;
+  final List<AppFailureBannerAction> actions;
 
   const AppFailureBanner({
     super.key,
     required this.message,
-    this.actionTitle,
-    this.onActionPressed,
+    this.actions = const [],
   });
 
   @override
@@ -36,18 +42,28 @@ class AppFailureBanner extends StatelessWidget {
             ),
           ),
         ),
-        if (actionTitle is String) ...[
+        if (actions.isNotEmpty) ...[
           const SizedBox(height: 12),
-          AppPrimaryButton(
-            title: actionTitle!,
-            onPressed: onActionPressed,
-            buttonColor: context.color.transparent,
-            hoverColor: context.color.errorActionHover,
-            titleColor: context.color.errorActionText,
-            borderColor: context.color.errorActionBorder,
-            titleStyle: context.text.captionMedium,
-            borderRadius: 8,
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              for (final action in actions)
+                AppPrimaryButton(
+                  title: action.title,
+                  onPressed: action.onPressed,
+                  buttonColor: context.color.transparent,
+                  hoverColor: context.color.errorActionHover,
+                  titleColor: context.color.errorActionText,
+                  borderColor: context.color.errorActionBorder,
+                  titleStyle: context.text.captionMedium,
+                  borderRadius: 8,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
+                ),
+            ],
           ),
         ],
       ],

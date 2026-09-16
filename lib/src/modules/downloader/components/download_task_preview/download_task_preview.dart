@@ -1,5 +1,7 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:youtube_downloader/src/app/design_system/design_system.dart';
+import 'package:youtube_downloader/src/app/localization/lang/locale_keys.g.dart';
 import 'package:youtube_downloader/src/app/models/models.dart';
 import 'package:youtube_downloader/src/app/tools/tools.dart';
 import 'package:youtube_downloader/src/app/widgets/widgets.dart';
@@ -20,6 +22,8 @@ class DownloadTaskPreview extends StatelessWidget {
     QualityPicker.titleOf(task.quality),
     task.video.channel,
     AppFormatters.duration(task.video.duration),
+    if (task.engine == DownloadEngineModel.ytDlp)
+      LocaleKeys.app_downloader_task_ytdlp_badge.tr(),
   ].whereType<String>().where((part) => part.isNotEmpty).join(' · ');
 
   @override

@@ -78,12 +78,16 @@ final class DownloadQueueRepository
     var downloadedBytes = 0;
 
     for (final stream in task.streams) {
-      downloadedBytes += DownloadPartFiles.resumableBytes(
-        await _fileSystemService.fileLength(
-          DownloadPartFiles.path(workDirectory.path, stream),
-        ),
-        stream,
-      );
+      final partPath = DownloadPartFiles.path(workDirectory.path, stream);
+      final partLength = await _fileSystemService.fileLength(partPath);
+
+      /// yt-dlp names a finished stream without `.part` until the app
+      /// renames it back
+      final length = partLength > 0
+          ? partLength
+          : await _fileSystemService.fileLength(p.withoutExtension(partPath));
+
+      downloadedBytes += DownloadPartFiles.resumableBytes(length, stream);
     }
 
     return task.copyWith(

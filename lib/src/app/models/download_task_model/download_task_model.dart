@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 
+import '../download_engine_model/download_engine_model.dart';
 import '../quality_model/quality_model.dart';
 import '../video_info_model/video_info_model.dart';
 
@@ -16,6 +17,10 @@ class DownloadTaskModel extends Equatable {
   final QualityModel quality;
   final DownloadTaskStatus status;
   final DownloadTaskSection section;
+
+  /// Engine that downloads the video. Both engines keep unfinished streams
+  /// alike, so the built-in one takes over if yt-dlp disappears
+  final DownloadEngineModel engine;
 
   /// Position in the queue, starting from 0. For the active and finished ones: display order
   final int position;
@@ -65,6 +70,7 @@ class DownloadTaskModel extends Equatable {
     required this.section,
     required this.createdAt,
     required this.updatedAt,
+    this.engine = DownloadEngineModel.builtIn,
     this.position = 0,
     this.streams = const [],
     this.downloadedBytes = 0,
@@ -108,6 +114,7 @@ class DownloadTaskModel extends Equatable {
     quality,
     status,
     section,
+    engine,
     position,
     streams,
     downloadedBytes,
@@ -127,6 +134,7 @@ class DownloadTaskModel extends Equatable {
   DownloadTaskModel copyWith({
     DownloadTaskStatus? status,
     DownloadTaskSection? section,
+    DownloadEngineModel? engine,
     int? position,
     List<DownloadStreamModel>? streams,
     int? downloadedBytes,
@@ -148,6 +156,7 @@ class DownloadTaskModel extends Equatable {
     quality: quality,
     status: status ?? this.status,
     section: section ?? this.section,
+    engine: engine ?? this.engine,
     position: position ?? this.position,
     streams: streams ?? this.streams,
     downloadedBytes: downloadedBytes ?? this.downloadedBytes,

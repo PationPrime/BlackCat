@@ -10,6 +10,7 @@ import 'package:youtube_downloader/src/app/router/app_router.dart';
 import 'package:youtube_downloader/src/app/services/services.dart';
 import 'package:youtube_downloader/src/app/shared_controllers/shared_controllers.dart';
 import 'package:youtube_downloader/src/app/widgets/widgets.dart';
+import 'package:youtube_downloader/src/modules/settings/module.dart';
 
 import '../../components/components.dart';
 import '../../controllers/controllers.dart';
@@ -61,13 +62,27 @@ class DownloaderScreen extends StatelessWidget {
       context,
       title: LocaleKeys.app_downloader_clear_finished_dialog_title.tr(),
       message: LocaleKeys.app_downloader_clear_finished_dialog_message.tr(),
-      confirmTitle: LocaleKeys.app_downloader_clear_finished_dialog_confirm.tr(),
+      confirmTitle: LocaleKeys.app_downloader_clear_finished_dialog_confirm
+          .tr(),
       cancelTitle: LocaleKeys.app_downloader_clear_finished_dialog_cancel.tr(),
     );
 
     if (!confirmed) return;
 
     await downloadQueueController.clearFinished();
+  }
+
+  /// Opens the cookies import in the settings. A download that needed
+  /// signing in is retried once cookies are imported
+  Future<void> _importCookiesAndRetry(
+    BuildContext context,
+    DownloadTaskModel task,
+  ) async {
+    final downloadQueueController = context.read<DownloadQueueController>();
+
+    if (await SettingsScreen.openCookiesImport(context)) {
+      await downloadQueueController.retryTask(task.id);
+    }
   }
 
   /// Title of the button under an error that signing in to YouTube will fix
@@ -91,234 +106,245 @@ class DownloaderScreen extends StatelessWidget {
       );
 
   @override
-  Widget build(BuildContext context) =>
-      BlocListener<AuthorizationController, AuthorizationState>(
-        /// Sign-in and sign-out errors are shown in the common screen message
-        listenWhen: (previous, current) =>
-            current.failure != null && current.failure != previous.failure,
-        listener: (context, authorizationState) => context
-            .read<DownloadQueueController>()
-            .showFailure(authorizationState.failure!),
-        child: BlocBuilder<AuthorizationController, AuthorizationState>(
-          builder: (context, authorizationState) =>
-              BlocBuilder<DownloadQueueController, DownloadQueueState>(
-                builder: (context, queueState) {
-                  final downloadQueueController = context
-                      .read<DownloadQueueController>();
-                  final queue = queueState.queue;
-                  final finished = queueState.finished;
+  Widget build(BuildContext context) => DependenciesInstallPrompt(
+    child: BlocListener<AuthorizationController, AuthorizationState>(
+      /// Sign-in and sign-out errors are shown in the common screen message
+      listenWhen: (previous, current) =>
+          current.failure != null && current.failure != previous.failure,
+      listener: (context, authorizationState) => context
+          .read<DownloadQueueController>()
+          .showFailure(authorizationState.failure!),
+      child: BlocBuilder<AuthorizationController, AuthorizationState>(
+        builder: (context, authorizationState) =>
+            BlocBuilder<DownloadQueueController, DownloadQueueState>(
+              builder: (context, queueState) {
+                final downloadQueueController = context
+                    .read<DownloadQueueController>();
+                final queue = queueState.queue;
+                final finished = queueState.finished;
 
-                  return AppScaffold(
-                    body: LayoutBuilder(
-                      builder: (context, constraints) {
-                        final horizontalPadding = math.max(
-                          _minHorizontalPadding,
-                          (constraints.maxWidth - _contentMaxWidth) / 2,
-                        );
-                        final verticalPadding =
-                            constraints.maxWidth >= _wideLayoutBreakpoint
-                            ? 64.0
-                            : 40.0;
+                return AppScaffold(
+                  body: LayoutBuilder(
+                    builder: (context, constraints) {
+                      final horizontalPadding = math.max(
+                        _minHorizontalPadding,
+                        (constraints.maxWidth - _contentMaxWidth) / 2,
+                      );
+                      final verticalPadding =
+                          constraints.maxWidth >= _wideLayoutBreakpoint
+                          ? 64.0
+                          : 40.0;
 
-                        /// The app title bar lies over the top of the screen
-                        final topPadding = math.max(
-                          verticalPadding,
-                          MediaQuery.paddingOf(context).top + _minTopGap,
-                        );
+                      /// The app title bar lies over the top of the screen
+                      final topPadding = math.max(
+                        verticalPadding,
+                        MediaQuery.paddingOf(context).top + _minTopGap,
+                      );
 
-                        return CustomScrollView(
-                          slivers: [
-                            SliverPadding(
-                              padding: EdgeInsets.fromLTRB(
-                                horizontalPadding,
-                                topPadding,
-                                horizontalPadding,
-                                12,
-                              ),
-                              sliver: SliverList.list(
-                                children: [
-                                  DownloaderHeader(
-                                    authorizationState: authorizationState,
-                                    signOutEnabled: !queueState.hasRunningTask,
-                                    onSignInPressed: context
-                                        .read<AuthorizationController>()
-                                        .signIn,
-                                    onSignOutPressed: context
-                                        .read<AuthorizationController>()
-                                        .signOut,
-                                    onSettingsPressed: () =>
-                                        context.router.push(
-                                          const SettingsRoute(),
-                                        ),
-                                  ),
-                                  const SizedBox(height: 32),
-                                  AppPrimaryButton(
-                                    title: LocaleKeys
-                                        .app_downloader_buttons_add_video
-                                        .tr(),
-                                    onPressed: queueState.isRestoring
-                                        ? null
-                                        : () => AddVideoDialog.show(context),
-                                  ),
-                                  if (queueState.failure case final failure?) ...[
-                                    const SizedBox(height: 16),
-                                    AppFailureBanner(
-                                      message: failure.message,
-                                      actionTitle: LocaleKeys
-                                          .app_downloader_buttons_hide
-                                          .tr(),
-                                      onActionPressed:
-                                          downloadQueueController.dismissFailure,
-                                    ),
-                                  ],
-                                  const SizedBox(height: 32),
-                                  DownloaderSectionTitle(
-                                    title: LocaleKeys
-                                        .app_downloader_sections_active
-                                        .tr(),
-                                  ),
-                                  const SizedBox(height: 12),
-                                  if (queueState.activeTask case final task?)
-                                    ActiveDownloadCard(
-                                      key: ValueKey(task.id),
-                                      task: task,
-                                      onPausePressed: downloadQueueController
-                                          .pauseActiveTask,
-                                      onResumePressed: downloadQueueController
-                                          .resumeActiveTask,
-                                      onRemovePressed: () =>
-                                          _removeTask(context, task),
-                                    )
-                                  else if (!queueState.isRestoring)
-                                    DownloaderEmptyPlaceholder(
-                                      message: LocaleKeys
-                                          .app_downloader_empty_active
-                                          .tr(),
-                                    ),
-                                  const SizedBox(height: 32),
-                                  DownloaderSectionTitle(
-                                    title: LocaleKeys
-                                        .app_downloader_sections_queue
-                                        .tr(),
-                                    count: queue.length,
-                                  ),
-                                  if (queue.isEmpty && !queueState.isRestoring) ...[
-                                    const SizedBox(height: 12),
-                                    DownloaderEmptyPlaceholder(
-                                      message: LocaleKeys
-                                          .app_downloader_empty_queue
-                                          .tr(),
-                                    ),
-                                  ],
-                                ],
-                              ),
+                      return CustomScrollView(
+                        slivers: [
+                          SliverPadding(
+                            padding: EdgeInsets.fromLTRB(
+                              horizontalPadding,
+                              topPadding,
+                              horizontalPadding,
+                              12,
                             ),
-                            SliverPadding(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: horizontalPadding,
-                              ),
-                              sliver: SliverReorderableList(
-                                itemCount: queue.length,
-                                onReorderItem:
-                                    downloadQueueController.moveQueuedTask,
-                                proxyDecorator: _dragProxy,
-                                itemBuilder: (context, index) {
-                                  final task = queue[index];
+                            sliver: SliverList.list(
+                              children: [
+                                DownloaderHeader(
+                                  authorizationState: authorizationState,
+                                  signOutEnabled: !queueState.hasRunningTask,
+                                  onSignInPressed: context
+                                      .read<AuthorizationController>()
+                                      .signIn,
+                                  onSignOutPressed: context
+                                      .read<AuthorizationController>()
+                                      .signOut,
+                                  onSettingsPressed: () =>
+                                      context.router.push(SettingsRoute()),
+                                ),
+                                const SizedBox(height: 32),
+                                AppPrimaryButton(
+                                  title: LocaleKeys
+                                      .app_downloader_buttons_add_video
+                                      .tr(),
+                                  onPressed: queueState.isRestoring
+                                      ? null
+                                      : () => AddVideoDialog.show(context),
+                                ),
+                                if (queueState.failure case final failure?) ...[
+                                  const SizedBox(height: 16),
+                                  AppFailureBanner(
+                                    message: failure.message,
+                                    actions: [
+                                      AppFailureBannerAction(
+                                        title: LocaleKeys
+                                            .app_downloader_buttons_hide
+                                            .tr(),
+                                        onPressed: downloadQueueController
+                                            .dismissFailure,
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                                const SizedBox(height: 32),
+                                DownloaderSectionTitle(
+                                  title: LocaleKeys
+                                      .app_downloader_sections_active
+                                      .tr(),
+                                ),
+                                const SizedBox(height: 12),
+                                if (queueState.activeTask case final task?)
+                                  ActiveDownloadCard(
+                                    key: ValueKey(task.id),
+                                    task: task,
+                                    onPausePressed:
+                                        downloadQueueController.pauseActiveTask,
+                                    onResumePressed: downloadQueueController
+                                        .resumeActiveTask,
+                                    onRemovePressed: () =>
+                                        _removeTask(context, task),
+                                  )
+                                else if (!queueState.isRestoring)
+                                  DownloaderEmptyPlaceholder(
+                                    message: LocaleKeys
+                                        .app_downloader_empty_active
+                                        .tr(),
+                                  ),
+                                const SizedBox(height: 32),
+                                DownloaderSectionTitle(
+                                  title: LocaleKeys
+                                      .app_downloader_sections_queue
+                                      .tr(),
+                                  count: queue.length,
+                                ),
+                                if (queue.isEmpty &&
+                                    !queueState.isRestoring) ...[
+                                  const SizedBox(height: 12),
+                                  DownloaderEmptyPlaceholder(
+                                    message: LocaleKeys
+                                        .app_downloader_empty_queue
+                                        .tr(),
+                                  ),
+                                ],
+                              ],
+                            ),
+                          ),
+                          SliverPadding(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: horizontalPadding,
+                            ),
+                            sliver: SliverReorderableList(
+                              itemCount: queue.length,
+                              onReorderItem:
+                                  downloadQueueController.moveQueuedTask,
+                              proxyDecorator: _dragProxy,
+                              itemBuilder: (context, index) {
+                                final task = queue[index];
 
-                                  return Padding(
+                                return Padding(
+                                  key: ValueKey(task.id),
+                                  padding: const EdgeInsets.only(
+                                    bottom: _tileSpacing,
+                                  ),
+                                  child: QueuedDownloadTile(
+                                    task: task,
+                                    index: index,
+                                    onStartPressed: () =>
+                                        downloadQueueController.startTask(
+                                          task.id,
+                                        ),
+                                    onRemovePressed: () =>
+                                        _removeTask(context, task),
+                                    onRetryPressed: () =>
+                                        downloadQueueController.retryTask(
+                                          task.id,
+                                        ),
+                                    signInTitle: _signInActionTitle(
+                                      authorizationState,
+                                    ),
+                                    onSignInPressed: authorizationState.isBusy
+                                        ? null
+                                        : () => downloadQueueController
+                                              .signInAndRetry(task.id),
+                                    onImportCookiesPressed:
+                                        authorizationState.isBusy
+                                        ? null
+                                        : () => _importCookiesAndRetry(
+                                            context,
+                                            task,
+                                          ),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                          SliverPadding(
+                            padding: EdgeInsets.fromLTRB(
+                              horizontalPadding,
+                              24,
+                              horizontalPadding,
+                              0,
+                            ),
+                            sliver: SliverList.list(
+                              children: [
+                                DownloaderSectionTitle(
+                                  title: LocaleKeys
+                                      .app_downloader_sections_finished
+                                      .tr(),
+                                  count: finished.length,
+                                  trailing: finished.isEmpty
+                                      ? null
+                                      : AppLinkButton(
+                                          title: LocaleKeys
+                                              .app_downloader_buttons_clear_finished
+                                              .tr(),
+                                          onPressed: () =>
+                                              _clearFinished(context),
+                                        ),
+                                ),
+                                const SizedBox(height: 12),
+                                if (finished.isEmpty && !queueState.isRestoring)
+                                  DownloaderEmptyPlaceholder(
+                                    message: LocaleKeys
+                                        .app_downloader_empty_finished
+                                        .tr(),
+                                  ),
+                                for (final task in finished)
+                                  Padding(
                                     key: ValueKey(task.id),
                                     padding: const EdgeInsets.only(
                                       bottom: _tileSpacing,
                                     ),
-                                    child: QueuedDownloadTile(
+                                    child: DownloadedVideoTile(
                                       task: task,
-                                      index: index,
-                                      onStartPressed: () =>
-                                          downloadQueueController.startTask(
-                                            task.id,
-                                          ),
+                                      onShowInFolderPressed:
+                                          task.filePath is String
+                                          ? () => context
+                                                .read<FileSystemService>()
+                                                .revealInExplorer(
+                                                  task.filePath!,
+                                                )
+                                          : null,
                                       onRemovePressed: () =>
                                           _removeTask(context, task),
-                                      onRetryPressed: () =>
-                                          downloadQueueController.retryTask(
-                                            task.id,
-                                          ),
-                                      signInTitle: _signInActionTitle(
-                                        authorizationState,
-                                      ),
-                                      onSignInPressed: authorizationState.isBusy
-                                          ? null
-                                          : () => downloadQueueController
-                                                .signInAndRetry(task.id),
                                     ),
-                                  );
-                                },
-                              ),
-                            ),
-                            SliverPadding(
-                              padding: EdgeInsets.fromLTRB(
-                                horizontalPadding,
-                                24,
-                                horizontalPadding,
-                                0,
-                              ),
-                              sliver: SliverList.list(
-                                children: [
-                                  DownloaderSectionTitle(
-                                    title: LocaleKeys
-                                        .app_downloader_sections_finished
-                                        .tr(),
-                                    count: finished.length,
-                                    trailing: finished.isEmpty
-                                        ? null
-                                        : AppLinkButton(
-                                            title: LocaleKeys
-                                                .app_downloader_buttons_clear_finished
-                                                .tr(),
-                                            onPressed: () =>
-                                                _clearFinished(context),
-                                          ),
                                   ),
-                                  const SizedBox(height: 12),
-                                  if (finished.isEmpty && !queueState.isRestoring)
-                                    DownloaderEmptyPlaceholder(
-                                      message: LocaleKeys
-                                          .app_downloader_empty_finished
-                                          .tr(),
-                                    ),
-                                  for (final task in finished)
-                                    Padding(
-                                      key: ValueKey(task.id),
-                                      padding: const EdgeInsets.only(
-                                        bottom: _tileSpacing,
-                                      ),
-                                      child: DownloadedVideoTile(
-                                        task: task,
-                                        onShowInFolderPressed:
-                                            task.filePath is String
-                                            ? () => context
-                                                  .read<FileSystemService>()
-                                                  .revealInExplorer(
-                                                    task.filePath!,
-                                                  )
-                                            : null,
-                                        onRemovePressed: () =>
-                                            _removeTask(context, task),
-                                      ),
-                                    ),
-                                ],
-                              ),
+                              ],
                             ),
-                            SliverToBoxAdapter(
-                              child: SizedBox(height: verticalPadding),
-                            ),
-                          ],
-                        );
-                      },
-                    ),
-                  );
-                },
-              ),
-        ),
-      );
+                          ),
+                          SliverToBoxAdapter(
+                            child: SizedBox(height: verticalPadding),
+                          ),
+                        ],
+                      );
+                    },
+                  ),
+                );
+              },
+            ),
+      ),
+    ),
+  );
 }

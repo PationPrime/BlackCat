@@ -48,6 +48,13 @@ class VideoErrorHandler extends ErrorHandler<VideoErrorCodes> {
       'destination_unavailable' =>
         LocaleKeys.app_errors_video_destination_unavailable,
       'canceled' => LocaleKeys.app_errors_network_canceled,
+      'ytdlp_not_found' => LocaleKeys.app_errors_video_ytdlp_not_found,
+      'ytdlp_failed' => LocaleKeys.app_errors_video_ytdlp_failed,
+      'bot_check' => LocaleKeys.app_errors_video_bot_check,
+      'age_restricted' => LocaleKeys.app_errors_video_age_restricted,
+      'members_only' => LocaleKeys.app_errors_video_members_only,
+      'private_video' => LocaleKeys.app_errors_video_private_video,
+      'video_unavailable' => LocaleKeys.app_errors_video_video_unavailable,
       _ => LocaleKeys.app_errors_unknown,
     };
 

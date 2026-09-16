@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../failure/failure.dart';
 import '../../logger/app_logger.dart';
+import '../../models/models.dart';
 import '../../operation_result/operation_result.dart';
 import '../../repositories/repositories.dart';
 
@@ -22,9 +23,10 @@ final class AuthorizationController extends Cubit<AuthorizationState> {
     final result = await _authenticationRepository.restoreSession();
 
     emit(
-      result.isSuccess && result.data == true
-          ? const Authorized()
-          : const Unauthorized(),
+      switch (result.data) {
+        final session? => Authorized(session: session),
+        null => const Unauthorized(),
+      },
     );
   }
 
@@ -47,7 +49,7 @@ final class AuthorizationController extends Cubit<AuthorizationState> {
 
       emit(
         previousState is Authorized
-            ? Authorized(failure: failure)
+            ? Authorized(session: previousState.session, failure: failure)
             : Unauthorized(failure: failure),
       );
 
@@ -56,14 +58,35 @@ final class AuthorizationController extends Cubit<AuthorizationState> {
 
     if (result.data != true) {
       /// The window was closed: everything stays as it was
-      emit(previousState is Authorized ? const Authorized() : const Unauthorized());
+      emit(
+        previousState is Authorized
+            ? Authorized(session: previousState.session)
+            : const Unauthorized(),
+      );
 
       return false;
     }
 
-    emit(const Authorized());
+    emit(const Authorized(session: AccountSessionModel.signInWindow()));
 
     return true;
+  }
+
+  /// Picks a cookies.txt and signs in with it. The error is returned to the
+  /// caller instead of the state: it belongs to the settings screen.
+  /// `null` data: the user closed the picker
+  Future<OperationResult<AccountSessionModel?>> importCookies() async {
+    if (state.isBusy) {
+      return ok(null);
+    }
+
+    final result = await _authenticationRepository.importCookies();
+
+    if (result.data case final session?) {
+      emit(Authorized(session: session));
+    }
+
+    return result;
   }
 
   Future<void> signOut() async {

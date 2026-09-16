@@ -104,6 +104,74 @@ class FakeVideoRepository implements VideoRepositoryInterface {
   }
 }
 
+/// yt-dlp stand-in: the same controllable downloads
+class FakeYtDlpVideoRepository extends FakeVideoRepository implements YtDlpVideoRepositoryInterface {
+  FakeYtDlpVideoRepository({super.infoResults});
+}
+
+const testYtDlp = DependencyToolModel(name: 'yt-dlp', executable: 'yt-dlp', version: '2026.08.19');
+const testDeno = DependencyToolModel(name: 'deno', executable: r'C:\Tools\deno.exe', version: 'deno 2.9.6', isBundled: true);
+const testReadySetup = YtDlpSetupModel(ytDlp: testYtDlp, jsRuntime: testDeno);
+
+/// Installation controlled by the test: reports steps and completes
+/// with success or an error. Stopping completes it with a cancel error
+class FakeInstallCall {
+  final void Function(DependencyInstallProgressModel progress) onProgress;
+  final DownloadCancellation? cancellation;
+
+  final _completer = Completer<OperationResult<YtDlpSetupModel>>();
+
+  FakeInstallCall({required this.onProgress, this.cancellation}) {
+    cancellation?.whenCancelled.then((_) {
+      if (!_completer.isCompleted) {
+        _completer.complete(fail(DependencyFailure(code: const DependencyErrorCodes().canceled, message: 'Установка отменена.')));
+      }
+    });
+  }
+
+  Future<OperationResult<YtDlpSetupModel>> get result => _completer.future;
+
+  void report(DependencyInstallProgressModel progress) => onProgress(progress);
+
+  void succeed([YtDlpSetupModel setup = testReadySetup]) => _completer.complete(ok(setup));
+
+  void failWith(Failure failure) => _completer.complete(fail(failure));
+}
+
+class FakeDependenciesRepository implements DependenciesRepositoryInterface {
+  @override
+  bool isSupported;
+
+  /// Answers of the lookups in turn; the last one repeats
+  List<OperationResult<YtDlpSetupModel>> setupResults;
+  final installs = <FakeInstallCall>[];
+  var setupCalls = 0;
+
+  FakeDependenciesRepository({
+    this.isSupported = true,
+    this.setupResults = const [(failure: null, data: testReadySetup)],
+  });
+
+  @override
+  ErrorHandler get errorHandler => const DependencyErrorHandler();
+
+  @override
+  Future<OperationResult<YtDlpSetupModel>> getSetup({bool refresh = false}) async =>
+      setupResults[(setupCalls++).clamp(0, setupResults.length - 1)];
+
+  @override
+  Future<OperationResult<YtDlpSetupModel>> installMissing({
+    required void Function(DependencyInstallProgressModel progress) onProgress,
+    DownloadCancellation? cancellation,
+  }) {
+    final call = FakeInstallCall(onProgress: onProgress, cancellation: cancellation);
+
+    installs.add(call);
+
+    return call.result;
+  }
+}
+
 /// In-memory queue: what was saved and what was removed
 class FakeDownloadQueueRepository implements DownloadQueueRepositoryInterface {
   OperationResult<List<DownloadTaskModel>> restoreResult;
@@ -156,7 +224,8 @@ class FakeDownloadQueueRepository implements DownloadQueueRepositoryInterface {
   }
 
   @override
-  Future<OperationResult<void>> removeTasks(List<String> taskIds) async {    removedTaskIds.addAll(taskIds);
+  Future<OperationResult<void>> removeTasks(List<String> taskIds) async {
+    removedTaskIds.addAll(taskIds);
     taskIds.forEach(saved.remove);
 
     return ok(null);
@@ -221,19 +290,24 @@ class FakeSettingsRepository implements SettingsRepositoryInterface {
     savedLanguages.add(language);
 
     return setLanguageResult ?? (failure: null, data: language);
-  }}
+  }
+}
 
 class FakeAuthenticationRepository
     implements AuthenticationRepositoryInterface {
-  OperationResult<bool> restoreResult;
+  OperationResult<AccountSessionModel?> restoreResult;
   OperationResult<bool> signInResult;
+  OperationResult<AccountSessionModel?> importResult;
   OperationResult<void> signOutResult;
 
   var signInCalls = 0;
+  var importCalls = 0;
+  var signOutCalls = 0;
 
   FakeAuthenticationRepository({
-    this.restoreResult = (failure: null, data: false),
+    this.restoreResult = (failure: null, data: null),
     this.signInResult = (failure: null, data: true),
+    this.importResult = (failure: null, data: null),
     this.signOutResult = (failure: null, data: null),
   });
 
@@ -241,7 +315,7 @@ class FakeAuthenticationRepository
   ErrorHandler get errorHandler => const AuthenticationErrorHandler();
 
   @override
-  Future<OperationResult<bool>> restoreSession() async => restoreResult;
+  Future<OperationResult<AccountSessionModel?>> restoreSession() async => restoreResult;
 
   @override
   Future<OperationResult<bool>> signIn() async {
@@ -251,7 +325,18 @@ class FakeAuthenticationRepository
   }
 
   @override
-  Future<OperationResult<void>> signOut() async => signOutResult;
+  Future<OperationResult<AccountSessionModel?>> importCookies() async {
+    importCalls++;
+
+    return importResult;
+  }
+
+  @override
+  Future<OperationResult<void>> signOut() async {
+    signOutCalls++;
+
+    return signOutResult;
+  }
 }
 
 const testVideoInfo = VideoInfoModel(

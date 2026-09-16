@@ -24,6 +24,13 @@ final class VideoErrorCodes extends ErrorCodes {
   final String webViewRuntime;
   final String jsEngine;
   final String destinationUnavailable;
+  final String ytDlpNotFound;
+  final String ytDlpFailed;
+  final String botCheck;
+  final String ageRestricted;
+  final String membersOnly;
+  final String privateVideo;
+  final String videoUnavailable;
 
   const VideoErrorCodes({
     super.otherError,
@@ -42,6 +49,13 @@ final class VideoErrorCodes extends ErrorCodes {
     this.webViewRuntime = 'web_view_runtime',
     this.jsEngine = 'js_engine',
     this.destinationUnavailable = 'destination_unavailable',
+    this.ytDlpNotFound = 'ytdlp_not_found',
+    this.ytDlpFailed = 'ytdlp_failed',
+    this.botCheck = 'bot_check',
+    this.ageRestricted = 'age_restricted',
+    this.membersOnly = 'members_only',
+    this.privateVideo = 'private_video',
+    this.videoUnavailable = 'video_unavailable',
   });
 }
 

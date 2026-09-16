@@ -4,6 +4,12 @@ class AddVideoState extends Equatable {
   /// Link of the last search: the request is retried with it after signing in
   final String requestedUrl;
 
+  /// Engine the last search started with
+  final DownloadEngineModel requestedEngine;
+
+  /// Engine that did the last search: the video is downloaded with it
+  final DownloadEngineModel engine;
+
   /// Video info is being fetched
   final bool isInfoLoading;
   final VideoInfoModel? videoInfo;
@@ -14,6 +20,8 @@ class AddVideoState extends Equatable {
 
   const AddVideoState({
     this.requestedUrl = '',
+    this.requestedEngine = DownloadEngineModel.fallback,
+    this.engine = DownloadEngineModel.fallback,
     this.isInfoLoading = false,
     this.videoInfo,
     this.selectedQualityId = '',
@@ -30,6 +38,8 @@ class AddVideoState extends Equatable {
   @override
   List<Object?> get props => [
     requestedUrl,
+    requestedEngine,
+    engine,
     isInfoLoading,
     videoInfo,
     selectedQualityId,
@@ -38,6 +48,8 @@ class AddVideoState extends Equatable {
 
   AddVideoState copyWith({
     String? requestedUrl,
+    DownloadEngineModel? requestedEngine,
+    DownloadEngineModel? engine,
     bool? isInfoLoading,
     VideoInfoModel? videoInfo,
     String? selectedQualityId,
@@ -46,6 +58,8 @@ class AddVideoState extends Equatable {
     bool clearFailure = false,
   }) => AddVideoState(
     requestedUrl: requestedUrl ?? this.requestedUrl,
+    requestedEngine: requestedEngine ?? this.requestedEngine,
+    engine: engine ?? this.engine,
     isInfoLoading: isInfoLoading ?? this.isInfoLoading,
     videoInfo: clearVideoInfo ? null : videoInfo ?? this.videoInfo,
     selectedQualityId: selectedQualityId ?? this.selectedQualityId,

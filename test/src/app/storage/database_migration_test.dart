@@ -23,7 +23,7 @@ const _schemaV1 = [
 ];
 
 void main() {
-  test('миграция с версии 1 сохраняет загрузки и добавляет поля скачанного видео', () async {
+  test('миграция с версии 1 сохраняет загрузки и добавляет поля скачанного видео и способ скачивания', () async {
     final database = AppDatabase.forTesting(
       DatabaseConnection(
         NativeDatabase.memory(
@@ -51,6 +51,7 @@ void main() {
     expect(task.fileSizeBytes, isNull);
     expect(task.thumbnailPath, isNull);
     expect(task.completedAt, isNull);
+    expect(task.engine, DownloadEngineModel.builtIn);
 
     await provider.saveTasks([
       DownloadTaskDto.fromModel(

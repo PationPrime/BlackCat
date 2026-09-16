@@ -10,12 +10,12 @@ import 'settings_repository_interface.dart';
 
 final class SettingsRepository implements SettingsRepositoryInterface {
   final LocalSettingsDataSource _localSettingsDataSource;
-  final DirectoryPickerService _directoryPickerService;
+  final FileSelectorService _fileSelectorService;
   final FileSystemService _fileSystemService;
 
   const SettingsRepository({
     required this._localSettingsDataSource,
-    required this._directoryPickerService,
+    required this._fileSelectorService,
     required this._fileSystemService,
   });
 
@@ -50,7 +50,7 @@ final class SettingsRepository implements SettingsRepositoryInterface {
     final String? pickedPath;
 
     try {
-      pickedPath = await _directoryPickerService.pickDirectory(
+      pickedPath = await _fileSelectorService.pickDirectory(
         initialDirectory: initialDirectory,
         confirmButtonText: LocaleKeys.app_settings_download_directory_picker_confirm
             .tr(),

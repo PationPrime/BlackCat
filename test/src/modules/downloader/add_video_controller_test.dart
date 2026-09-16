@@ -13,8 +13,10 @@ const _signInFailure = VideoFailure(code: 'unplayable', message: 'Войдите
 AddVideoController _controller(
   FakeVideoRepository videoRepository, {
   FakeAuthenticationRepository? authenticationRepository,
+  FakeYtDlpVideoRepository? ytDlpVideoRepository,
 }) => AddVideoController(
   videoRepository: videoRepository,
+  ytDlpVideoRepository: ytDlpVideoRepository ?? FakeYtDlpVideoRepository(),
   authorizationController: AuthorizationController(
     authenticationRepository: authenticationRepository ?? FakeAuthenticationRepository(),
   ),
@@ -99,5 +101,70 @@ void main() {
 
     expect(repository.requestedUrls, [_url]);
     expect(controller.state.failure, _signInFailure);
+  });
+
+  test('fetchVideoInfo через yt-dlp: поиск и повтор после входа идут через yt-dlp', () async {
+    final builtIn = FakeVideoRepository();
+    final ytDlp = FakeYtDlpVideoRepository(
+      infoResults: [(failure: _signInFailure, data: null), (failure: null, data: testVideoInfo)],
+    );
+    final controller = _controller(builtIn, ytDlpVideoRepository: ytDlp);
+
+    await controller.fetchVideoInfo(_url, engine: DownloadEngineModel.ytDlp);
+
+    expect(controller.state.engine, DownloadEngineModel.ytDlp);
+
+    await controller.signInAndRetry();
+
+    expect(builtIn.requestedUrls, isEmpty);
+    expect(ytDlp.requestedUrls, [_url, _url]);
+    expect(controller.state.videoInfo, testVideoInfo);
+  });
+
+  test('yt-dlp сломался при поиске: ищет встроенный загрузчик, видео качается им', () async {
+    final builtIn = FakeVideoRepository(infoResults: [(failure: null, data: testVideoInfo)]);
+    final ytDlp = FakeYtDlpVideoRepository(
+      infoResults: [(failure: const VideoFailure(code: 'ytdlp_failed', message: 'yt-dlp упал'), data: null)],
+    );
+    final controller = _controller(builtIn, ytDlpVideoRepository: ytDlp);
+
+    await controller.fetchVideoInfo(_url, engine: DownloadEngineModel.ytDlp);
+
+    expect(ytDlp.requestedUrls, [_url]);
+    expect(builtIn.requestedUrls, [_url]);
+    expect(controller.state.failure, isNull);
+    expect(controller.state.videoInfo, testVideoInfo);
+    expect(controller.state.requestedEngine, DownloadEngineModel.ytDlp);
+    expect(controller.state.engine, DownloadEngineModel.builtIn);
+  });
+
+  test('ошибка видео от yt-dlp показывается без повторного поиска встроенным загрузчиком', () async {
+    final builtIn = FakeVideoRepository();
+    final ytDlp = FakeYtDlpVideoRepository(infoResults: [(failure: _signInFailure, data: null)]);
+    final controller = _controller(builtIn, ytDlpVideoRepository: ytDlp);
+
+    await controller.fetchVideoInfo(_url, engine: DownloadEngineModel.ytDlp);
+
+    expect(builtIn.requestedUrls, isEmpty);
+    expect(controller.state.failure, _signInFailure);
+    expect(controller.state.engine, DownloadEngineModel.ytDlp);
+  });
+
+  test('retry повторяет поиск тем же способом, что и в первый раз', () async {
+    final builtIn = FakeVideoRepository(infoResults: [(failure: null, data: testVideoInfo)]);
+    final ytDlp = FakeYtDlpVideoRepository(
+      infoResults: [
+        (failure: const VideoFailure(code: 'ytdlp_not_found', message: 'нет yt-dlp'), data: null),
+        (failure: null, data: testVideoInfo),
+      ],
+    );
+    final controller = _controller(builtIn, ytDlpVideoRepository: ytDlp);
+
+    await controller.fetchVideoInfo(_url, engine: DownloadEngineModel.ytDlp);
+    await controller.retry();
+
+    expect(ytDlp.requestedUrls, [_url, _url]);
+    expect(builtIn.requestedUrls, [_url]);
+    expect(controller.state.engine, DownloadEngineModel.ytDlp);
   });
 }

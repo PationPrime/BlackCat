@@ -14,6 +14,13 @@ abstract final class StorageConstants {
   /// Account cookies.txt in `%APPDATA%`
   static const cookiesFileName = 'youtube_cookies.txt';
 
+  /// Where the account cookies.txt was imported from, next to it.
+  /// Missing when the cookies come from the sign-in window
+  static const cookiesSourceFileName = 'youtube_cookies_source.json';
+
+  /// yt-dlp and Deno installed by the app in `%LOCALAPPDATA%\YT Download`
+  static const toolsFolder = 'Tools';
+
   /// Unfinished download streams in `%LOCALAPPDATA%\YT Download`:
   /// each download has its own subfolder so it can continue after a pause
   /// and after an app restart

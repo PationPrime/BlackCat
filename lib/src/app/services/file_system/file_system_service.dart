@@ -1,6 +1,9 @@
 import 'dart:io';
+import 'dart:isolate';
 import 'dart:math' as math;
 
+import 'package:archive/archive_io.dart';
+import 'package:crypto/crypto.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
@@ -32,8 +35,28 @@ abstract interface class FileSystemService {
 
   Future<void> deleteFile(String path);
 
+  /// Copies [from] to [to], replacing an existing file
+  Future<void> copyFile(String from, String to);
+
+  /// Renames [from] to [to], replacing an existing file
+  Future<void> renameFile(String from, String to);
+
   /// Writes [bytes] into [path], creating missing folders
   Future<void> writeFile(String path, List<int> bytes);
+
+  /// Lowercase hex SHA-256 of the file
+  Future<String> sha256OfFile(String path);
+
+  /// Writes the [entryName] file of the zip archive into [destination].
+  /// Returns `false` if the archive has no such file
+  Future<bool> extractFromZip(
+    String zipPath, {
+    required String entryName,
+    required String destination,
+  });
+
+  /// Allows running the file on macOS and Linux; nothing to do on Windows
+  Future<void> makeExecutable(String path);
 
   /// Path of the local thumbnail copy of a download, e.g. `<taskId>.jpg`
   Future<String> thumbnailPath(String taskId, {required String extension});
@@ -119,9 +142,81 @@ class FileSystemServiceImpl implements FileSystemService {
   Future<void> deleteFile(String path) => _deleteIfExists(File(path));
 
   @override
+  Future<void> copyFile(String from, String to) async {
+    await Directory(p.dirname(to)).create(recursive: true);
+    await File(from).copy(to);
+  }
+
+  @override
+  Future<void> renameFile(String from, String to) async {
+    await _deleteIfExists(File(to));
+    await File(from).rename(to);
+  }
+
+  @override
   Future<void> writeFile(String path, List<int> bytes) async {
     await Directory(p.dirname(path)).create(recursive: true);
     await File(path).writeAsBytes(bytes, flush: true);
+  }
+
+  @override
+  Future<String> sha256OfFile(String path) async =>
+      '${await sha256.bind(File(path).openRead()).first}';
+
+  @override
+  Future<bool> extractFromZip(
+    String zipPath, {
+    required String entryName,
+    required String destination,
+  }) async {
+    await Directory(p.dirname(destination)).create(recursive: true);
+
+    /// Unpacking is synchronous and takes seconds for Deno: it runs
+    /// off the UI isolate
+    return Isolate.run(() => _extractZipEntry(zipPath, entryName, destination));
+  }
+
+  static bool _extractZipEntry(
+    String zipPath,
+    String entryName,
+    String destination,
+  ) {
+    final input = InputFileStream(zipPath);
+
+    try {
+      final entry = ZipDecoder()
+          .decodeStream(input)
+          .files
+          .where(
+            (file) => file.isFile && p.posix.basename(file.name) == entryName,
+          )
+          .firstOrNull;
+
+      if (entry == null) return false;
+
+      final output = OutputFileStream(destination);
+
+      try {
+        entry.writeContent(output);
+      } finally {
+        output.closeSync();
+      }
+
+      return true;
+    } finally {
+      input.closeSync();
+    }
+  }
+
+  @override
+  Future<void> makeExecutable(String path) async {
+    if (Platform.isWindows) return;
+
+    final result = await Process.run('chmod', ['+x', path]);
+
+    if (result.exitCode != 0) {
+      throw FileSystemException('chmod failed: ${result.stderr}', path);
+    }
   }
 
   Future<Directory> _thumbnailsRoot() async =>

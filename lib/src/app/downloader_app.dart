@@ -14,12 +14,16 @@ class DownloaderApp extends StatelessWidget {
   final AppThemeType appThemeType;
   final AppRouter appRouter;
   final FileSystemService fileSystemService;
+  final UrlLauncherService urlLauncherService;
   final AuthenticationRepositoryInterface authenticationRepository;
   final VideoRepositoryInterface videoRepository;
+  final YtDlpVideoRepositoryInterface ytDlpVideoRepository;
+  final DependenciesRepositoryInterface dependenciesRepository;
   final SettingsRepositoryInterface settingsRepository;
   final DownloadQueueRepositoryInterface downloadQueueRepository;
   final AuthorizationController authorizationController;
   final SettingsController settingsController;
+  final DependenciesController dependenciesController;
   final AppWindowController appWindowController;
   final SystemTrayController systemTrayController;
 
@@ -31,12 +35,16 @@ class DownloaderApp extends StatelessWidget {
     required this.appThemeType,
     required this.appRouter,
     required this.fileSystemService,
+    required this.urlLauncherService,
     required this.authenticationRepository,
     required this.videoRepository,
+    required this.ytDlpVideoRepository,
+    required this.dependenciesRepository,
     required this.settingsRepository,
     required this.downloadQueueRepository,
     required this.authorizationController,
     required this.settingsController,
+    required this.dependenciesController,
     required this.appWindowController,
     required this.systemTrayController,
     required this.initialLanguage,
@@ -46,11 +54,18 @@ class DownloaderApp extends StatelessWidget {
   Widget build(BuildContext context) => MultiRepositoryProvider(
     providers: [
       RepositoryProvider<FileSystemService>.value(value: fileSystemService),
+      RepositoryProvider<UrlLauncherService>.value(value: urlLauncherService),
       RepositoryProvider<AuthenticationRepositoryInterface>.value(
         value: authenticationRepository,
       ),
       RepositoryProvider<VideoRepositoryInterface>.value(
         value: videoRepository,
+      ),
+      RepositoryProvider<YtDlpVideoRepositoryInterface>.value(
+        value: ytDlpVideoRepository,
+      ),
+      RepositoryProvider<DependenciesRepositoryInterface>.value(
+        value: dependenciesRepository,
       ),
       RepositoryProvider<SettingsRepositoryInterface>.value(
         value: settingsRepository,
@@ -68,6 +83,9 @@ class DownloaderApp extends StatelessWidget {
           value: settingsController,
         ),
         BlocProvider<AppWindowController>.value(value: appWindowController),
+        BlocProvider<DependenciesController>.value(
+          value: dependenciesController,
+        ),
         BlocProvider<SystemTrayController>.value(
           value: systemTrayController,
         ),
@@ -81,6 +99,8 @@ class DownloaderApp extends StatelessWidget {
             downloadQueueRepository: context
                 .read<DownloadQueueRepositoryInterface>(),
             videoRepository: context.read<VideoRepositoryInterface>(),
+            ytDlpVideoRepository: context
+                .read<YtDlpVideoRepositoryInterface>(),
             settingsRepository: context.read<SettingsRepositoryInterface>(),
             authorizationController: context.read<AuthorizationController>(),
           )..restoreQueue(),
