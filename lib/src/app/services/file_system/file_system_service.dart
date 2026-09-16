@@ -55,7 +55,8 @@ abstract interface class FileSystemService {
     required String destination,
   });
 
-  /// Allows running the file on macOS and Linux; nothing to do on Windows
+  /// Allows running the file on macOS and Linux; removes macOS quarantine
+  /// after the installer has verified the file checksum
   Future<void> makeExecutable(String path);
 
   /// Path of the local thumbnail copy of a download, e.g. `<taskId>.jpg`
@@ -71,10 +72,10 @@ abstract interface class FileSystemService {
   /// and returns the resulting path
   Future<String> moveToFolder(String filePath, String folder, {String? title});
 
-  /// Opens Explorer with the file selected
+  /// Opens the system file manager with the file selected
   Future<void> revealInExplorer(String filePath);
 
-  /// Opens the folder in Explorer
+  /// Opens the folder in the system file manager
   Future<void> openFolder(String folderPath);
 }
 
@@ -99,8 +100,14 @@ class FileSystemServiceImpl implements FileSystemService {
   Future<String> defaultDownloadsFolder() async {
     final folder = await getDownloadsDirectory();
 
-    return folder?.path ??
-        p.join(Platform.environment['USERPROFILE'] ?? '.', 'Downloads');
+    if (folder != null) return folder.path;
+
+    return p.join(
+      Platform.isWindows
+          ? Platform.environment['USERPROFILE'] ?? '.'
+          : Platform.environment['HOME'] ?? '.',
+      'Downloads',
+    );
   }
 
   @override
@@ -111,12 +118,13 @@ class FileSystemServiceImpl implements FileSystemService {
 
   @override
   Future<Directory> downloadWorkDirectory(String taskId) async => Directory(
-    p.join((await _downloadWorkRoot()).path, taskId),
-  ).create(recursive: true);
+        p.join((await _downloadWorkRoot()).path, taskId),
+      ).create(recursive: true);
 
   @override
   Future<void> deleteDownloadWorkDirectory(String taskId) async =>
-      _deleteIfExists(Directory(p.join((await _downloadWorkRoot()).path, taskId)));
+      _deleteIfExists(
+          Directory(p.join((await _downloadWorkRoot()).path, taskId)));
 
   @override
   Future<void> deleteDownloadWorkDirectoriesExcept(Set<String> taskIds) async {
@@ -217,6 +225,14 @@ class FileSystemServiceImpl implements FileSystemService {
     if (result.exitCode != 0) {
       throw FileSystemException('chmod failed: ${result.stderr}', path);
     }
+
+    if (Platform.isMacOS) {
+      // Files received over HTTP can inherit the quarantine extended
+      // attribute. At this point the repository has already compared the
+      // file's SHA-256 with the checksum from the same official release.
+      // Absence of the attribute is normal, so a non-zero exit code is ignored.
+      await Process.run('xattr', ['-d', 'com.apple.quarantine', path]);
+    }
   }
 
   Future<Directory> _thumbnailsRoot() async =>
@@ -226,7 +242,8 @@ class FileSystemServiceImpl implements FileSystemService {
   Future<String> thumbnailPath(
     String taskId, {
     required String extension,
-  }) async => p.join((await _thumbnailsRoot()).path, '$taskId.$extension');
+  }) async =>
+      p.join((await _thumbnailsRoot()).path, '$taskId.$extension');
 
   @override
   Future<void> deleteThumbnails(Set<String> taskIds) =>
@@ -293,11 +310,21 @@ class FileSystemServiceImpl implements FileSystemService {
 
   @override
   Future<void> revealInExplorer(String filePath) =>
-      Process.run('explorer.exe', ['/select,', filePath]);
+      switch (Platform.operatingSystem) {
+        'windows' => Process.run('explorer.exe', ['/select,', filePath]),
+        'macos' => Process.run('open', ['-R', filePath]),
+        'linux' => Process.run('xdg-open', [p.dirname(filePath)]),
+        _ => Future.error(UnsupportedError('File manager is not supported')),
+      };
 
   @override
   Future<void> openFolder(String folderPath) =>
-      Process.run('explorer.exe', [folderPath]);
+      switch (Platform.operatingSystem) {
+        'windows' => Process.run('explorer.exe', [folderPath]),
+        'macos' => Process.run('open', [folderPath]),
+        'linux' => Process.run('xdg-open', [folderPath]),
+        _ => Future.error(UnsupportedError('File manager is not supported')),
+      };
 
   /// Readable file name from the video title, valid on Windows
   static String buildFilename(String? title, String filePath) {

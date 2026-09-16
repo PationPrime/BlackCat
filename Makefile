@@ -19,6 +19,12 @@ db:
 build_windows_release:
 	flutter build windows --release
 
+build_macos_release:
+	flutter build macos --release
+
+build_linux_release:
+	flutter build linux --release
+
 build_apk:
 	flutter build apk --release
 
