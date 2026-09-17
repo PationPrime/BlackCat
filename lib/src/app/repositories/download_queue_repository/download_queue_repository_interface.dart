@@ -7,9 +7,9 @@ abstract interface class DownloadQueueRepositoryInterface
     implements BaseRepositoryInterface {
   /// Downloads from previous launches by section and position within it.
   ///
-  /// Downloaded bytes are checked against the unfinished files on disk: progress
-  /// is saved to the database less often than the files are written. Work folders
-  /// of downloads that are not in the queue are wiped
+  /// Downloaded bytes are taken from the unfinished files on disk and their
+  /// slice state: progress is saved to the database less often than the files
+  /// are written. Work folders of downloads that are not in the queue are wiped
   Future<OperationResult<List<DownloadTaskModel>>> restoreTasks();
 
   /// Saves downloads: section, position, status, selected streams

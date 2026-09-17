@@ -238,6 +238,7 @@ abstract class LocaleKeys {
   static const app_errors_video_mux = 'app.errors.video.mux';
   static const app_errors_video_stream_interrupted =
       'app.errors.video.stream_interrupted';
+  static const app_errors_video_disk_write = 'app.errors.video.disk_write';
   static const app_errors_video_web_view_runtime =
       'app.errors.video.web_view_runtime';
   static const app_errors_video_js_engine = 'app.errors.video.js_engine';

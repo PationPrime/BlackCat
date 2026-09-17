@@ -16,6 +16,7 @@ import 'package:youtube_downloader/src/app/session/session_store.dart';
 import 'package:youtube_downloader/src/app/tools/tools.dart';
 
 import '../../support/dash_stream_builder.dart';
+import '../../support/slice_state.dart';
 
 const _url = 'https://www.youtube.com/watch?v=kgA8JPY2lIA';
 const _title = 'Обзор через yt-dlp';
@@ -271,6 +272,7 @@ void main() {
       fileSystemService: fileSystemService,
       sessionStore: SessionStore(localAuthenticationDataSource: localAuthenticationDataSource),
       localAuthenticationDataSource: localAuthenticationDataSource,
+      localDownloadStateDataSource: const LocalDownloadStateDataSourceImpl(),
     );
   });
 
@@ -380,6 +382,45 @@ void main() {
     expect(progress.first.downloadedBytes, greaterThanOrEqualTo(stoppedAt));
     expect(server.ranges['video']!.last, startsWith('bytes=$stoppedAt-'));
     expect(topLevelBoxes(await File(resumed.requireData.path).readAsBytes()), ['ftyp', 'moov', 'mdat']);
+  }, timeout: const Timeout(Duration(minutes: 2)));
+
+  test('после встроенного загрузчика yt-dlp продолжает с непрерывного начала его слайсов', () async {
+    if (skipReason != null) return markTestSkipped(skipReason!);
+
+    const sliceSize = 1 << 20;
+    final streams = [
+      DownloadStreamModel(role: DownloadStreamRole.video, itag: 137, contentLength: video.length),
+      DownloadStreamModel(role: DownloadStreamRole.audio, itag: 140, contentLength: audio.length),
+    ];
+    final workDirectory = p.join(root.path, StorageConstants.downloadWorkFolder, 'task-3');
+
+    /// The second slice is started, the third one is done: only the start
+    /// up to the gap can be continued in order
+    writeSlicedDownload(
+      workDirectory: workDirectory,
+      downloadId: 'task-3',
+      sliceSize: sliceSize,
+      files: [
+        (
+          name: DownloadPartFiles.fileName(streams.first),
+          content: video,
+          counters: [sliceSize, 300000, sliceSize],
+        ),
+        (name: DownloadPartFiles.fileName(streams.last), content: audio, counters: [audio.length]),
+      ],
+    );
+
+    final result = await repository.downloadVideo(
+      taskId: 'task-3',
+      url: _url,
+      quality: '1080',
+      streams: streams,
+    );
+
+    expect(result.failure, isNull, reason: result.failure?.message);
+    expect(server.ranges['video']!.first, startsWith('bytes=${sliceSize + 300000}-'));
+    expect(server.ranges['audio'], isNull);
+    expect(topLevelBoxes(await File(result.requireData.path).readAsBytes()), ['ftyp', 'moov', 'mdat']);
   }, timeout: const Timeout(Duration(minutes: 2)));
 
   test('дублированное видео: скачивается оригинальная дорожка, у которой свой номер у yt-dlp', () async {

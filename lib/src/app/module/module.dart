@@ -100,6 +100,8 @@ final class AppModule {
           localAuthenticationDataSource: localAuthenticationDataSource,
         );
 
+        const localDownloadStateDataSource = LocalDownloadStateDataSourceImpl();
+
         _videoRepository = YouTubeVideoRepository(
           remoteYouTubeDataSource: RemoteYouTubeDataSourceImpl(
             apiProvider: _apiProvider,
@@ -132,6 +134,7 @@ final class AppModule {
           fileSystemService: _fileSystemService,
           sessionStore: sessionStore,
           localAuthenticationDataSource: localAuthenticationDataSource,
+          localDownloadStateDataSource: localDownloadStateDataSource,
         );
 
         _dependenciesRepository = DependenciesRepository(
@@ -153,6 +156,7 @@ final class AppModule {
           remoteThumbnailDataSource: RemoteThumbnailDataSourceImpl(
             apiProvider: _apiProvider,
           ),
+          localDownloadStateDataSource: localDownloadStateDataSource,
           fileSystemService: _fileSystemService,
         );
 

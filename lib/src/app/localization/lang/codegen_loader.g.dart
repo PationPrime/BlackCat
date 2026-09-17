@@ -223,6 +223,7 @@ class CodegenLoader extends AssetLoader {
           "mux": "Could not build the file: {error}",
           "stream_interrupted":
               "YouTube keeps interrupting the stream download. Try again.",
+          "disk_write": "Could not write the file being downloaded: {error}",
           "web_view_runtime":
               "Downloading requires Microsoft Edge WebView2 Runtime.",
           "js_engine":
@@ -605,6 +606,7 @@ class CodegenLoader extends AssetLoader {
           "mux": "Не удалось собрать файл: {error}",
           "stream_interrupted":
               "YouTube обрывает загрузку потока. Попробуйте ещё раз.",
+          "disk_write": "Не удалось записать скачиваемый файл: {error}",
           "web_view_runtime":
               "Для скачивания нужен Microsoft Edge WebView2 Runtime.",
           "js_engine":

@@ -15,6 +15,8 @@ import 'package:youtube_downloader/src/app/storage/database/database.dart';
 import 'package:youtube_downloader/src/app/storage/database/providers/providers.dart';
 import 'package:youtube_downloader/src/app/tools/tools.dart';
 
+import '../../support/slice_state.dart';
+
 class _TestFileSystemService extends FileSystemServiceImpl {
   final Directory root;
 
@@ -81,6 +83,7 @@ void main() {
     repository = DownloadQueueRepository(
       downloadTaskTableProvider: DownloadTaskTableProvider(databaseInstance: database),
       remoteThumbnailDataSource: thumbnailDataSource,
+      localDownloadStateDataSource: const LocalDownloadStateDataSourceImpl(),
       fileSystemService: fileSystemService,
     );
   });
@@ -108,6 +111,41 @@ void main() {
     expect(tasks.single.totalBytes, 4000);
     expect(tasks.single.percent, 55);
     expect(tasks.single.status, DownloadTaskStatus.downloading);
+  });
+
+  test('restoreTasks берёт скачанные байты слайсов из state встроенного загрузчика, а не из длины файлов', () async {
+    await repository.saveTasks([_task('a', status: DownloadTaskStatus.downloading, downloadedBytes: 100)]);
+
+    final directory = await fileSystemService.downloadWorkDirectory('a');
+
+    writeSlicedDownload(
+      workDirectory: directory.path,
+      downloadId: 'a',
+      sliceSize: 1000,
+      files: [
+        (
+          name: DownloadPartFiles.fileName(_streams.first),
+          content: List.filled(3000, 5),
+          counters: [1000, 0, 400],
+        ),
+        (
+          name: DownloadPartFiles.fileName(_streams.last),
+          content: List.filled(1000, 6),
+          counters: [250],
+        ),
+      ],
+    );
+
+    final task = (await repository.restoreTasks()).requireData.single;
+
+    /// The files are of the full size, but only the slices count
+    expect(task.downloadedBytes, 1650);
+    expect(task.totalBytes, 4000);
+
+    /// A deleted stream file does not keep its old progress
+    await File(DownloadPartFiles.path(directory.path, _streams.first)).delete();
+
+    expect((await repository.restoreTasks()).requireData.single.downloadedBytes, 250);
   });
 
   test('restoreTasks не засчитывает файл длиннее потока', () async {

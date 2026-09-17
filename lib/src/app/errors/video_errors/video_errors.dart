@@ -20,6 +20,12 @@ final class VideoErrorCodes extends ErrorCodes {
   final String mux;
   final String streamInterrupted;
   final String streamForbidden;
+
+  /// googlevideo.com answered with an error status
+  final String httpStatus;
+
+  /// The downloading stream could not be written to disk
+  final String diskWrite;
   final String rateLimited;
   final String webViewRuntime;
   final String jsEngine;
@@ -45,6 +51,8 @@ final class VideoErrorCodes extends ErrorCodes {
     this.mux = 'mux',
     this.streamInterrupted = 'stream_interrupted',
     this.streamForbidden = '403',
+    this.httpStatus = 'http_status',
+    this.diskWrite = 'disk_write',
     this.rateLimited = '429',
     this.webViewRuntime = 'web_view_runtime',
     this.jsEngine = 'js_engine',

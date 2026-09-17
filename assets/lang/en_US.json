@@ -186,6 +186,7 @@
         "unknown_quality": "Unknown quality: {quality}",
         "mux": "Could not build the file: {error}",
         "stream_interrupted": "YouTube keeps interrupting the stream download. Try again.",
+        "disk_write": "Could not write the file being downloaded: {error}",
         "web_view_runtime": "Downloading requires Microsoft Edge WebView2 Runtime.",
         "js_engine": "The built-in JavaScript engine (WebView2) returned an error: {error}",
         "destination_unavailable": "Could not save the file to “{path}”: {error}",

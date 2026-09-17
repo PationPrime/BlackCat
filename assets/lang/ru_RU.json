@@ -186,6 +186,7 @@
         "unknown_quality": "Неизвестное качество: {quality}",
         "mux": "Не удалось собрать файл: {error}",
         "stream_interrupted": "YouTube обрывает загрузку потока. Попробуйте ещё раз.",
+        "disk_write": "Не удалось записать скачиваемый файл: {error}",
         "web_view_runtime": "Для скачивания нужен Microsoft Edge WebView2 Runtime.",
         "js_engine": "Встроенный JavaScript-движок (WebView2) вернул ошибку: {error}",
         "destination_unavailable": "Не удалось сохранить файл в папку «{path}»: {error}",

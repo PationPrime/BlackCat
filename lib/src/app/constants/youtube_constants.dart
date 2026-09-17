@@ -12,6 +12,9 @@ abstract final class YouTubeConstants {
   /// (as the web player and yt-dlp use) download fast
   static const streamChunkSize = 10 << 20;
 
+  /// Chunks of a download requested at the same time
+  static const streamConnections = 4;
+
   /// Without `passive=true`: with it Google skips the sign-in form
   static final signInUrl = Uri.https('accounts.google.com', '/ServiceLogin', {
     'service': 'youtube',

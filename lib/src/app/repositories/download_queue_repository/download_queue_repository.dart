@@ -18,11 +18,13 @@ final class DownloadQueueRepository
 
   final DownloadTaskTableProvider _downloadTaskTableProvider;
   final RemoteThumbnailDataSource _remoteThumbnailDataSource;
+  final LocalDownloadStateDataSource _localDownloadStateDataSource;
   final FileSystemService _fileSystemService;
 
   const DownloadQueueRepository({
     required this._downloadTaskTableProvider,
     required this._remoteThumbnailDataSource,
+    required this._localDownloadStateDataSource,
     required this._fileSystemService,
   });
 
@@ -64,7 +66,8 @@ final class DownloadQueueRepository
     }
   }
 
-  /// Downloaded bytes: length of the unfinished files of the selected streams
+  /// Downloaded bytes of the selected streams: from the slice state of the
+  /// built-in downloader, or the length of files written in order
   Future<DownloadTaskModel> _withDownloadedBytes(DownloadTaskModel task) async {
     if (task.status.isDone) return task;
 
@@ -75,9 +78,20 @@ final class DownloadQueueRepository
     final workDirectory = await _fileSystemService.downloadWorkDirectory(
       task.id,
     );
+    final sliced = await _localDownloadStateDataSource.downloadedBytes(
+      workDirectory: workDirectory.path,
+      downloadId: task.id,
+    );
     var downloadedBytes = 0;
 
     for (final stream in task.streams) {
+      if (sliced != null) {
+        downloadedBytes += (sliced[DownloadPartFiles.fileName(stream)] ?? 0)
+            .clamp(0, stream.contentLength);
+
+        continue;
+      }
+
       final partPath = DownloadPartFiles.path(workDirectory.path, stream);
       final partLength = await _fileSystemService.fileLength(partPath);
 
