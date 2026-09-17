@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:desktop_webview_window/desktop_webview_window.dart';
 import 'package:flutter/services.dart';
@@ -8,11 +9,11 @@ import 'package:flutter_web_auth_2_platform_interface/flutter_web_auth_2_platfor
 import '../../models/models.dart';
 import '../../tools/tools.dart';
 
-/// [FlutterWebAuth2.authenticate] implementation for Windows.
+/// [FlutterWebAuth2.authenticate] implementation for desktop platforms.
 ///
 /// Same approach as the package's WebView implementation (a desktop_webview_window
-/// window whose navigations are checked against the callback address), with two
-/// differences:
+/// window whose navigations are checked against the callback address). On Windows,
+/// it also works around WebView2's asynchronous navigation interception:
 ///
 /// * desktop_webview_window cancels every navigation to ask Dart and immediately
 ///   starts it again. WebView2 silently drops the repeated navigation while the
@@ -54,6 +55,7 @@ class SignInWebViewPlatform extends FlutterWebAuth2Platform {
     }
 
     final parsedOptions = FlutterWebAuth2Options.fromJson(options);
+    final manuallyRestartsNavigation = Platform.isWindows;
 
     _webview?.close();
     _cookies = const [];
@@ -94,27 +96,30 @@ class SignInWebViewPlatform extends FlutterWebAuth2Platform {
       webview.close();
     }
 
-    webview.isNavigating.addListener(() {
-      final url = pendingUrl;
+    if (manuallyRestartsNavigation) {
+      webview.isNavigating.addListener(() {
+        final url = pendingUrl;
 
-      /// The cancelled navigation has finished: a repeated one will not be dropped now
-      if (!webview.isNavigating.value && url != null && !finishing) {
-        pendingUrl = null;
-        webview.launch(url, triggerOnUrlRequestEvent: false);
-      }
-    });
+        /// The cancelled navigation has finished: a repeated one will not be dropped now
+        if (!webview.isNavigating.value && url != null && !finishing) {
+          pendingUrl = null;
+          webview.launch(url, triggerOnUrlRequestEvent: false);
+        }
+      });
+    }
 
     webview.setOnUrlRequestCallback((url) {
       final uri = Uri.tryParse(url);
 
       if (uri != null && isCallback(uri)) {
         unawaited(finish(url));
-      } else if (!finishing) {
+      } else if (manuallyRestartsNavigation && !finishing) {
         pendingUrl = url;
       }
 
-      /// Do not let the plugin restart the navigation itself (see the class description)
-      return false;
+      /// WebView2 cancels a request while it waits for this callback. WKWebView does
+      /// not, so returning false and launching again would reload every page forever.
+      return !manuallyRestartsNavigation;
     });
 
     unawaited(
@@ -140,17 +145,18 @@ class SignInWebViewPlatform extends FlutterWebAuth2Platform {
   Future<void> clearAllDanglingCalls() async {}
 
   /// All WebView profile cookies (the plugin does not expose its cookie type)
-  static Future<List<BrowserCookieModel>> readCookies(Webview webview) async => [
-    for (final cookie in await webview.getAllCookies())
-      BrowserCookieModel(
-        name: NetscapeCookies.stripNul(cookie.name),
-        value: NetscapeCookies.stripNul(cookie.value),
-        domain: NetscapeCookies.stripNul(cookie.domain),
-        path: NetscapeCookies.stripNul(cookie.path),
-        expires: cookie.expires,
-        secure: cookie.secure,
-        httpOnly: cookie.httpOnly,
-        sessionOnly: cookie.sessionOnly,
-      ),
-  ];
+  static Future<List<BrowserCookieModel>> readCookies(Webview webview) async =>
+      [
+        for (final cookie in await webview.getAllCookies())
+          BrowserCookieModel(
+            name: NetscapeCookies.stripNul(cookie.name),
+            value: NetscapeCookies.stripNul(cookie.value),
+            domain: NetscapeCookies.stripNul(cookie.domain),
+            path: NetscapeCookies.stripNul(cookie.path),
+            expires: cookie.expires,
+            secure: cookie.secure,
+            httpOnly: cookie.httpOnly,
+            sessionOnly: cookie.sessionOnly,
+          ),
+      ];
 }
