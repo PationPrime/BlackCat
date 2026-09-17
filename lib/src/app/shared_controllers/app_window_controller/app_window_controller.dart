@@ -81,6 +81,25 @@ final class AppWindowController extends Cubit<AppWindowState> {
     }
   }
 
+  /// Covers the whole screen, e.g. for a video. The state changes right away:
+  /// where the platform has no full screen, the app still hides its title bar
+  Future<void> setFullScreen(bool fullScreen) async {
+    if (fullScreen == state.isFullScreen) return;
+
+    _safeEmit(state.copyWith(isFullScreen: fullScreen));
+
+    try {
+      await _appWindowService.setFullScreen(fullScreen);
+    } catch (error, stackTrace) {
+      _appLogger.logError(
+        'Failed to change full screen: $error',
+        stackTrace: stackTrace,
+      );
+    }
+  }
+
+  Future<void> toggleFullScreen() => setFullScreen(!state.isFullScreen);
+
   Future<void> startDragging() => _appWindowService.startDragging();
 
   Future<void> startResizing(AppWindowResizeEdge edge) =>
@@ -110,6 +129,10 @@ final class AppWindowController extends Cubit<AppWindowState> {
         _safeEmit(state.copyWith(isMaximized: true));
       case AppWindowEvent.unmaximized:
         _safeEmit(state.copyWith(isMaximized: false));
+      case AppWindowEvent.enteredFullScreen:
+        _safeEmit(state.copyWith(isFullScreen: true));
+      case AppWindowEvent.leftFullScreen:
+        _safeEmit(state.copyWith(isFullScreen: false));
       case AppWindowEvent.minimized ||
           AppWindowEvent.restored ||
           AppWindowEvent.shown ||

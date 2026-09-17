@@ -6,5 +6,7 @@ export 'js_engine/js_engine_service.dart';
 export 'media_muxer/media_muxer_service.dart';
 export 'system_tray/system_tray_service.dart';
 export 'url_launcher/url_launcher_service.dart';
+export 'video_metadata/video_metadata_service.dart';
+export 'video_player/video_player_service.dart';
 export 'web_authentication/sign_in_web_view_platform.dart';
 export 'yt_dlp/yt_dlp_service.dart';

@@ -11,6 +11,7 @@ Future<void> _pump(
   WidgetTester tester, {
   required AppWindowFrameModel frame,
   bool isMaximized = false,
+  bool isFullScreen = false,
   List<String>? calls,
   List<AppWindowResizeEdge>? edges,
   ValueChanged<double>? onTopPadding,
@@ -20,6 +21,7 @@ Future<void> _pump(
     builder: (context, child) => AppWindowFrame(
       frame: frame,
       isMaximized: isMaximized,
+      isFullScreen: isFullScreen,
       onMinimizePressed: () => calls?.add('minimize'),
       onToggleMaximizePressed: () => calls?.add('toggleMaximize'),
       onClosePressed: () => calls?.add('close'),
@@ -94,6 +96,17 @@ void main() {
     await _pump(tester, frame: const AppWindowFrameModel(isCustom: true, leadingInset: 76));
 
     expect(find.bySemanticsLabel('Закрыть'), findsNothing);
+    expect(find.text('Экран'), findsOneWidget);
+  });
+
+  testWidgets('полный экран: ни заголовка, ни отступа под него, ни полос изменения размера', (tester) async {
+    double? topPadding;
+
+    await _pump(tester, frame: windowsFrame, isFullScreen: true, onTopPadding: (value) => topPadding = value);
+
+    expect(topPadding, 0);
+    expect(find.bySemanticsLabel('Закрыть'), findsNothing);
+    expect(find.byWidgetPredicate((widget) => widget is MouseRegion && widget.cursor == SystemMouseCursors.resizeUpDown), findsNothing);
     expect(find.text('Экран'), findsOneWidget);
   });
 }

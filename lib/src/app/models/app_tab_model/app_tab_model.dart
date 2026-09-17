@@ -5,6 +5,9 @@ enum AppTabModel {
 
   /// Active download, queue and downloaded videos
   downloads,
+
+  /// Videos of the download folder and the player
+  player,
   settings,
 
   /// Supporting the developer

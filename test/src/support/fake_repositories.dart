@@ -359,3 +359,149 @@ const testVideoInfo = VideoInfoModel(
     QualityModel(id: QualityModel.audioId, kind: QualityKind.audio, isAac: true),
   ],
 );
+
+LibraryVideoModel testLibraryVideo(
+  String id, {
+  String folder = r'C:\Users\user\Downloads',
+  Duration? duration = const Duration(minutes: 10),
+  Duration position = Duration.zero,
+  String? thumbnailPath,
+  bool isMetadataLoaded = true,
+  DateTime? modifiedAt,
+}) => LibraryVideoModel(
+  id: id,
+  path: '$folder\\$id.mp4',
+  title: 'Ролик $id',
+  sizeBytes: 1024 * 1024,
+  modifiedAt: modifiedAt ?? DateTime(2026, 9, 1),
+  duration: duration,
+  position: position,
+  thumbnailPath: thumbnailPath,
+  isMetadataLoaded: isMetadataLoaded,
+);
+
+/// Library stand-in: videos by folder, saved positions stay in the folder
+/// like in the database. Folder changes are emitted on request
+class FakeVideoLibraryRepository implements VideoLibraryRepositoryInterface {
+  final folders = <String, List<LibraryVideoModel>>{};
+  final missingFolders = <String>{};
+
+  /// What the system reports for a video id
+  final metadata = <String, VideoFileMetadataModel>{};
+  final failedMetadata = <String>{};
+
+  final syncedFolders = <String>[];
+  final metadataRequests = <String>[];
+  final savedPositions = <LibraryVideoModel>[];
+  final watchedFolders = <String>[];
+
+  /// Keeps loading the metadata until completed
+  Completer<void>? metadataGate;
+
+  final _folderChanges = StreamController<void>.broadcast();
+
+  FakeVideoLibraryRepository({Map<String, List<LibraryVideoModel>>? folders}) {
+    this.folders.addAll(
+      folders ??
+          {
+            r'C:\Users\user\Downloads': [
+              testLibraryVideo('a'),
+              testLibraryVideo('b'),
+            ],
+          },
+    );
+  }
+
+  void changeFolder() => _folderChanges.add(null);
+
+  @override
+  ErrorHandler get errorHandler => const PlayerErrorHandler();
+
+  @override
+  Future<OperationResult<List<LibraryVideoModel>>> syncVideos(
+    String folder,
+  ) async {
+    syncedFolders.add(folder);
+
+    if (missingFolders.contains(folder)) {
+      return fail(
+        errorHandler.handleError(
+          PlayerException(const PlayerErrorCodes().folderNotFound, path: folder),
+        ),
+      );
+    }
+
+    return ok([...?folders[folder]]);
+  }
+
+  @override
+  Future<OperationResult<LibraryVideoModel>> loadMetadata(
+    LibraryVideoModel video,
+  ) async {
+    metadataRequests.add(video.id);
+
+    await metadataGate?.future;
+
+    if (failedMetadata.contains(video.id)) {
+      return fail(
+        errorHandler.handleError(
+          PlayerException(const PlayerErrorCodes().storage, cause: 'broken'),
+        ),
+      );
+    }
+
+    final found = metadata[video.id] ?? const VideoFileMetadataModel();
+    final loaded = video.copyWith(
+      duration: video.duration ?? found.duration,
+      thumbnailPath: found.hasThumbnail ? 'thumbnails/${video.id}.jpg' : null,
+      isMetadataLoaded: true,
+    );
+
+    _replace(
+      loaded.id,
+      (stored) => stored.copyWith(
+        duration: loaded.duration,
+        thumbnailPath: loaded.thumbnailPath,
+        isMetadataLoaded: true,
+      ),
+    );
+
+    return ok(loaded);
+  }
+
+  @override
+  Future<OperationResult<void>> savePosition(LibraryVideoModel video) async {
+    savedPositions.add(video);
+
+    _replace(
+      video.id,
+      (stored) => stored.copyWith(
+        position: video.position,
+        duration: video.duration,
+        watchedAt: video.watchedAt,
+      ),
+    );
+
+    return ok(null);
+  }
+
+  void _replace(
+    String videoId,
+    LibraryVideoModel Function(LibraryVideoModel stored) change,
+  ) {
+    for (final videos in folders.values) {
+      for (var index = 0; index < videos.length; index++) {
+        if (videos[index].id == videoId) {
+          videos[index] = change(videos[index]);
+        }
+      }
+    }
+  }
+
+  @override
+  Stream<void> watchFolder(String folder) {
+    watchedFolders.add(folder);
+
+    return _folderChanges.stream;
+  }
+}

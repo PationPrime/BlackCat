@@ -40,6 +40,11 @@ abstract interface class AppWindowService {
 
   Future<void> unmaximize();
 
+  /// The window covers the whole screen without the taskbar and frame
+  Future<void> setFullScreen(bool fullScreen);
+
+  Future<bool> isFullScreen();
+
   /// Moves the window after the pointer, like dragging the system title bar
   Future<void> startDragging();
 
@@ -166,6 +171,17 @@ final class AppWindowServiceImpl
   }
 
   @override
+  Future<void> setFullScreen(bool fullScreen) async {
+    if (!isSupported) return;
+
+    await windowManager.setFullScreen(fullScreen);
+  }
+
+  @override
+  Future<bool> isFullScreen() async =>
+      isSupported && await windowManager.isFullScreen();
+
+  @override
   Future<void> startDragging() async {
     if (!isSupported) return;
 
@@ -214,6 +230,13 @@ final class AppWindowServiceImpl
 
   @override
   void onWindowRestore() => _events.add(AppWindowEvent.restored);
+
+  @override
+  void onWindowEnterFullScreen() =>
+      _events.add(AppWindowEvent.enteredFullScreen);
+
+  @override
+  void onWindowLeaveFullScreen() => _events.add(AppWindowEvent.leftFullScreen);
 
   @override
   void onWindowEvent(String eventName) {

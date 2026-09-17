@@ -66,4 +66,60 @@ void main() {
 
     await database.close();
   });
+
+  test('миграция на версию 4 добавляет библиотеку плеера, загрузки остаются', () async {
+    final database = AppDatabase.forTesting(
+      DatabaseConnection(
+        NativeDatabase.memory(
+          setup: (db) {
+            _schemaV1.forEach(db.execute);
+            db.execute('PRAGMA user_version = 1');
+          },
+        ),
+      ),
+    );
+
+    final library = LibraryVideoTableProvider(databaseInstance: database);
+
+    expect(await library.getVideos(), isEmpty);
+
+    await library.saveVideos([
+      LibraryVideoDto(
+        id: 'a',
+        path: r'C:\Downloads\a.mp4',
+        title: 'Ролик',
+        sizeBytes: 2048,
+        modifiedAt: DateTime(2026, 9, 1, 12),
+      ),
+    ]);
+    await library.updatePosition(videoId: 'a', positionMs: 65000, durationMs: 120000, watchedAt: DateTime(2026, 9, 2));
+    await library.updateMetadata(videoId: 'a', durationMs: 121000, thumbnailPath: r'C:\Thumbnails\a.jpg');
+
+    final video = (await library.getVideos()).single.toModel();
+
+    expect(video.title, 'Ролик');
+    expect(video.modifiedAt, DateTime(2026, 9, 1, 12));
+    expect(video.position, const Duration(seconds: 65));
+    expect(video.duration, const Duration(seconds: 121));
+    expect(video.thumbnailPath, r'C:\Thumbnails\a.jpg');
+    expect(video.isMetadataLoaded, isTrue);
+    expect(video.watchedAt, DateTime(2026, 9, 2));
+
+    /// Saving the file again keeps nothing stale: the row is replaced
+    await library.saveVideos([
+      LibraryVideoDto(id: 'a', path: r'C:\Downloads\a.mp4', title: 'Ролик', sizeBytes: 4096, modifiedAt: DateTime(2026, 9, 3)),
+    ]);
+
+    final replaced = (await library.getVideos()).single;
+
+    expect(replaced.sizeBytes, 4096);
+    expect(replaced.positionMs, 0);
+
+    await library.deleteVideos(['a']);
+
+    expect(await library.getVideos(), isEmpty);
+    expect(await DownloadTaskTableProvider(databaseInstance: database).getTasks(), isEmpty);
+
+    await database.close();
+  });
 }

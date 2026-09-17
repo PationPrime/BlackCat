@@ -11,6 +11,7 @@ import 'package:youtube_downloader/src/app/shared_controllers/shared_controllers
 import 'package:youtube_downloader/src/modules/downloads/controllers/controllers.dart';
 
 import 'fake_repositories.dart';
+import 'fake_services.dart';
 
 const testQuality = QualityModel(id: '1080', kind: QualityKind.video, label: '1080p', resolution: 1080);
 
@@ -42,8 +43,12 @@ final class TestApp {
   final settingsRepository = FakeSettingsRepository();
   final authenticationRepository = FakeAuthenticationRepository();
   final urlLauncher = FakeUrlLauncher();
+  final videoLibraryRepository = FakeVideoLibraryRepository();
+  final videoPlayerService = FakeVideoPlayerService();
+  final appWindowService = FakeAppWindowService();
 
   final navigationController = AppNavigationController();
+  late final appWindowController = AppWindowController(appWindowService: appWindowService);
   late final authorizationController = AuthorizationController(authenticationRepository: authenticationRepository);
   late final dependenciesController = DependenciesController(dependenciesRepository: dependenciesRepository);
   late final settingsController = SettingsController(settingsRepository: settingsRepository);
@@ -70,10 +75,13 @@ final class TestApp {
       RepositoryProvider<UrlLauncherService>.value(value: urlLauncher),
       RepositoryProvider<VideoRepositoryInterface>.value(value: videoRepository),
       RepositoryProvider<YtDlpVideoRepositoryInterface>.value(value: ytDlpVideoRepository),
+      RepositoryProvider<VideoLibraryRepositoryInterface>.value(value: videoLibraryRepository),
+      RepositoryProvider<VideoPlayerService>.value(value: videoPlayerService),
     ],
     child: MultiBlocProvider(
       providers: [
         BlocProvider<AppNavigationController>.value(value: navigationController),
+        BlocProvider<AppWindowController>.value(value: appWindowController),
         BlocProvider<AuthorizationController>.value(value: authorizationController),
         BlocProvider<DependenciesController>.value(value: dependenciesController),
         BlocProvider<SettingsController>.value(value: settingsController),
@@ -138,5 +146,6 @@ final class TestApp {
     await dependenciesController.close();
     await settingsController.close();
     await navigationController.close();
+    await appWindowController.close();
   }
 }

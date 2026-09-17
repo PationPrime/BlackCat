@@ -232,6 +232,11 @@
           "timeout": "GitHub is taking too long to respond.",
           "http_status": "GitHub responded with error {status}."
         }
+      },
+      "player": {
+        "folder_not_found": "The download folder is not found: {path}. Check that the drive is connected or choose another folder in the settings.",
+        "storage": "Could not update the video list: {error}",
+        "playback": "Could not play the video: {error}"
       }
     },
     "dependencies": {
@@ -273,6 +278,7 @@
     "navigation": {
       "home": "Home",
       "downloads": "Downloads",
+      "player": "Player",
       "settings": "Settings",
       "donations": "Sponsor"
     },
@@ -287,6 +293,37 @@
       "title": "Downloads",
       "subtitle": "Active download, queue and downloaded videos.",
       "add_video": "Add video"
+    },
+    "player": {
+      "title": "Player",
+      "subtitle": "Videos from the download folder. Playback resumes where you stopped.",
+      "folder": "Folder: {path}",
+      "open_folder": "Open folder",
+      "refresh": "Refresh",
+      "show_in_folder": "Show in folder",
+      "play": "Watch",
+      "videos_title": "Videos",
+      "empty": "No videos in the download folder yet. Downloaded videos will appear here on their own.",
+      "download_video": "Download a video",
+      "stopped_at": "Stopped at {time}",
+      "watched": "Watched",
+      "seek_seconds": "{seconds} seconds",
+      "retry": "Try again",
+      "close": "Close",
+      "controls": {
+        "play": "Play (k)",
+        "pause": "Pause (k)",
+        "replay": "Replay (k)",
+        "rewind": "Back 10 seconds (j)",
+        "forward": "Forward 10 seconds (l)",
+        "mute": "Mute (m)",
+        "unmute": "Unmute (m)",
+        "full_screen": "Full screen (f)",
+        "exit_full_screen": "Exit full screen (f)",
+        "speed": "Playback speed",
+        "speed_normal": "Normal",
+        "close": "Close (Esc)"
+      }
     },
     "footer": {
       "idle": "No active downloads",

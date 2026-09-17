@@ -21,6 +21,8 @@ class DownloaderApp extends StatelessWidget {
   final DependenciesRepositoryInterface dependenciesRepository;
   final SettingsRepositoryInterface settingsRepository;
   final DownloadQueueRepositoryInterface downloadQueueRepository;
+  final VideoLibraryRepositoryInterface videoLibraryRepository;
+  final VideoPlayerService videoPlayerService;
   final AuthorizationController authorizationController;
   final SettingsController settingsController;
   final DependenciesController dependenciesController;
@@ -42,6 +44,8 @@ class DownloaderApp extends StatelessWidget {
     required this.dependenciesRepository,
     required this.settingsRepository,
     required this.downloadQueueRepository,
+    required this.videoLibraryRepository,
+    required this.videoPlayerService,
     required this.authorizationController,
     required this.settingsController,
     required this.dependenciesController,
@@ -73,6 +77,10 @@ class DownloaderApp extends StatelessWidget {
       RepositoryProvider<DownloadQueueRepositoryInterface>.value(
         value: downloadQueueRepository,
       ),
+      RepositoryProvider<VideoLibraryRepositoryInterface>.value(
+        value: videoLibraryRepository,
+      ),
+      RepositoryProvider<VideoPlayerService>.value(value: videoPlayerService),
     ],
     child: MultiBlocProvider(
       providers: [

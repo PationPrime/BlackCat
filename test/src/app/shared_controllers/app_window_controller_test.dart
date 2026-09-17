@@ -87,4 +87,34 @@ void main() {
 
     expect(service.calls, containsAllInOrder(['maximize', 'unmaximize']));
   });
+
+  test('полный экран: переключается сразу и следит за событиями окна', () async {
+    final service = FakeAppWindowService();
+    final controller = AppWindowController(appWindowService: service);
+
+    await controller.initialize();
+    await controller.toggleFullScreen();
+
+    expect(controller.state.isFullScreen, isTrue);
+    expect(service.fullScreen, isTrue);
+
+    /// A repeated request changes nothing
+    await controller.setFullScreen(true);
+
+    expect(service.calls.where((call) => call.startsWith('setFullScreen')), hasLength(1));
+
+    service.emit(AppWindowEvent.leftFullScreen);
+    await _settle();
+
+    expect(controller.state.isFullScreen, isFalse);
+
+    service.emit(AppWindowEvent.enteredFullScreen);
+    await _settle();
+
+    expect(controller.state.isFullScreen, isTrue);
+
+    await controller.toggleFullScreen();
+
+    expect(service.calls.last, 'setFullScreen(false)');
+  });
 }

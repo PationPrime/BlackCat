@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_web_auth_2_platform_interface/flutter_web_auth_2_platform_interface.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:media_kit/media_kit.dart';
 
 import '../api/api.dart';
 import '../data_sources/data_sources.dart';
@@ -32,12 +33,15 @@ final class AppModule {
   static late final ApiProvider _apiProvider;
   static late final FileSystemService _fileSystemService;
   static late final DownloadTaskTableProvider _downloadTaskTableProvider;
+  static late final LibraryVideoTableProvider _libraryVideoTableProvider;
   static late final AuthenticationRepositoryInterface _authenticationRepository;
   static late final VideoRepositoryInterface _videoRepository;
   static late final YtDlpVideoRepositoryInterface _ytDlpVideoRepository;
   static late final DependenciesRepositoryInterface _dependenciesRepository;
   static late final SettingsRepositoryInterface _settingsRepository;
   static late final DownloadQueueRepositoryInterface _downloadQueueRepository;
+  static late final VideoLibraryRepositoryInterface _videoLibraryRepository;
+  static late final VideoPlayerService _videoPlayerService;
   static late final AuthorizationController _authorizationController;
   static late final SettingsController _settingsController;
   static late final DependenciesController _dependenciesController;
@@ -152,6 +156,17 @@ final class AppModule {
           fileSystemService: _fileSystemService,
         );
 
+        _videoLibraryRepository = VideoLibraryRepository(
+          libraryVideoTableProvider: _libraryVideoTableProvider,
+          downloadTaskTableProvider: _downloadTaskTableProvider,
+          localVideoLibraryDataSource: LocalVideoLibraryDataSourceImpl(
+            fileSystemService: _fileSystemService,
+          ),
+          videoMetadataService: VideoMetadataServiceImpl(),
+        );
+
+        _videoPlayerService = MediaKitVideoPlayerServiceImpl();
+
         _authorizationController = AuthorizationController(
           authenticationRepository: _authenticationRepository,
         );
@@ -197,6 +212,8 @@ final class AppModule {
             dependenciesRepository: _dependenciesRepository,
             settingsRepository: _settingsRepository,
             downloadQueueRepository: _downloadQueueRepository,
+            videoLibraryRepository: _videoLibraryRepository,
+            videoPlayerService: _videoPlayerService,
             authorizationController: _authorizationController,
             settingsController: _settingsController,
             dependenciesController: _dependenciesController,
@@ -220,6 +237,9 @@ final class AppModule {
     try {
       WidgetsFlutterBinding.ensureInitialized();
       await EasyLocalization.ensureInitialized();
+
+      /// libmpv of the player is loaded before any video opens
+      MediaKit.ensureInitialized();
       await initializeDateFormatting();
       await _initializeDriftDatabase();
     } catch (error, stackTrace) {
@@ -234,6 +254,10 @@ final class AppModule {
     final databaseIsolate = await AppDatabase.connectIsolateDatabase();
 
     _downloadTaskTableProvider = DownloadTaskTableProvider(
+      databaseInstance: databaseIsolate.database,
+    );
+
+    _libraryVideoTableProvider = LibraryVideoTableProvider(
       databaseInstance: databaseIsolate.database,
     );
   }

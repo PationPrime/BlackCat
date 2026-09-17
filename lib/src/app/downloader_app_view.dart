@@ -67,6 +67,7 @@ class DownloaderAppView extends StatelessWidget {
                     return AppWindowFrame(
                       frame: windowState.frame,
                       isMaximized: windowState.isMaximized,
+                      isFullScreen: windowState.isFullScreen,
                       onMinimizePressed: appWindowController.minimize,
                       onToggleMaximizePressed:
                           appWindowController.toggleMaximize,

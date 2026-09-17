@@ -4,6 +4,7 @@ abstract final class RoutePaths {
   static const root = '/';
   static const home = 'home';
   static const downloads = 'downloads';
+  static const player = 'player';
   static const settings = 'settings';
   static const donations = 'donations';
 }

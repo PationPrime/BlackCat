@@ -21,6 +21,9 @@ class AppWindowFrame extends StatelessWidget {
 
   final AppWindowFrameModel frame;
   final bool isMaximized;
+
+  /// A full-screen window shows only the screens
+  final bool isFullScreen;
   final Widget child;
   final VoidCallback? onMinimizePressed;
   final VoidCallback? onToggleMaximizePressed;
@@ -33,6 +36,7 @@ class AppWindowFrame extends StatelessWidget {
     required this.frame,
     required this.isMaximized,
     required this.child,
+    this.isFullScreen = false,
     this.onMinimizePressed,
     this.onToggleMaximizePressed,
     this.onClosePressed,
@@ -42,7 +46,7 @@ class AppWindowFrame extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (!frame.isCustom) return child;
+    if (!frame.isCustom || isFullScreen) return child;
 
     final mediaQuery = MediaQuery.of(context);
 

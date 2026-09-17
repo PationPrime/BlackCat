@@ -37,6 +37,7 @@ class AppRouter extends RootStackRouter {
                   path: RoutePaths.downloads,
                   page: DownloadsRoute.page,
                 ),
+                AutoRoute(path: RoutePaths.player, page: PlayerRoute.page),
                 AutoRoute(path: RoutePaths.settings, page: SettingsRoute.page),
                 AutoRoute(
                   path: RoutePaths.donations,

@@ -71,10 +71,11 @@ abstract interface class FileSystemService {
   /// and returns the resulting path
   Future<String> moveToFolder(String filePath, String folder, {String? title});
 
-  /// Opens Explorer with the file selected
+  /// Opens the file manager with the file selected: Explorer, Finder;
+  /// on Linux the folder of the file
   Future<void> revealInExplorer(String filePath);
 
-  /// Opens the folder in Explorer
+  /// Opens the folder in the file manager
   Future<void> openFolder(String folderPath);
 }
 
@@ -292,12 +293,32 @@ class FileSystemServiceImpl implements FileSystemService {
   }
 
   @override
-  Future<void> revealInExplorer(String filePath) =>
-      Process.run('explorer.exe', ['/select,', filePath]);
+  Future<void> revealInExplorer(String filePath) async {
+    if (Platform.isWindows) {
+      await Process.run('explorer.exe', ['/select,', filePath]);
+    } else if (Platform.isMacOS) {
+      await Process.run('open', ['-R', filePath]);
+    } else {
+      /// Linux file managers have no common way to select a file
+      await openFolder(p.dirname(filePath));
+    }
+  }
 
   @override
-  Future<void> openFolder(String folderPath) =>
-      Process.run('explorer.exe', [folderPath]);
+  Future<void> openFolder(String folderPath) async {
+    try {
+      await Process.run(
+        switch (Platform.operatingSystem) {
+          'windows' => 'explorer.exe',
+          'macos' => 'open',
+          _ => 'xdg-open',
+        },
+        [folderPath],
+      );
+    } on ProcessException {
+      /// No file manager to open: nothing to show
+    }
+  }
 
   /// Readable file name from the video title, valid on Windows
   static String buildFilename(String? title, String filePath) {

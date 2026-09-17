@@ -107,6 +107,22 @@ class MainWrapperRouter extends PageRouteInfo<void> {
 }
 
 /// generated route for
+/// [PlayerScreen]
+class PlayerRoute extends PageRouteInfo<void> {
+  const PlayerRoute({List<PageRouteInfo>? children})
+    : super(PlayerRoute.name, initialChildren: children);
+
+  static const String name = 'PlayerRoute';
+
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      return WrappedRoute(child: const PlayerScreen());
+    },
+  );
+}
+
+/// generated route for
 /// [SettingsScreen]
 class SettingsRoute extends PageRouteInfo<void> {
   const SettingsRoute({List<PageRouteInfo>? children})

@@ -7,6 +7,8 @@ export 'download_queue_repository/download_queue_repository.dart';
 export 'download_queue_repository/download_queue_repository_interface.dart';
 export 'settings_repository/settings_repository.dart';
 export 'settings_repository/settings_repository_interface.dart';
+export 'video_library_repository/video_library_repository.dart';
+export 'video_library_repository/video_library_repository_interface.dart';
 export 'video_repository/video_repository_interface.dart';
 export 'video_repository/youtube_video_repository.dart';
 export 'video_repository/yt_dlp_video_repository.dart';

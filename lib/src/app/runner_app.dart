@@ -19,6 +19,8 @@ class RunnerApp extends StatelessWidget {
   final DependenciesRepositoryInterface dependenciesRepository;
   final SettingsRepositoryInterface settingsRepository;
   final DownloadQueueRepositoryInterface downloadQueueRepository;
+  final VideoLibraryRepositoryInterface videoLibraryRepository;
+  final VideoPlayerService videoPlayerService;
   final AuthorizationController authorizationController;
   final SettingsController settingsController;
   final DependenciesController dependenciesController;
@@ -40,6 +42,8 @@ class RunnerApp extends StatelessWidget {
     required this.dependenciesRepository,
     required this.settingsRepository,
     required this.downloadQueueRepository,
+    required this.videoLibraryRepository,
+    required this.videoPlayerService,
     required this.authorizationController,
     required this.settingsController,
     required this.dependenciesController,
@@ -60,6 +64,8 @@ class RunnerApp extends StatelessWidget {
     dependenciesRepository: dependenciesRepository,
     settingsRepository: settingsRepository,
     downloadQueueRepository: downloadQueueRepository,
+    videoLibraryRepository: videoLibraryRepository,
+    videoPlayerService: videoPlayerService,
     authorizationController: authorizationController,
     settingsController: settingsController,
     dependenciesController: dependenciesController,

@@ -1934,6 +1934,733 @@ class DownloadTaskStreamsTableCompanion
   }
 }
 
+class $LibraryVideosTableTable extends LibraryVideosTable
+    with TableInfo<$LibraryVideosTableTable, LibraryVideosTableData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $LibraryVideosTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _pathMeta = const VerificationMeta('path');
+  @override
+  late final GeneratedColumn<String> path = GeneratedColumn<String>(
+    'path',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _titleMeta = const VerificationMeta('title');
+  @override
+  late final GeneratedColumn<String> title = GeneratedColumn<String>(
+    'title',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _sizeBytesMeta = const VerificationMeta(
+    'sizeBytes',
+  );
+  @override
+  late final GeneratedColumn<int> sizeBytes = GeneratedColumn<int>(
+    'size_bytes',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _modifiedAtMeta = const VerificationMeta(
+    'modifiedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> modifiedAt = GeneratedColumn<DateTime>(
+    'modified_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _durationMsMeta = const VerificationMeta(
+    'durationMs',
+  );
+  @override
+  late final GeneratedColumn<int> durationMs = GeneratedColumn<int>(
+    'duration_ms',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _positionMsMeta = const VerificationMeta(
+    'positionMs',
+  );
+  @override
+  late final GeneratedColumn<int> positionMs = GeneratedColumn<int>(
+    'position_ms',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _thumbnailPathMeta = const VerificationMeta(
+    'thumbnailPath',
+  );
+  @override
+  late final GeneratedColumn<String> thumbnailPath = GeneratedColumn<String>(
+    'thumbnail_path',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _isMetadataLoadedMeta = const VerificationMeta(
+    'isMetadataLoaded',
+  );
+  @override
+  late final GeneratedColumn<bool> isMetadataLoaded = GeneratedColumn<bool>(
+    'is_metadata_loaded',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_metadata_loaded" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _watchedAtMeta = const VerificationMeta(
+    'watchedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> watchedAt = GeneratedColumn<DateTime>(
+    'watched_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    path,
+    title,
+    sizeBytes,
+    modifiedAt,
+    durationMs,
+    positionMs,
+    thumbnailPath,
+    isMetadataLoaded,
+    watchedAt,
+    createdAt,
+    updatedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'library_videos_table';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<LibraryVideosTableData> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('path')) {
+      context.handle(
+        _pathMeta,
+        path.isAcceptableOrUnknown(data['path']!, _pathMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_pathMeta);
+    }
+    if (data.containsKey('title')) {
+      context.handle(
+        _titleMeta,
+        title.isAcceptableOrUnknown(data['title']!, _titleMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_titleMeta);
+    }
+    if (data.containsKey('size_bytes')) {
+      context.handle(
+        _sizeBytesMeta,
+        sizeBytes.isAcceptableOrUnknown(data['size_bytes']!, _sizeBytesMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_sizeBytesMeta);
+    }
+    if (data.containsKey('modified_at')) {
+      context.handle(
+        _modifiedAtMeta,
+        modifiedAt.isAcceptableOrUnknown(data['modified_at']!, _modifiedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_modifiedAtMeta);
+    }
+    if (data.containsKey('duration_ms')) {
+      context.handle(
+        _durationMsMeta,
+        durationMs.isAcceptableOrUnknown(data['duration_ms']!, _durationMsMeta),
+      );
+    }
+    if (data.containsKey('position_ms')) {
+      context.handle(
+        _positionMsMeta,
+        positionMs.isAcceptableOrUnknown(data['position_ms']!, _positionMsMeta),
+      );
+    }
+    if (data.containsKey('thumbnail_path')) {
+      context.handle(
+        _thumbnailPathMeta,
+        thumbnailPath.isAcceptableOrUnknown(
+          data['thumbnail_path']!,
+          _thumbnailPathMeta,
+        ),
+      );
+    }
+    if (data.containsKey('is_metadata_loaded')) {
+      context.handle(
+        _isMetadataLoadedMeta,
+        isMetadataLoaded.isAcceptableOrUnknown(
+          data['is_metadata_loaded']!,
+          _isMetadataLoadedMeta,
+        ),
+      );
+    }
+    if (data.containsKey('watched_at')) {
+      context.handle(
+        _watchedAtMeta,
+        watchedAt.isAcceptableOrUnknown(data['watched_at']!, _watchedAtMeta),
+      );
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  LibraryVideosTableData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return LibraryVideosTableData(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      path: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}path'],
+      )!,
+      title: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}title'],
+      )!,
+      sizeBytes: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}size_bytes'],
+      )!,
+      modifiedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}modified_at'],
+      )!,
+      durationMs: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}duration_ms'],
+      ),
+      positionMs: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}position_ms'],
+      )!,
+      thumbnailPath: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}thumbnail_path'],
+      ),
+      isMetadataLoaded: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_metadata_loaded'],
+      )!,
+      watchedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}watched_at'],
+      ),
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+    );
+  }
+
+  @override
+  $LibraryVideosTableTable createAlias(String alias) {
+    return $LibraryVideosTableTable(attachedDatabase, alias);
+  }
+}
+
+class LibraryVideosTableData extends DataClass
+    implements Insertable<LibraryVideosTableData> {
+  /// Derived from the file path
+  final String id;
+  final String path;
+  final String title;
+  final int sizeBytes;
+  final DateTime modifiedAt;
+  final int? durationMs;
+
+  /// Where the user stopped watching
+  final int positionMs;
+  final String? thumbnailPath;
+
+  /// The system has been asked for the thumbnail and duration
+  final bool isMetadataLoaded;
+  final DateTime? watchedAt;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  const LibraryVideosTableData({
+    required this.id,
+    required this.path,
+    required this.title,
+    required this.sizeBytes,
+    required this.modifiedAt,
+    this.durationMs,
+    required this.positionMs,
+    this.thumbnailPath,
+    required this.isMetadataLoaded,
+    this.watchedAt,
+    required this.createdAt,
+    required this.updatedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['path'] = Variable<String>(path);
+    map['title'] = Variable<String>(title);
+    map['size_bytes'] = Variable<int>(sizeBytes);
+    map['modified_at'] = Variable<DateTime>(modifiedAt);
+    if (!nullToAbsent || durationMs != null) {
+      map['duration_ms'] = Variable<int>(durationMs);
+    }
+    map['position_ms'] = Variable<int>(positionMs);
+    if (!nullToAbsent || thumbnailPath != null) {
+      map['thumbnail_path'] = Variable<String>(thumbnailPath);
+    }
+    map['is_metadata_loaded'] = Variable<bool>(isMetadataLoaded);
+    if (!nullToAbsent || watchedAt != null) {
+      map['watched_at'] = Variable<DateTime>(watchedAt);
+    }
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    return map;
+  }
+
+  LibraryVideosTableCompanion toCompanion(bool nullToAbsent) {
+    return LibraryVideosTableCompanion(
+      id: Value(id),
+      path: Value(path),
+      title: Value(title),
+      sizeBytes: Value(sizeBytes),
+      modifiedAt: Value(modifiedAt),
+      durationMs: durationMs == null && nullToAbsent
+          ? const Value.absent()
+          : Value(durationMs),
+      positionMs: Value(positionMs),
+      thumbnailPath: thumbnailPath == null && nullToAbsent
+          ? const Value.absent()
+          : Value(thumbnailPath),
+      isMetadataLoaded: Value(isMetadataLoaded),
+      watchedAt: watchedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(watchedAt),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+    );
+  }
+
+  factory LibraryVideosTableData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return LibraryVideosTableData(
+      id: serializer.fromJson<String>(json['id']),
+      path: serializer.fromJson<String>(json['path']),
+      title: serializer.fromJson<String>(json['title']),
+      sizeBytes: serializer.fromJson<int>(json['sizeBytes']),
+      modifiedAt: serializer.fromJson<DateTime>(json['modifiedAt']),
+      durationMs: serializer.fromJson<int?>(json['durationMs']),
+      positionMs: serializer.fromJson<int>(json['positionMs']),
+      thumbnailPath: serializer.fromJson<String?>(json['thumbnailPath']),
+      isMetadataLoaded: serializer.fromJson<bool>(json['isMetadataLoaded']),
+      watchedAt: serializer.fromJson<DateTime?>(json['watchedAt']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'path': serializer.toJson<String>(path),
+      'title': serializer.toJson<String>(title),
+      'sizeBytes': serializer.toJson<int>(sizeBytes),
+      'modifiedAt': serializer.toJson<DateTime>(modifiedAt),
+      'durationMs': serializer.toJson<int?>(durationMs),
+      'positionMs': serializer.toJson<int>(positionMs),
+      'thumbnailPath': serializer.toJson<String?>(thumbnailPath),
+      'isMetadataLoaded': serializer.toJson<bool>(isMetadataLoaded),
+      'watchedAt': serializer.toJson<DateTime?>(watchedAt),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+    };
+  }
+
+  LibraryVideosTableData copyWith({
+    String? id,
+    String? path,
+    String? title,
+    int? sizeBytes,
+    DateTime? modifiedAt,
+    Value<int?> durationMs = const Value.absent(),
+    int? positionMs,
+    Value<String?> thumbnailPath = const Value.absent(),
+    bool? isMetadataLoaded,
+    Value<DateTime?> watchedAt = const Value.absent(),
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) => LibraryVideosTableData(
+    id: id ?? this.id,
+    path: path ?? this.path,
+    title: title ?? this.title,
+    sizeBytes: sizeBytes ?? this.sizeBytes,
+    modifiedAt: modifiedAt ?? this.modifiedAt,
+    durationMs: durationMs.present ? durationMs.value : this.durationMs,
+    positionMs: positionMs ?? this.positionMs,
+    thumbnailPath: thumbnailPath.present
+        ? thumbnailPath.value
+        : this.thumbnailPath,
+    isMetadataLoaded: isMetadataLoaded ?? this.isMetadataLoaded,
+    watchedAt: watchedAt.present ? watchedAt.value : this.watchedAt,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+  );
+  LibraryVideosTableData copyWithCompanion(LibraryVideosTableCompanion data) {
+    return LibraryVideosTableData(
+      id: data.id.present ? data.id.value : this.id,
+      path: data.path.present ? data.path.value : this.path,
+      title: data.title.present ? data.title.value : this.title,
+      sizeBytes: data.sizeBytes.present ? data.sizeBytes.value : this.sizeBytes,
+      modifiedAt: data.modifiedAt.present
+          ? data.modifiedAt.value
+          : this.modifiedAt,
+      durationMs: data.durationMs.present
+          ? data.durationMs.value
+          : this.durationMs,
+      positionMs: data.positionMs.present
+          ? data.positionMs.value
+          : this.positionMs,
+      thumbnailPath: data.thumbnailPath.present
+          ? data.thumbnailPath.value
+          : this.thumbnailPath,
+      isMetadataLoaded: data.isMetadataLoaded.present
+          ? data.isMetadataLoaded.value
+          : this.isMetadataLoaded,
+      watchedAt: data.watchedAt.present ? data.watchedAt.value : this.watchedAt,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LibraryVideosTableData(')
+          ..write('id: $id, ')
+          ..write('path: $path, ')
+          ..write('title: $title, ')
+          ..write('sizeBytes: $sizeBytes, ')
+          ..write('modifiedAt: $modifiedAt, ')
+          ..write('durationMs: $durationMs, ')
+          ..write('positionMs: $positionMs, ')
+          ..write('thumbnailPath: $thumbnailPath, ')
+          ..write('isMetadataLoaded: $isMetadataLoaded, ')
+          ..write('watchedAt: $watchedAt, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    path,
+    title,
+    sizeBytes,
+    modifiedAt,
+    durationMs,
+    positionMs,
+    thumbnailPath,
+    isMetadataLoaded,
+    watchedAt,
+    createdAt,
+    updatedAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is LibraryVideosTableData &&
+          other.id == this.id &&
+          other.path == this.path &&
+          other.title == this.title &&
+          other.sizeBytes == this.sizeBytes &&
+          other.modifiedAt == this.modifiedAt &&
+          other.durationMs == this.durationMs &&
+          other.positionMs == this.positionMs &&
+          other.thumbnailPath == this.thumbnailPath &&
+          other.isMetadataLoaded == this.isMetadataLoaded &&
+          other.watchedAt == this.watchedAt &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt);
+}
+
+class LibraryVideosTableCompanion
+    extends UpdateCompanion<LibraryVideosTableData> {
+  final Value<String> id;
+  final Value<String> path;
+  final Value<String> title;
+  final Value<int> sizeBytes;
+  final Value<DateTime> modifiedAt;
+  final Value<int?> durationMs;
+  final Value<int> positionMs;
+  final Value<String?> thumbnailPath;
+  final Value<bool> isMetadataLoaded;
+  final Value<DateTime?> watchedAt;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  final Value<int> rowid;
+  const LibraryVideosTableCompanion({
+    this.id = const Value.absent(),
+    this.path = const Value.absent(),
+    this.title = const Value.absent(),
+    this.sizeBytes = const Value.absent(),
+    this.modifiedAt = const Value.absent(),
+    this.durationMs = const Value.absent(),
+    this.positionMs = const Value.absent(),
+    this.thumbnailPath = const Value.absent(),
+    this.isMetadataLoaded = const Value.absent(),
+    this.watchedAt = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  LibraryVideosTableCompanion.insert({
+    required String id,
+    required String path,
+    required String title,
+    required int sizeBytes,
+    required DateTime modifiedAt,
+    this.durationMs = const Value.absent(),
+    this.positionMs = const Value.absent(),
+    this.thumbnailPath = const Value.absent(),
+    this.isMetadataLoaded = const Value.absent(),
+    this.watchedAt = const Value.absent(),
+    required DateTime createdAt,
+    required DateTime updatedAt,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       path = Value(path),
+       title = Value(title),
+       sizeBytes = Value(sizeBytes),
+       modifiedAt = Value(modifiedAt),
+       createdAt = Value(createdAt),
+       updatedAt = Value(updatedAt);
+  static Insertable<LibraryVideosTableData> custom({
+    Expression<String>? id,
+    Expression<String>? path,
+    Expression<String>? title,
+    Expression<int>? sizeBytes,
+    Expression<DateTime>? modifiedAt,
+    Expression<int>? durationMs,
+    Expression<int>? positionMs,
+    Expression<String>? thumbnailPath,
+    Expression<bool>? isMetadataLoaded,
+    Expression<DateTime>? watchedAt,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (path != null) 'path': path,
+      if (title != null) 'title': title,
+      if (sizeBytes != null) 'size_bytes': sizeBytes,
+      if (modifiedAt != null) 'modified_at': modifiedAt,
+      if (durationMs != null) 'duration_ms': durationMs,
+      if (positionMs != null) 'position_ms': positionMs,
+      if (thumbnailPath != null) 'thumbnail_path': thumbnailPath,
+      if (isMetadataLoaded != null) 'is_metadata_loaded': isMetadataLoaded,
+      if (watchedAt != null) 'watched_at': watchedAt,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  LibraryVideosTableCompanion copyWith({
+    Value<String>? id,
+    Value<String>? path,
+    Value<String>? title,
+    Value<int>? sizeBytes,
+    Value<DateTime>? modifiedAt,
+    Value<int?>? durationMs,
+    Value<int>? positionMs,
+    Value<String?>? thumbnailPath,
+    Value<bool>? isMetadataLoaded,
+    Value<DateTime?>? watchedAt,
+    Value<DateTime>? createdAt,
+    Value<DateTime>? updatedAt,
+    Value<int>? rowid,
+  }) {
+    return LibraryVideosTableCompanion(
+      id: id ?? this.id,
+      path: path ?? this.path,
+      title: title ?? this.title,
+      sizeBytes: sizeBytes ?? this.sizeBytes,
+      modifiedAt: modifiedAt ?? this.modifiedAt,
+      durationMs: durationMs ?? this.durationMs,
+      positionMs: positionMs ?? this.positionMs,
+      thumbnailPath: thumbnailPath ?? this.thumbnailPath,
+      isMetadataLoaded: isMetadataLoaded ?? this.isMetadataLoaded,
+      watchedAt: watchedAt ?? this.watchedAt,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (path.present) {
+      map['path'] = Variable<String>(path.value);
+    }
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
+    }
+    if (sizeBytes.present) {
+      map['size_bytes'] = Variable<int>(sizeBytes.value);
+    }
+    if (modifiedAt.present) {
+      map['modified_at'] = Variable<DateTime>(modifiedAt.value);
+    }
+    if (durationMs.present) {
+      map['duration_ms'] = Variable<int>(durationMs.value);
+    }
+    if (positionMs.present) {
+      map['position_ms'] = Variable<int>(positionMs.value);
+    }
+    if (thumbnailPath.present) {
+      map['thumbnail_path'] = Variable<String>(thumbnailPath.value);
+    }
+    if (isMetadataLoaded.present) {
+      map['is_metadata_loaded'] = Variable<bool>(isMetadataLoaded.value);
+    }
+    if (watchedAt.present) {
+      map['watched_at'] = Variable<DateTime>(watchedAt.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LibraryVideosTableCompanion(')
+          ..write('id: $id, ')
+          ..write('path: $path, ')
+          ..write('title: $title, ')
+          ..write('sizeBytes: $sizeBytes, ')
+          ..write('modifiedAt: $modifiedAt, ')
+          ..write('durationMs: $durationMs, ')
+          ..write('positionMs: $positionMs, ')
+          ..write('thumbnailPath: $thumbnailPath, ')
+          ..write('isMetadataLoaded: $isMetadataLoaded, ')
+          ..write('watchedAt: $watchedAt, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -1941,6 +2668,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
       $DownloadTasksTableTable(this);
   late final $DownloadTaskStreamsTableTable downloadTaskStreamsTable =
       $DownloadTaskStreamsTableTable(this);
+  late final $LibraryVideosTableTable libraryVideosTable =
+      $LibraryVideosTableTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -1948,6 +2677,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   List<DatabaseSchemaEntity> get allSchemaEntities => [
     downloadTasksTable,
     downloadTaskStreamsTable,
+    libraryVideosTable,
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
@@ -3097,6 +3827,362 @@ typedef $$DownloadTaskStreamsTableTableProcessedTableManager =
       DownloadTaskStreamsTableData,
       PrefetchHooks Function({bool taskId})
     >;
+typedef $$LibraryVideosTableTableCreateCompanionBuilder =
+    LibraryVideosTableCompanion Function({
+      required String id,
+      required String path,
+      required String title,
+      required int sizeBytes,
+      required DateTime modifiedAt,
+      Value<int?> durationMs,
+      Value<int> positionMs,
+      Value<String?> thumbnailPath,
+      Value<bool> isMetadataLoaded,
+      Value<DateTime?> watchedAt,
+      required DateTime createdAt,
+      required DateTime updatedAt,
+      Value<int> rowid,
+    });
+typedef $$LibraryVideosTableTableUpdateCompanionBuilder =
+    LibraryVideosTableCompanion Function({
+      Value<String> id,
+      Value<String> path,
+      Value<String> title,
+      Value<int> sizeBytes,
+      Value<DateTime> modifiedAt,
+      Value<int?> durationMs,
+      Value<int> positionMs,
+      Value<String?> thumbnailPath,
+      Value<bool> isMetadataLoaded,
+      Value<DateTime?> watchedAt,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+      Value<int> rowid,
+    });
+
+class $$LibraryVideosTableTableFilterComposer
+    extends Composer<_$AppDatabase, $LibraryVideosTableTable> {
+  $$LibraryVideosTableTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get path => $composableBuilder(
+    column: $table.path,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get title => $composableBuilder(
+    column: $table.title,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get sizeBytes => $composableBuilder(
+    column: $table.sizeBytes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get modifiedAt => $composableBuilder(
+    column: $table.modifiedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get durationMs => $composableBuilder(
+    column: $table.durationMs,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get positionMs => $composableBuilder(
+    column: $table.positionMs,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get thumbnailPath => $composableBuilder(
+    column: $table.thumbnailPath,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isMetadataLoaded => $composableBuilder(
+    column: $table.isMetadataLoaded,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get watchedAt => $composableBuilder(
+    column: $table.watchedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$LibraryVideosTableTableOrderingComposer
+    extends Composer<_$AppDatabase, $LibraryVideosTableTable> {
+  $$LibraryVideosTableTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get path => $composableBuilder(
+    column: $table.path,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get title => $composableBuilder(
+    column: $table.title,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get sizeBytes => $composableBuilder(
+    column: $table.sizeBytes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get modifiedAt => $composableBuilder(
+    column: $table.modifiedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get durationMs => $composableBuilder(
+    column: $table.durationMs,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get positionMs => $composableBuilder(
+    column: $table.positionMs,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get thumbnailPath => $composableBuilder(
+    column: $table.thumbnailPath,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isMetadataLoaded => $composableBuilder(
+    column: $table.isMetadataLoaded,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get watchedAt => $composableBuilder(
+    column: $table.watchedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$LibraryVideosTableTableAnnotationComposer
+    extends Composer<_$AppDatabase, $LibraryVideosTableTable> {
+  $$LibraryVideosTableTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get path =>
+      $composableBuilder(column: $table.path, builder: (column) => column);
+
+  GeneratedColumn<String> get title =>
+      $composableBuilder(column: $table.title, builder: (column) => column);
+
+  GeneratedColumn<int> get sizeBytes =>
+      $composableBuilder(column: $table.sizeBytes, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get modifiedAt => $composableBuilder(
+    column: $table.modifiedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get durationMs => $composableBuilder(
+    column: $table.durationMs,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get positionMs => $composableBuilder(
+    column: $table.positionMs,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get thumbnailPath => $composableBuilder(
+    column: $table.thumbnailPath,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get isMetadataLoaded => $composableBuilder(
+    column: $table.isMetadataLoaded,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get watchedAt =>
+      $composableBuilder(column: $table.watchedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+}
+
+class $$LibraryVideosTableTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $LibraryVideosTableTable,
+          LibraryVideosTableData,
+          $$LibraryVideosTableTableFilterComposer,
+          $$LibraryVideosTableTableOrderingComposer,
+          $$LibraryVideosTableTableAnnotationComposer,
+          $$LibraryVideosTableTableCreateCompanionBuilder,
+          $$LibraryVideosTableTableUpdateCompanionBuilder,
+          (
+            LibraryVideosTableData,
+            BaseReferences<
+              _$AppDatabase,
+              $LibraryVideosTableTable,
+              LibraryVideosTableData
+            >,
+          ),
+          LibraryVideosTableData,
+          PrefetchHooks Function()
+        > {
+  $$LibraryVideosTableTableTableManager(
+    _$AppDatabase db,
+    $LibraryVideosTableTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$LibraryVideosTableTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$LibraryVideosTableTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$LibraryVideosTableTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> path = const Value.absent(),
+                Value<String> title = const Value.absent(),
+                Value<int> sizeBytes = const Value.absent(),
+                Value<DateTime> modifiedAt = const Value.absent(),
+                Value<int?> durationMs = const Value.absent(),
+                Value<int> positionMs = const Value.absent(),
+                Value<String?> thumbnailPath = const Value.absent(),
+                Value<bool> isMetadataLoaded = const Value.absent(),
+                Value<DateTime?> watchedAt = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => LibraryVideosTableCompanion(
+                id: id,
+                path: path,
+                title: title,
+                sizeBytes: sizeBytes,
+                modifiedAt: modifiedAt,
+                durationMs: durationMs,
+                positionMs: positionMs,
+                thumbnailPath: thumbnailPath,
+                isMetadataLoaded: isMetadataLoaded,
+                watchedAt: watchedAt,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String path,
+                required String title,
+                required int sizeBytes,
+                required DateTime modifiedAt,
+                Value<int?> durationMs = const Value.absent(),
+                Value<int> positionMs = const Value.absent(),
+                Value<String?> thumbnailPath = const Value.absent(),
+                Value<bool> isMetadataLoaded = const Value.absent(),
+                Value<DateTime?> watchedAt = const Value.absent(),
+                required DateTime createdAt,
+                required DateTime updatedAt,
+                Value<int> rowid = const Value.absent(),
+              }) => LibraryVideosTableCompanion.insert(
+                id: id,
+                path: path,
+                title: title,
+                sizeBytes: sizeBytes,
+                modifiedAt: modifiedAt,
+                durationMs: durationMs,
+                positionMs: positionMs,
+                thumbnailPath: thumbnailPath,
+                isMetadataLoaded: isMetadataLoaded,
+                watchedAt: watchedAt,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$LibraryVideosTableTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $LibraryVideosTableTable,
+      LibraryVideosTableData,
+      $$LibraryVideosTableTableFilterComposer,
+      $$LibraryVideosTableTableOrderingComposer,
+      $$LibraryVideosTableTableAnnotationComposer,
+      $$LibraryVideosTableTableCreateCompanionBuilder,
+      $$LibraryVideosTableTableUpdateCompanionBuilder,
+      (
+        LibraryVideosTableData,
+        BaseReferences<
+          _$AppDatabase,
+          $LibraryVideosTableTable,
+          LibraryVideosTableData
+        >,
+      ),
+      LibraryVideosTableData,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -3108,4 +4194,6 @@ class $AppDatabaseManager {
         _db,
         _db.downloadTaskStreamsTable,
       );
+  $$LibraryVideosTableTableTableManager get libraryVideosTable =>
+      $$LibraryVideosTableTableTableManager(_db, _db.libraryVideosTable);
 }

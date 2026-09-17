@@ -8,6 +8,8 @@ enum AppWindowEvent {
   unmaximized,
   minimized,
   restored,
+  enteredFullScreen,
+  leftFullScreen,
   shown,
   hidden,
 }

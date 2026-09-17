@@ -81,6 +81,36 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
   final Color qrBackground;
   final Color qrForeground;
 
+  /// Player background and letterbox bars: black in both themes
+  final Color player;
+
+  /// Icons and text over the video
+  final Color onPlayer;
+
+  /// Secondary text over the video: the duration
+  final Color onPlayerSecondary;
+
+  /// Shade under the player controls and the thumbnail badges
+  final Color playerShade;
+
+  /// Round backs of the pause flash and the seek hint
+  final Color playerOverlay;
+
+  /// Played part of the progress bar and of a watched thumbnail, as on YouTube
+  final Color playerProgress;
+
+  /// Read-ahead part of the progress bar
+  final Color playerBuffered;
+
+  /// Rest of the progress bar
+  final Color playerTrack;
+
+  /// Hover highlight of the player buttons
+  final Color playerHover;
+
+  /// Player menus: the playback speed
+  final Color playerMenu;
+
   final Color transparent;
 
   const AppThemeColors({
@@ -118,6 +148,16 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
     required this.onWindowCloseHover,
     required this.qrBackground,
     required this.qrForeground,
+    required this.player,
+    required this.onPlayer,
+    required this.onPlayerSecondary,
+    required this.playerShade,
+    required this.playerOverlay,
+    required this.playerProgress,
+    required this.playerBuffered,
+    required this.playerTrack,
+    required this.playerHover,
+    required this.playerMenu,
     required this.transparent,
   });
 
@@ -157,6 +197,16 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
     Color? onWindowCloseHover,
     Color? qrBackground,
     Color? qrForeground,
+    Color? player,
+    Color? onPlayer,
+    Color? onPlayerSecondary,
+    Color? playerShade,
+    Color? playerOverlay,
+    Color? playerProgress,
+    Color? playerBuffered,
+    Color? playerTrack,
+    Color? playerHover,
+    Color? playerMenu,
     Color? transparent,
   }) => AppThemeColors(
     background: background ?? this.background,
@@ -193,6 +243,16 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
     onWindowCloseHover: onWindowCloseHover ?? this.onWindowCloseHover,
     qrBackground: qrBackground ?? this.qrBackground,
     qrForeground: qrForeground ?? this.qrForeground,
+    player: player ?? this.player,
+    onPlayer: onPlayer ?? this.onPlayer,
+    onPlayerSecondary: onPlayerSecondary ?? this.onPlayerSecondary,
+    playerShade: playerShade ?? this.playerShade,
+    playerOverlay: playerOverlay ?? this.playerOverlay,
+    playerProgress: playerProgress ?? this.playerProgress,
+    playerBuffered: playerBuffered ?? this.playerBuffered,
+    playerTrack: playerTrack ?? this.playerTrack,
+    playerHover: playerHover ?? this.playerHover,
+    playerMenu: playerMenu ?? this.playerMenu,
     transparent: transparent ?? this.transparent,
   );
 
@@ -260,6 +320,20 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
       )!,
       qrBackground: Color.lerp(qrBackground, other.qrBackground, t)!,
       qrForeground: Color.lerp(qrForeground, other.qrForeground, t)!,
+      player: Color.lerp(player, other.player, t)!,
+      onPlayer: Color.lerp(onPlayer, other.onPlayer, t)!,
+      onPlayerSecondary: Color.lerp(
+        onPlayerSecondary,
+        other.onPlayerSecondary,
+        t,
+      )!,
+      playerShade: Color.lerp(playerShade, other.playerShade, t)!,
+      playerOverlay: Color.lerp(playerOverlay, other.playerOverlay, t)!,
+      playerProgress: Color.lerp(playerProgress, other.playerProgress, t)!,
+      playerBuffered: Color.lerp(playerBuffered, other.playerBuffered, t)!,
+      playerTrack: Color.lerp(playerTrack, other.playerTrack, t)!,
+      playerHover: Color.lerp(playerHover, other.playerHover, t)!,
+      playerMenu: Color.lerp(playerMenu, other.playerMenu, t)!,
       transparent: Color.lerp(transparent, other.transparent, t)!,
     );
   }
@@ -299,6 +373,16 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
     onWindowCloseHover: AppColors.white,
     qrBackground: AppColors.stoneFAFAF9,
     qrForeground: AppColors.stone0C0A09,
+    player: AppColors.black,
+    onPlayer: AppColors.white,
+    onPlayerSecondary: AppColors.white80,
+    playerShade: AppColors.black80,
+    playerOverlay: AppColors.black50,
+    playerProgress: AppColors.youtubeRedFF0033,
+    playerBuffered: AppColors.white50,
+    playerTrack: AppColors.white20,
+    playerHover: AppColors.white10,
+    playerMenu: AppColors.gray282828Alpha90,
     transparent: AppColors.transparent,
   );
 
@@ -337,6 +421,16 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
     onWindowCloseHover: AppColors.white,
     qrBackground: AppColors.stoneFAFAF9,
     qrForeground: AppColors.stone0C0A09,
+    player: AppColors.black,
+    onPlayer: AppColors.white,
+    onPlayerSecondary: AppColors.white80,
+    playerShade: AppColors.black80,
+    playerOverlay: AppColors.black50,
+    playerProgress: AppColors.youtubeRedFF0033,
+    playerBuffered: AppColors.white50,
+    playerTrack: AppColors.white20,
+    playerHover: AppColors.white10,
+    playerMenu: AppColors.gray282828Alpha90,
     transparent: AppColors.transparent,
   );
 }

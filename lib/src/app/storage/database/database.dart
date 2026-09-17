@@ -16,7 +16,9 @@ import 'tables/tables.dart';
 part 'database_isolate.dart';
 part 'database.g.dart';
 
-@DriftDatabase(tables: [DownloadTasksTable, DownloadTaskStreamsTable])
+@DriftDatabase(
+  tables: [DownloadTasksTable, DownloadTaskStreamsTable, LibraryVideosTable],
+)
 class AppDatabase extends _$AppDatabase implements DatabaseProvider {
   static const _appLogger = AppLogger(where: 'AppDatabase');
 
@@ -53,7 +55,7 @@ class AppDatabase extends _$AppDatabase implements DatabaseProvider {
   AppDatabase.forTesting(DatabaseConnection super.connection);
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -80,6 +82,11 @@ class AppDatabase extends _$AppDatabase implements DatabaseProvider {
       if (from < 3) {
         await migrator.addColumn(downloadTasksTable, downloadTasksTable.engine);
       }
+
+      /// The player library of the download folder
+      if (from < 4) {
+        await migrator.createTable(libraryVideosTable);
+      }
     },
     beforeOpen: (_) async => await customStatement('PRAGMA foreign_keys = ON'),
   );
@@ -88,6 +95,7 @@ class AppDatabase extends _$AppDatabase implements DatabaseProvider {
   Map<String, TableInfo<Table, dynamic>> get tableMap => {
     TableNames.downloadTasksTable: downloadTasksTable,
     TableNames.downloadTaskStreamsTable: downloadTaskStreamsTable,
+    TableNames.libraryVideosTable: libraryVideosTable,
   };
 
   @override
@@ -96,6 +104,7 @@ class AppDatabase extends _$AppDatabase implements DatabaseProvider {
     final List<TableInfo<Table, dynamic>> allTables = [
       downloadTaskStreamsTable,
       downloadTasksTable,
+      libraryVideosTable,
     ];
 
     for (final table in allTables) {

@@ -22,6 +22,7 @@ class HomeStackScreen extends StatelessWidget {
   static const _tabs = <PageRouteInfo>[
     HomeRoute(),
     DownloadsRoute(),
+    PlayerRoute(),
     SettingsRoute(),
     DonationsRoute(),
   ];
@@ -185,6 +186,10 @@ class _HomeStackNavigationBar extends StatelessWidget {
               title: LocaleKeys.app_navigation_downloads.tr(),
               icon: Icons.download_rounded,
               badge: unfinishedCount,
+            ),
+            AppTabModel.player => AppNavigationBarItemData(
+              title: LocaleKeys.app_navigation_player.tr(),
+              icon: Icons.smart_display_rounded,
             ),
             AppTabModel.settings => AppNavigationBarItemData(
               title: LocaleKeys.app_navigation_settings.tr(),

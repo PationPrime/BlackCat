@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/widgets.dart';
+import 'package:youtube_downloader/src/app/errors/errors.dart';
 import 'package:youtube_downloader/src/app/models/models.dart';
 import 'package:youtube_downloader/src/app/services/services.dart';
 
@@ -21,6 +22,7 @@ class FakeAppWindowService implements AppWindowService {
   AppWindowFrameModel frame;
 
   bool maximized;
+  bool fullScreen = false;
   bool? preventClose;
   Size? minimumSize;
   Object? initializeError;
@@ -72,6 +74,15 @@ class FakeAppWindowService implements AppWindowService {
     maximized = false;
     calls.add('unmaximize');
   }
+
+  @override
+  Future<void> setFullScreen(bool fullScreen) async {
+    this.fullScreen = fullScreen;
+    calls.add('setFullScreen($fullScreen)');
+  }
+
+  @override
+  Future<bool> isFullScreen() async => fullScreen;
 
   @override
   Future<void> startDragging() async => calls.add('startDragging');
@@ -144,4 +155,110 @@ class FakeSystemTrayService implements SystemTrayService {
 
   @override
   Future<void> destroy() async => isDestroyed = true;
+}
+
+/// Player stand-in: remembers calls and plays along like the real player.
+/// The test moves the position with [emit]
+class FakeVideoPlayerService implements VideoPlayerService {
+  static const viewKey = ValueKey('fake-video-view');
+
+  final _playback = StreamController<VideoPlaybackModel>.broadcast();
+  var _current = const VideoPlaybackModel();
+
+  final calls = <String>[];
+  String? openedPath;
+  Duration? openedStart;
+
+  /// Duration the opened video reports
+  Duration videoDuration;
+  Object? openError;
+
+  /// `false`: a seek is not reported, the test reports positions itself
+  bool reportsSeeks = true;
+
+  FakeVideoPlayerService({this.videoDuration = const Duration(minutes: 10)});
+
+  void emit(VideoPlaybackModel Function(VideoPlaybackModel playback) change) {
+    _current = change(_current);
+    _playback.add(_current);
+  }
+
+  @override
+  Stream<VideoPlaybackModel> get playback => _playback.stream;
+
+  @override
+  VideoPlaybackModel get current => _current;
+
+  @override
+  Future<void> open(String path, {Duration start = Duration.zero}) async {
+    calls.add('open');
+
+    if (openError case final error?) {
+      throw PlayerException(const PlayerErrorCodes().playback, cause: error);
+    }
+
+    openedPath = path;
+    openedStart = start;
+    emit(
+      (playback) => VideoPlaybackModel(
+        position: start,
+        duration: videoDuration,
+        isPlaying: true,
+        rate: playback.rate,
+        volume: playback.volume,
+        isMuted: playback.isMuted,
+      ),
+    );
+  }
+
+  @override
+  Future<void> play() async {
+    calls.add('play');
+    emit((playback) => playback.copyWith(isPlaying: true, isCompleted: false));
+  }
+
+  @override
+  Future<void> pause() async {
+    calls.add('pause');
+    emit((playback) => playback.copyWith(isPlaying: false));
+  }
+
+  @override
+  Future<void> seek(Duration position) async {
+    calls.add('seek ${position.inSeconds}');
+
+    if (reportsSeeks) {
+      emit((playback) => playback.copyWith(position: position, isCompleted: false));
+    }
+  }
+
+  @override
+  Future<void> setRate(double rate) async {
+    calls.add('rate $rate');
+    emit((playback) => playback.copyWith(rate: rate));
+  }
+
+  @override
+  Future<void> setVolume(double volume) async {
+    calls.add('volume ${volume.toStringAsFixed(2)}');
+    emit((playback) => playback.copyWith(volume: volume, isMuted: false));
+  }
+
+  @override
+  Future<void> setMuted(bool muted) async {
+    calls.add('muted $muted');
+    emit((playback) => playback.copyWith(isMuted: muted));
+  }
+
+  @override
+  Future<void> stop() async {
+    calls.add('stop');
+    emit((playback) => playback.copyWith(isPlaying: false));
+  }
+
+  /// Picture of the video; black by default
+  Widget? view;
+
+  @override
+  Widget buildView() => KeyedSubtree(key: viewKey, child: view ?? const ColoredBox(color: Color(0xFF000000)));
 }

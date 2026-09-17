@@ -30,6 +30,10 @@ abstract final class StorageConstants {
   /// the downloaded list shows them without network access
   static const thumbnailsFolder = 'Thumbnails';
 
+  /// Thumbnails of the player library videos in `%LOCALAPPDATA%\YT Download`:
+  /// frames the system file manager shows or copies of the download thumbnails
+  static const libraryThumbnailsFolder = 'Library thumbnails';
+
   /// Download queue database in `%APPDATA%`
   static const databaseFileName = 'youtube-downloader-database.sqlite';
 

@@ -306,4 +306,55 @@ void main() {
 
     await app.close();
   });
+
+  testWidgets('«Плеер» в навбаре после загрузок открывает видео папки и перечитывает её при возвращении', (tester) async {
+    final app = TestApp();
+
+    await app.pumpApp(tester);
+
+    expect(
+      tester.getCenter(_inNavigationBar('Плеер')).dy,
+      greaterThan(tester.getCenter(_inNavigationBar('Загрузки')).dy),
+    );
+    expect(
+      tester.getCenter(_inNavigationBar('Плеер')).dy,
+      lessThan(tester.getCenter(_inNavigationBar('Настройки')).dy),
+    );
+
+    await tester.tap(_inNavigationBar('Плеер'));
+    await app.settle(tester);
+
+    expect(app.navigationController.state.tab, AppTabModel.player);
+    expect(find.byType(PlayerScreen), findsOneWidget);
+    expect(find.byType(LibraryVideoCard), findsNWidgets(2));
+    expect(app.videoLibraryRepository.syncedFolders, hasLength(1));
+
+    app.videoLibraryRepository.folders[r'C:\Users\user\Downloads']!.add(testLibraryVideo('c'));
+
+    await tester.tap(_inNavigationBar('Главная'));
+    await app.settle(tester);
+    await tester.tap(_inNavigationBar('Плеер'));
+    await app.settle(tester);
+
+    expect(find.byType(LibraryVideoCard), findsNWidgets(3));
+
+    /// The player is centered in the whole window, over the navigation bar and the footer
+    await tester.tap(find.byTooltip('Смотреть').first);
+    await app.settle(tester);
+
+    final dialog = find.byKey(const ValueKey('fake-video-view'));
+
+    expect(dialog, findsOneWidget);
+    final box = find.ancestor(of: dialog, matching: find.byType(AnimatedContainer)).last;
+
+    expect(tester.getCenter(box), const Offset(600, 450));
+    expect(tester.getSize(box), const Size(960, 720));
+
+    await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+    await app.settle(tester);
+
+    expect(dialog, findsNothing);
+
+    await app.close();
+  });
 }
