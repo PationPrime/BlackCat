@@ -9,6 +9,7 @@ import 'package:youtube_downloader/src/app/failure/failure.dart';
 import 'package:youtube_downloader/src/app/localization/lang/locale_keys.g.dart';
 import 'package:youtube_downloader/src/app/models/models.dart';
 import 'package:youtube_downloader/src/app/repositories/repositories.dart';
+import 'package:youtube_downloader/src/app/services/services.dart';
 import 'package:youtube_downloader/src/app/shared_controllers/shared_controllers.dart';
 import 'package:youtube_downloader/src/app/widgets/widgets.dart';
 import 'package:youtube_downloader/src/modules/dependencies/module.dart';
@@ -26,12 +27,21 @@ class HomeScreen extends StatelessWidget implements AutoRouteWrapper {
   const HomeScreen({super.key});
 
   @override
-  Widget wrappedRoute(BuildContext context) => BlocProvider<AddVideoController>(
-    create: (context) => AddVideoController(
-      videoRepository: context.read<VideoRepositoryInterface>(),
-      ytDlpVideoRepository: context.read<YtDlpVideoRepositoryInterface>(),
-      authorizationController: context.read<AuthorizationController>(),
-    ),
+  Widget wrappedRoute(BuildContext context) => MultiBlocProvider(
+    providers: [
+      BlocProvider<AddVideoController>(
+        create: (context) => AddVideoController(
+          videoRepository: context.read<VideoRepositoryInterface>(),
+          ytDlpVideoRepository: context.read<YtDlpVideoRepositoryInterface>(),
+          authorizationController: context.read<AuthorizationController>(),
+        ),
+      ),
+      BlocProvider<DirectDownloadController>(
+        create: (context) => DirectDownloadController(
+          fileSystemService: context.read<FileSystemService>(),
+        ),
+      ),
+    ],
     child: this,
   );
 
@@ -58,11 +68,13 @@ class _HomeView extends StatefulWidget {
 class _HomeViewState extends State<_HomeView> {
   final _urlController = TextEditingController();
   final _urlFocusNode = FocusNode();
+  final _directUrlController = TextEditingController();
 
   @override
   void dispose() {
     _urlController.dispose();
     _urlFocusNode.dispose();
+    _directUrlController.dispose();
     super.dispose();
   }
 
@@ -101,6 +113,14 @@ class _HomeViewState extends State<_HomeView> {
 
     _urlController.clear();
     _urlFocusNode.requestFocus();
+  }
+
+  void _showDirectFileInFolder(DirectDownloadState directState) {
+    final savePath = directState.savePath;
+
+    if (savePath == null) return;
+
+    context.read<FileSystemService>().revealInExplorer(savePath);
   }
 
   /// The search repeats on its own once cookies are imported
@@ -294,6 +314,31 @@ class _HomeViewState extends State<_HomeView> {
                                     ],
                                   ),
                                 ],
+                                const SizedBox(height: 32),
+                                BlocBuilder<
+                                  DirectDownloadController,
+                                  DirectDownloadState
+                                >(
+                                  builder: (context, directState) {
+                                    final directDownloadController = context
+                                        .read<DirectDownloadController>();
+
+                                    return DirectDownloadSection(
+                                      state: directState,
+                                      controller: _directUrlController,
+                                      onStartPressed:
+                                          directDownloadController.start,
+                                      onPausePressed:
+                                          directDownloadController.pause,
+                                      onResumePressed:
+                                          directDownloadController.resume,
+                                      onCancelPressed:
+                                          directDownloadController.cancel,
+                                      onShowInFolderPressed: () =>
+                                          _showDirectFileInFolder(directState),
+                                    );
+                                  },
+                                ),
                               ],
                             ),
                           ),

@@ -2,8 +2,9 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>com.apple.security.app-sandbox</key>
-	<true/>
+	<!-- No app sandbox: macOS marks every file a sandboxed app writes as
+	     "created by an AppSandbox" and refuses to exec it, so the yt-dlp and
+	     Deno builds the app installs could never be started. -->
 	<key>com.apple.security.cs.allow-jit</key>
 	<true/>
 	<key>com.apple.security.files.downloads.read-write</key>

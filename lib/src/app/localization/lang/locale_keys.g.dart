@@ -393,6 +393,14 @@ abstract class LocaleKeys {
   static const app_home_added = 'app.home.added';
   static const app_home_open_downloads = 'app.home.open_downloads';
   static const app_home_clear = 'app.home.clear';
+  static const app_home_direct_title = 'app.home.direct.title';
+  static const app_home_direct_subtitle = 'app.home.direct.subtitle';
+  static const app_home_direct_url_hint = 'app.home.direct.url_hint';
+  static const app_home_direct_start = 'app.home.direct.start';
+  static const app_home_direct_invalid_url = 'app.home.direct.invalid_url';
+  static const app_home_direct_connections = 'app.home.direct.connections';
+  static const app_home_direct_saved = 'app.home.direct.saved';
+  static const app_home_direct = 'app.home.direct';
   static const app_home = 'app.home';
   static const app_downloads_title = 'app.downloads.title';
   static const app_downloads_subtitle = 'app.downloads.subtitle';

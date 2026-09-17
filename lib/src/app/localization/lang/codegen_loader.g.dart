@@ -351,6 +351,16 @@ class CodegenLoader extends AssetLoader {
         "added": "“{title}” was added to downloads.",
         "open_downloads": "Open downloads",
         "clear": "Clear",
+        "direct": {
+          "title": "Any link",
+          "subtitle":
+              "A check of the built-in downloader on its own: the file is downloaded with the same engine and settings as YouTube streams, only from another source. Nothing here is kept between launches.",
+          "url_hint": "https://example.com/file.zip",
+          "start": "Download file",
+          "invalid_url": "The link must start with http:// or https://",
+          "connections": "{value} connections",
+          "saved": "Saved: {path}",
+        },
       },
       "downloads": {
         "title": "Downloads",
@@ -734,6 +744,16 @@ class CodegenLoader extends AssetLoader {
         "added": "«{title}» добавлено в загрузки.",
         "open_downloads": "Открыть загрузки",
         "clear": "Очистить",
+        "direct": {
+          "title": "Любая ссылка",
+          "subtitle":
+              "Проверка самого загрузчика: файл скачивается тем же движком и с теми же настройками, что и потоки YouTube, только из другого источника. Между запусками здесь ничего не хранится.",
+          "url_hint": "https://example.com/file.zip",
+          "start": "Скачать файл",
+          "invalid_url": "Ссылка должна начинаться с http:// или https://",
+          "connections": "соединений: {value}",
+          "saved": "Сохранено: {path}",
+        },
       },
       "downloads": {
         "title": "Загрузки",

@@ -288,7 +288,16 @@
       "subtitle": "Paste a YouTube video link and press Enter, then choose the quality.",
       "added": "“{title}” was added to downloads.",
       "open_downloads": "Open downloads",
-      "clear": "Clear"
+      "clear": "Clear",
+      "direct": {
+        "title": "Any link",
+        "subtitle": "A check of the built-in downloader on its own: the file is downloaded with the same engine and settings as YouTube streams, only from another source. Nothing here is kept between launches.",
+        "url_hint": "https://example.com/file.zip",
+        "start": "Download file",
+        "invalid_url": "The link must start with http:// or https://",
+        "connections": "{value} connections",
+        "saved": "Saved: {path}"
+      }
     },
     "downloads": {
       "title": "Downloads",
