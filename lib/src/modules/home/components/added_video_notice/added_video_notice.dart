@@ -1,8 +1,8 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:youtube_downloader/src/app/design_system/design_system.dart';
-import 'package:youtube_downloader/src/app/localization/lang/locale_keys.g.dart';
-import 'package:youtube_downloader/src/app/widgets/widgets.dart';
+import 'package:black_cat/src/app/design_system/design_system.dart';
+import 'package:black_cat/src/app/localization/lang/locale_keys.g.dart';
+import 'package:black_cat/src/app/widgets/widgets.dart';
 
 /// Confirmation that the video went to the downloads, with a way to open them
 class AddedVideoNotice extends StatelessWidget {

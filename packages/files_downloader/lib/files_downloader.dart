@@ -17,3 +17,4 @@ export 'src/models/download_request.dart';
 export 'src/models/download_result.dart';
 export 'src/models/remote_file_info.dart';
 export 'src/state/download_state_snapshot.dart';
+export 'src/storage/disk_space.dart';

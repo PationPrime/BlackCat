@@ -56,6 +56,23 @@ without starting the download.
    are saved: a counter never claims bytes that are not on disk.
 4. **Finishing.** File sizes are checked, the state is deleted.
 
+## Free space
+
+Before the files are reserved, the free space of their disk
+(`GetDiskFreeSpaceExW` on Windows, `statvfs` or `df` on macOS and Linux)
+must hold what the download still needs plus 1 MiB. NTFS gives an extended
+file its space at once, so on Windows a file needs its whole missing size;
+APFS and ext4 make it sparse, so there only the bytes not downloaded yet
+count. Otherwise the download fails with `FilesDownloadErrorType.diskFull`
+before anything is reserved, with `neededBytes` and `availableBytes`.
+
+A file error during the download is checked the same way: the system may
+report a full disk (`ENOSPC`, `EDQUOT`, `ERROR_DISK_FULL`…), or the error
+may come from a lack of space (a failed write, an I/O error) and the free
+space shows it. Errors with a cause of their own (no rights, a missing
+path, a file held by another program) stay `fileSystem`. Downloaded slices
+stay in the state: after freeing space the download continues.
+
 ## Server answers
 
 - `206` with `Content-Range` starting **before** the asked position: the

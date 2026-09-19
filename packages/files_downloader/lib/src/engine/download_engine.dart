@@ -15,7 +15,9 @@ import '../models/download_request.dart';
 import '../models/download_result.dart';
 import '../models/remote_file_info.dart';
 import '../state/download_state_file.dart';
+import '../storage/disk_space.dart';
 import 'download_api_client.dart';
+import 'file_errors.dart';
 import 'http_errors.dart';
 import 'remote_file_prober.dart';
 import 'slice_job.dart';
@@ -28,9 +30,18 @@ import 'speed_control.dart';
 /// File writes are synchronous: the engine runs in its own isolate,
 /// and no two writes to a file can overlap
 final class DownloadEngine {
+  /// NTFS gives an extended file its space right away; APFS and ext4 make
+  /// it sparse and take the space as the bytes are written
+  static final _reservesSpace = Platform.isWindows;
+
+  /// Less free space than this makes any file error a full disk: nothing
+  /// can be written anymore
+  static const _minimumFreeBytes = 1 << 20;
+
   final FilesDownloadRequest request;
   final DownloadApiClient _client;
   final void Function(FilesDownloadProgress progress) _onProgress;
+  final DiskSpace _diskSpace;
   final SpeedLimiter _limiter;
   final _meter = SpeedMeter();
 
@@ -63,6 +74,7 @@ final class DownloadEngine {
     required this.request,
     required this._client,
     required this._onProgress,
+    this._diskSpace = const SystemDiskSpace(),
   }) : _limiter = SpeedLimiter(bytesPerSecond: request.options.speedLimit);
 
   FilesDownloadOptions get _options => request.options;
@@ -104,8 +116,8 @@ final class DownloadEngine {
     _halt();
   }
 
-  void _failSaving(FileSystemException error) {
-    final failure = _fileSystemError(error);
+  void _failSaving(FileSystemException error, {required String path}) {
+    final failure = _diskError(error, path: path);
 
     _saveFailure ??= failure;
     _fail(failure);
@@ -146,11 +158,11 @@ final class DownloadEngine {
 
       progressTimer = Timer.periodic(
         _options.progressInterval,
-        (_) => _emitProgress(),
+        (_) => _guarded(_emitProgress),
       );
       checkpointTimer = Timer.periodic(
         _options.checkpointInterval,
-        (_) => _checkpoint(),
+        (_) => _guarded(_checkpoint),
       );
 
       await _runJobs(jobs);
@@ -159,9 +171,9 @@ final class DownloadEngine {
     } on FilesDownloadError catch (error) {
       _fail(error);
     } on FileSystemException catch (error) {
-      _fail(_fileSystemError(error));
+      _fail(_diskError(error));
     } catch (error) {
-      _fail(FilesDownloadError(FilesDownloadErrorType.unknown, '$error'));
+      _fail(_unexpected(error));
     } finally {
       progressTimer?.cancel();
       checkpointTimer?.cancel();
@@ -170,12 +182,132 @@ final class DownloadEngine {
     return _finish();
   }
 
-  static FilesDownloadError _fileSystemError(FileSystemException error) =>
-      FilesDownloadError(
-        FilesDownloadErrorType.fileSystem,
-        '${error.message}: ${error.path ?? ''} ${error.osError?.message ?? ''}'
-            .trim(),
-      );
+  static FilesDownloadError _unexpected(Object error) =>
+      FilesDownloadError(FilesDownloadErrorType.unknown, '$error');
+
+  /// Timer work never ends the isolate: an error fails the download
+  void _guarded(void Function() action) {
+    try {
+      action();
+    } catch (error) {
+      _fail(_unexpected(error));
+    }
+  }
+
+  /// A file error, told apart from a full disk: the system may say so
+  /// outright, or the free space shows that the download cannot fit.
+  /// The space is checked only for errors that may come from its lack
+  FilesDownloadError _diskError(
+    FileSystemException error, {
+    String? path,
+    int? neededBytes,
+  }) {
+    final target =
+        path ?? error.path ?? _files.firstOrNull?.savePath ?? statePath;
+
+    return fileError(
+      error,
+      path: target,
+      neededBytes: neededBytes ?? _stillNeededBytes(),
+      availableBytes: () => _availableBytes(target),
+      minimumFreeBytes: _minimumFreeBytes,
+    );
+  }
+
+  int? _availableBytes(String path) {
+    try {
+      return _diskSpace.availableBytes(path);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  /// Length of the file on disk, `-1` if there is none or it cannot be read
+  static int _lengthOn(String path) {
+    try {
+      final file = File(path);
+
+      return file.existsSync() ? file.lengthSync() : -1;
+    } on FileSystemException {
+      return -1;
+    }
+  }
+
+  /// Bytes the disk still has to give the download: the unwritten rest
+  /// of each file of a known size, unless the file already holds its space
+  int _stillNeededBytes() {
+    var needed = 0;
+
+    for (var file = 0; file < _files.length; file++) {
+      final info = _infos.elementAtOrNull(file);
+      final length = info?.length;
+
+      if (length == null) continue;
+
+      final reserved =
+          _reservesSpace &&
+          info!.isSliceable &&
+          _lengthOn(_files[file].savePath) == length;
+
+      if (!reserved) needed += math.max(0, length - _fileBytes(file));
+    }
+
+    return needed;
+  }
+
+  /// Before anything is reserved, the disk must hold what the download
+  /// still needs. Files on one volume share its free space
+  void _checkFreeSpace(DownloadStateFile state) {
+    final neededByVolume = <String, int>{};
+    final pathsByVolume = <String, List<String>>{};
+
+    for (var file = 0; file < _files.length; file++) {
+      final info = _infos[file];
+      final length = info.length;
+
+      if (length == null) continue;
+
+      final path = _files[file].savePath;
+      final onDisk = math.max(0, _lengthOn(path));
+
+      /// A reserved file needs only its growth; a sparse one needs every
+      /// byte not downloaded yet. A file without parts is written anew
+      final needed = _reservesSpace || !info.isSliceable
+          ? length - onDisk
+          : length - state.downloadedBytes(file);
+      final volume = _volumeOf(path);
+
+      neededByVolume[volume] =
+          (neededByVolume[volume] ?? 0) + math.max(0, needed);
+      (pathsByVolume[volume] ??= []).add(path);
+    }
+
+    for (final MapEntry(key: volume, value: needed) in neededByVolume.entries) {
+      if (needed <= 0) continue;
+
+      final paths = pathsByVolume[volume]!;
+      final available = paths
+          .map(_availableBytes)
+          .nonNulls
+          .fold<int?>(
+            null,
+            (least, bytes) => least == null ? bytes : math.min(least, bytes),
+          );
+
+      if (available != null && needed + _minimumFreeBytes > available) {
+        throw diskFullError(
+          path: paths.first,
+          neededBytes: needed,
+          availableBytes: available,
+        );
+      }
+    }
+  }
+
+  /// Drive letters tell volumes apart on Windows; elsewhere the files
+  /// of one download are taken as one volume
+  static String _volumeOf(String path) =>
+      Platform.isWindows ? p.rootPrefix(p.absolute(path)).toLowerCase() : '';
 
   Duration _backoff(int failures) =>
       _options.retryBaseDelay * math.pow(2, math.max(0, failures - 1)).toInt();
@@ -264,14 +396,20 @@ final class DownloadEngine {
     _previousState = null;
 
     for (var file = 0; file < _files.length; file++) {
-      _reserve(state, file, stateReused: reusable);
+      _fitToDisk(state, file, stateReused: reusable);
     }
-
-    state.flushSync();
 
     _live = [
       for (var file = 0; file < _files.length; file++) state.counters(file),
     ];
+
+    _checkFreeSpace(state);
+
+    for (var file = 0; file < _files.length; file++) {
+      _reserve(file);
+    }
+
+    state.flushSync();
 
     return [
       for (var file = 0; file < _files.length; file++)
@@ -322,18 +460,14 @@ final class DownloadEngine {
     ).prefixCounters(existingLength);
   }
 
-  /// Gives a sliced file its full size on disk. Counters never claim bytes
-  /// past the end of what is on disk
-  void _reserve(
+  /// Counters never claim bytes past the end of what is on disk
+  void _fitToDisk(
     DownloadStateFile state,
     int file, {
     required bool stateReused,
   }) {
     final info = _infos[file];
     final length = info.length;
-    final target = File(_files[file].savePath);
-
-    target.parent.createSync(recursive: true);
 
     /// Files without parts are downloaded from the start: their counters
     /// only show progress
@@ -343,28 +477,55 @@ final class DownloadEngine {
       return;
     }
 
-    final existingLength = target.existsSync() ? target.lengthSync() : -1;
+    final existingLength = _lengthOn(_files[file].savePath);
 
-    if (existingLength == length) return;
-
-    if (stateReused ||
-        _options.existingFilePolicy == ExistingFilePolicy.replace) {
-      for (var slice = 0; slice < state.sliceCount(file); slice++) {
-        final range = state.sliceRange(file, slice)!;
-        final onDisk = math.max(0, existingLength - range.start);
-
-        if (state.counter(file, slice) > onDisk) {
-          state.setCounter(file, slice, onDisk);
-        }
-      }
+    if (existingLength == length ||
+        !(stateReused ||
+            _options.existingFilePolicy == ExistingFilePolicy.replace)) {
+      return;
     }
 
-    final output = target.openSync(mode: FileMode.append);
+    for (var slice = 0; slice < state.sliceCount(file); slice++) {
+      final range = state.sliceRange(file, slice)!;
+      final onDisk = math.max(0, existingLength - range.start);
+
+      if (state.counter(file, slice) > onDisk) {
+        state.setCounter(file, slice, onDisk);
+      }
+    }
+  }
+
+  /// Gives a sliced file its full size on disk
+  void _reserve(int file) {
+    final info = _infos[file];
+    final length = info.length;
+    final target = File(_files[file].savePath);
 
     try {
-      output.truncateSync(length);
-    } finally {
-      output.closeSync();
+      target.parent.createSync(recursive: true);
+
+      if (length == null || !info.isSliceable) return;
+
+      final existingLength = _lengthOn(target.path);
+
+      if (existingLength == length) return;
+
+      final output = target.openSync(mode: FileMode.append);
+
+      try {
+        output.truncateSync(length);
+      } finally {
+        output.closeSync();
+      }
+    } on FileSystemException catch (error) {
+      throw _diskError(
+        error,
+        path: target.path,
+        neededBytes: math.max(
+          0,
+          (length ?? 0) - math.max(0, _lengthOn(target.path)),
+        ),
+      );
     }
   }
 
@@ -439,7 +600,7 @@ final class DownloadEngine {
     } on FilesDownloadError catch (error) {
       _fail(error);
     } on FileSystemException catch (error) {
-      _fail(_fileSystemError(error));
+      _fail(_diskError(error, path: job.request.savePath));
     } catch (error) {
       _fail(
         FilesDownloadError(
@@ -455,7 +616,7 @@ final class DownloadEngine {
         _saveJob(job);
         job.close();
       } on FileSystemException catch (error) {
-        _failSaving(error);
+        _failSaving(error, path: job.request.savePath);
       }
     }
   }
@@ -791,7 +952,7 @@ final class DownloadEngine {
 
       state.flushSync();
     } on FileSystemException catch (error) {
-      _failSaving(error);
+      _failSaving(error, path: error.path ?? statePath);
     }
   }
 
@@ -826,7 +987,7 @@ final class DownloadEngine {
 
   int _fileBytes(int file) => _live.isEmpty
       ? _previousBytes.elementAtOrNull(file) ?? 0
-      : _live[file].fold(0, (a, b) => a + b);
+      : _live.elementAtOrNull(file)?.fold<int>(0, (a, b) => a + b) ?? 0;
 
   int get _downloadedBytes => [
     for (var file = 0; file < _files.length; file++) _fileBytes(file),
@@ -862,14 +1023,17 @@ final class DownloadEngine {
   int _completedSlices(int file) {
     final state = _state;
 
-    if (state == null) return 0;
+    final live = _live.elementAtOrNull(file);
+
+    if (state == null || live == null) return 0;
 
     var completed = 0;
 
     for (var slice = 0; slice < state.sliceCount(file); slice++) {
       final range = state.sliceRange(file, slice);
+      final bytes = live.elementAtOrNull(slice) ?? 0;
 
-      if (range != null && _live[file][slice] >= range.length) completed++;
+      if (range != null && bytes >= range.length) completed++;
     }
 
     return completed;
@@ -956,8 +1120,15 @@ final class DownloadEngine {
     } on FileSystemException catch (error) {
       return FilesDownloadFailed(
         request.id,
-        error: _fileSystemError(error),
+        error: _diskError(error),
         downloadedBytes: _downloadedBytes,
+      );
+    } catch (error) {
+      /// The result always comes: the isolate never ends with a raw error
+      return FilesDownloadFailed(
+        request.id,
+        error: _failure ?? _unexpected(error),
+        downloadedBytes: 0,
       );
     } finally {
       /// Nothing leaves the state open, not even a failed file check

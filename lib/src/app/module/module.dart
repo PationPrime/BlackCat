@@ -230,7 +230,7 @@ final class AppModule {
       },
       (error, stackTrace) {
         _appLogger.logError(
-          'Internal YT Download error: $error',
+          'Internal BlackCat error: $error',
           stackTrace: stackTrace,
         );
       },

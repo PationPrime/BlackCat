@@ -111,6 +111,15 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
   /// Player menus: the playback speed
   final Color playerMenu;
 
+  /// App logo: the cat is black in both themes
+  final Color logo;
+
+  /// Thin outline that keeps the black cat apart from a dark background
+  final Color logoOutline;
+
+  /// Lines inside the logo: the ears, the tail and the paws
+  final Color logoDetail;
+
   final Color transparent;
 
   const AppThemeColors({
@@ -158,6 +167,9 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
     required this.playerTrack,
     required this.playerHover,
     required this.playerMenu,
+    required this.logo,
+    required this.logoOutline,
+    required this.logoDetail,
     required this.transparent,
   });
 
@@ -207,6 +219,9 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
     Color? playerTrack,
     Color? playerHover,
     Color? playerMenu,
+    Color? logo,
+    Color? logoOutline,
+    Color? logoDetail,
     Color? transparent,
   }) => AppThemeColors(
     background: background ?? this.background,
@@ -253,6 +268,9 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
     playerTrack: playerTrack ?? this.playerTrack,
     playerHover: playerHover ?? this.playerHover,
     playerMenu: playerMenu ?? this.playerMenu,
+    logo: logo ?? this.logo,
+    logoOutline: logoOutline ?? this.logoOutline,
+    logoDetail: logoDetail ?? this.logoDetail,
     transparent: transparent ?? this.transparent,
   );
 
@@ -334,6 +352,9 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
       playerTrack: Color.lerp(playerTrack, other.playerTrack, t)!,
       playerHover: Color.lerp(playerHover, other.playerHover, t)!,
       playerMenu: Color.lerp(playerMenu, other.playerMenu, t)!,
+      logo: Color.lerp(logo, other.logo, t)!,
+      logoOutline: Color.lerp(logoOutline, other.logoOutline, t)!,
+      logoDetail: Color.lerp(logoDetail, other.logoDetail, t)!,
       transparent: Color.lerp(transparent, other.transparent, t)!,
     );
   }
@@ -383,6 +404,9 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
     playerTrack: AppColors.white20,
     playerHover: AppColors.white10,
     playerMenu: AppColors.gray282828Alpha90,
+    logo: AppColors.stone0C0A09,
+    logoOutline: AppColors.transparent,
+    logoDetail: AppColors.stone57534E,
     transparent: AppColors.transparent,
   );
 
@@ -431,6 +455,9 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
     playerTrack: AppColors.white20,
     playerHover: AppColors.white10,
     playerMenu: AppColors.gray282828Alpha90,
+    logo: AppColors.stone0C0A09,
+    logoOutline: AppColors.white,
+    logoDetail: AppColors.white50,
     transparent: AppColors.transparent,
   );
 }

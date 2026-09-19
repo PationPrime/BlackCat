@@ -5,12 +5,12 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:youtube_downloader/src/app/constants/constants.dart';
-import 'package:youtube_downloader/src/app/design_system/design_system.dart';
-import 'package:youtube_downloader/src/app/localization/lang/locale_keys.g.dart';
-import 'package:youtube_downloader/src/app/models/models.dart';
-import 'package:youtube_downloader/src/app/services/services.dart';
-import 'package:youtube_downloader/src/app/widgets/widgets.dart';
+import 'package:black_cat/src/app/constants/constants.dart';
+import 'package:black_cat/src/app/design_system/design_system.dart';
+import 'package:black_cat/src/app/localization/lang/locale_keys.g.dart';
+import 'package:black_cat/src/app/models/models.dart';
+import 'package:black_cat/src/app/services/services.dart';
+import 'package:black_cat/src/app/widgets/widgets.dart';
 
 import '../../components/components.dart';
 

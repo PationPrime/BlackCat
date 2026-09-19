@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:youtube_downloader/src/app/services/services.dart';
+import 'package:black_cat/src/app/services/services.dart';
 
 /// JS engine for tests only: flutter test does not open a WebView2 window,
 /// so scripts run in a persistent Node `vm` context

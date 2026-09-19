@@ -176,9 +176,22 @@ final class RemoteMediaStreamDataSourceImpl
         ),
       FilesDownloadError(type: FilesDownloadErrorType.network) =>
         VideoException(codes.noConnection),
+      FilesDownloadError(type: FilesDownloadErrorType.diskFull) =>
+        VideoException(codes.diskFull, args: _diskFullArgs(error)),
       FilesDownloadError(type: FilesDownloadErrorType.fileSystem) =>
         VideoException(codes.diskWrite, args: {'error': error.message}),
       _ => VideoException(codes.streamInterrupted),
     };
+  }
+
+  /// How much the download still needs and how much is free, when both
+  /// are known; without them the error text has no sizes
+  static Map<String, String> _diskFullArgs(FilesDownloadError error) {
+    final needed = AppFileSize.format(error.neededBytes);
+    final available = AppFileSize.format(error.availableBytes);
+
+    return needed == null || available == null
+        ? const {}
+        : {'needed': needed, 'available': available};
   }
 }

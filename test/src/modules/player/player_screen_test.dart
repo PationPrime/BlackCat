@@ -2,9 +2,9 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:youtube_downloader/src/app/models/models.dart';
-import 'package:youtube_downloader/src/app/widgets/widgets.dart';
-import 'package:youtube_downloader/src/modules/player/module.dart';
+import 'package:black_cat/src/app/models/models.dart';
+import 'package:black_cat/src/app/widgets/widgets.dart';
+import 'package:black_cat/src/modules/player/module.dart';
 
 import '../../support/fake_repositories.dart';
 import '../../support/fake_services.dart';
@@ -17,9 +17,14 @@ const _window = Size(1200, 800);
 final _video = find.byKey(FakeVideoPlayerService.viewKey);
 
 /// The dialog box around the video
-Finder get _playerBox => find.ancestor(of: _video, matching: find.byType(AnimatedContainer)).last;
+Finder get _playerBox =>
+    find.ancestor(of: _video, matching: find.byType(AnimatedContainer)).last;
 
-Future<TestApp> _pumpPlayer(WidgetTester tester, {List<LibraryVideoModel>? videos, Size size = _window}) async {
+Future<TestApp> _pumpPlayer(
+  WidgetTester tester, {
+  List<LibraryVideoModel>? videos,
+  Size size = _window,
+}) async {
   final app = TestApp();
 
   if (videos != null) {
@@ -54,56 +59,92 @@ Future<void> _closePlayer(WidgetTester tester, TestApp app) async {
 void main() {
   setUpAll(loadTestTranslations);
 
-  testWidgets('карточки: чёрная плашка без превью, кнопка просмотра, название, длительность и место остановки', (tester) async {
+  testWidgets(
+    'карточки: чёрная плашка без превью, кнопка просмотра, название, длительность и место остановки',
+    (tester) async {
+      final app = await _pumpPlayer(
+        tester,
+        videos: [
+          testLibraryVideo('a', thumbnailPath: r'C:\missing\a.jpg'),
+          testLibraryVideo(
+            'b',
+            position: const Duration(minutes: 3, seconds: 25),
+            duration: const Duration(hours: 1, minutes: 2),
+          ),
+          testLibraryVideo('c', position: const Duration(minutes: 10)),
+          testLibraryVideo('d', duration: null),
+        ],
+      );
+
+      expect(find.text('Плеер'), findsOneWidget);
+      expect(find.text(r'Папка: C:\Users\user\Downloads'), findsOneWidget);
+      expect(find.byType(LibraryVideoCard), findsNWidgets(4));
+      expect(find.byTooltip('Смотреть'), findsNWidgets(4));
+
+      for (final title in ['Ролик a', 'Ролик b', 'Ролик c', 'Ролик d']) {
+        expect(find.text(title), findsOneWidget);
+      }
+
+      expect(find.text('10:00'), findsNWidgets(2));
+      expect(find.text('1:02:00'), findsOneWidget);
+      expect(find.textContaining('Остановились на 3:25'), findsOneWidget);
+      expect(find.textContaining('Просмотрено'), findsOneWidget);
+
+      /// The missing thumbnail leaves the black plate, the play button stays on it
+      final plate = find
+          .ancestor(
+            of: find.byTooltip('Смотреть').first,
+            matching: find.byType(ColoredBox),
+          )
+          .first;
+
+      expect(tester.widget<ColoredBox>(plate).color, Colors.black);
+      expect(tester.takeException(), isNull);
+
+      await app.close();
+    },
+  );
+
+  testWidgets('карточки идут колонками по ширине окна без переполнений', (
+    tester,
+  ) async {
+    final videos = [
+      for (var index = 0; index < 5; index++) testLibraryVideo('$index'),
+    ];
     final app = await _pumpPlayer(
       tester,
-      videos: [
-        testLibraryVideo('a', thumbnailPath: r'C:\missing\a.jpg'),
-        testLibraryVideo('b', position: const Duration(minutes: 3, seconds: 25), duration: const Duration(hours: 1, minutes: 2)),
-        testLibraryVideo('c', position: const Duration(minutes: 10)),
-        testLibraryVideo('d', duration: null),
-      ],
+      videos: videos,
+      size: const Size(1300, 1400),
     );
-
-    expect(find.text('Плеер'), findsOneWidget);
-    expect(find.text(r'Папка: C:\Users\user\Downloads'), findsOneWidget);
-    expect(find.byType(LibraryVideoCard), findsNWidgets(4));
-    expect(find.byTooltip('Смотреть'), findsNWidgets(4));
-
-    for (final title in ['Ролик a', 'Ролик b', 'Ролик c', 'Ролик d']) {
-      expect(find.text(title), findsOneWidget);
-    }
-
-    expect(find.text('10:00'), findsNWidgets(2));
-    expect(find.text('1:02:00'), findsOneWidget);
-    expect(find.textContaining('Остановились на 3:25'), findsOneWidget);
-    expect(find.textContaining('Просмотрено'), findsOneWidget);
-
-    /// The missing thumbnail leaves the black plate, the play button stays on it
-    final plate = find.ancestor(of: find.byTooltip('Смотреть').first, matching: find.byType(ColoredBox)).first;
-
-    expect(tester.widget<ColoredBox>(plate).color, Colors.black);
-    expect(tester.takeException(), isNull);
-
-    await app.close();
-  });
-
-  testWidgets('карточки идут колонками по ширине окна без переполнений', (tester) async {
-    final videos = [for (var index = 0; index < 5; index++) testLibraryVideo('$index')];
-    final app = await _pumpPlayer(tester, videos: videos, size: const Size(1300, 1400));
     final cards = find.byType(LibraryVideoCard);
 
-    expect(tester.getTopLeft(cards.at(0)).dy, tester.getTopLeft(cards.at(3)).dy);
-    expect(tester.getTopLeft(cards.at(4)).dy, greaterThan(tester.getTopLeft(cards.at(0)).dy));
+    expect(
+      tester.getTopLeft(cards.at(0)).dy,
+      tester.getTopLeft(cards.at(3)).dy,
+    );
+    expect(
+      tester.getTopLeft(cards.at(4)).dy,
+      greaterThan(tester.getTopLeft(cards.at(0)).dy),
+    );
     expect(tester.takeException(), isNull);
 
     await app.close();
 
-    final narrow = await _pumpPlayer(tester, videos: videos, size: const Size(420, 2600));
+    final narrow = await _pumpPlayer(
+      tester,
+      videos: videos,
+      size: const Size(420, 2600),
+    );
     final narrowCards = find.byType(LibraryVideoCard);
 
-    expect(tester.getTopLeft(narrowCards.at(1)).dy, greaterThan(tester.getTopLeft(narrowCards.at(0)).dy));
-    expect(tester.getTopLeft(narrowCards.at(1)).dx, tester.getTopLeft(narrowCards.at(0)).dx);
+    expect(
+      tester.getTopLeft(narrowCards.at(1)).dy,
+      greaterThan(tester.getTopLeft(narrowCards.at(0)).dy),
+    );
+    expect(
+      tester.getTopLeft(narrowCards.at(1)).dx,
+      tester.getTopLeft(narrowCards.at(0)).dx,
+    );
     expect(tester.takeException(), isNull);
 
     await narrow.close();
@@ -112,7 +153,10 @@ void main() {
   testWidgets('пустая папка: подсказка и переход к скачиванию', (tester) async {
     final app = await _pumpPlayer(tester, videos: []);
 
-    expect(find.textContaining('В папке загрузок пока нет видео'), findsOneWidget);
+    expect(
+      find.textContaining('В папке загрузок пока нет видео'),
+      findsOneWidget,
+    );
 
     await tester.tap(find.text('Скачать видео'));
     await app.settle(tester);
@@ -122,340 +166,408 @@ void main() {
     await app.close();
   });
 
-  testWidgets('пропавшая папка: сообщение с путём, «Повторить» перечитывает её', (tester) async {
-    final app = TestApp();
+  testWidgets(
+    'пропавшая папка: сообщение с путём, «Повторить» перечитывает её',
+    (tester) async {
+      final app = TestApp();
+
+      app.videoLibraryRepository.missingFolders.add(_downloads);
+
+      await app.pumpPage(tester, const PlayerScreen(), size: _window);
+
+      expect(find.byType(AppFailureBanner), findsOneWidget);
+      expect(
+        find.textContaining(
+          r'Папка загрузок не найдена: C:\Users\user\Downloads',
+        ),
+        findsOneWidget,
+      );
+      expect(find.byType(LibraryVideoCard), findsNothing);
+
+      app.videoLibraryRepository.missingFolders.clear();
+
+      await tester.tap(find.text('Повторить'));
+      await app.settle(tester);
+
+      expect(find.byType(AppFailureBanner), findsNothing);
+      expect(find.byType(LibraryVideoCard), findsNWidgets(2));
+
+      await app.close();
+    },
+  );
+
+  testWidgets(
+    'карточка открывает плеер на 80% окна; закрытие сохраняет позицию, и карточка её показывает',
+    (tester) async {
+      final app = await _pumpPlayer(tester);
 
-    app.videoLibraryRepository.missingFolders.add(_downloads);
+      await _openFirst(tester, app);
 
-    await app.pumpPage(tester, const PlayerScreen(), size: _window);
+      expect(_video, findsOneWidget);
+      expect(tester.getSize(_playerBox), const Size(960, 640));
+      expect(tester.getCenter(_playerBox), const Offset(600, 400));
+      expect(
+        app.videoPlayerService.openedPath,
+        r'C:\Users\user\Downloads\a.mp4',
+      );
+      expect(
+        find.descendant(of: _playerBox, matching: find.text('Ролик a')),
+        findsOneWidget,
+      );
+      expect(find.text('0:00 / 10:00'), findsOneWidget);
+
+      app.videoPlayerService.emit(
+        (playback) => playback.copyWith(
+          position: const Duration(minutes: 3, seconds: 25),
+        ),
+      );
+      await app.settle(tester);
 
-    expect(find.byType(AppFailureBanner), findsOneWidget);
-    expect(find.textContaining(r'Папка загрузок не найдена: C:\Users\user\Downloads'), findsOneWidget);
-    expect(find.byType(LibraryVideoCard), findsNothing);
+      expect(find.text('3:25 / 10:00'), findsOneWidget);
 
-    app.videoLibraryRepository.missingFolders.clear();
+      await tester.tap(find.byTooltip('Закрыть (Esc)'));
+      await app.settle(tester);
+
+      expect(_video, findsNothing);
+      expect(app.videoPlayerService.calls.last, 'stop');
+      expect(
+        app.videoLibraryRepository.savedPositions.last.position,
+        const Duration(minutes: 3, seconds: 25),
+      );
+      expect(find.textContaining('Остановились на 3:25'), findsOneWidget);
 
-    await tester.tap(find.text('Повторить'));
-    await app.settle(tester);
+      /// The next opening continues from there
+      await _openFirst(tester, app);
 
-    expect(find.byType(AppFailureBanner), findsNothing);
-    expect(find.byType(LibraryVideoCard), findsNWidgets(2));
+      expect(
+        app.videoPlayerService.openedStart,
+        const Duration(minutes: 3, seconds: 25),
+      );
 
-    await app.close();
-  });
+      await _closePlayer(tester, app);
+      await app.close();
+    },
+  );
 
-  testWidgets('карточка открывает плеер на 80% окна; закрытие сохраняет позицию, и карточка её показывает', (tester) async {
-    final app = await _pumpPlayer(tester);
+  testWidgets(
+    'пробел ставит на паузу и возобновляет с анимацией в центре; кнопка паузы — слева внизу',
+    (tester) async {
+      final app = await _pumpPlayer(tester);
 
-    await _openFirst(tester, app);
+      await _openFirst(tester, app);
 
-    expect(_video, findsOneWidget);
-    expect(tester.getSize(_playerBox), const Size(960, 640));
-    expect(tester.getCenter(_playerBox), const Offset(600, 400));
-    expect(app.videoPlayerService.openedPath, r'C:\Users\user\Downloads\a.mp4');
-    expect(find.descendant(of: _playerBox, matching: find.text('Ролик a')), findsOneWidget);
-    expect(find.text('0:00 / 10:00'), findsOneWidget);
+      final pauseButton = find.byTooltip('Пауза (k)');
 
-    app.videoPlayerService.emit((playback) => playback.copyWith(position: const Duration(minutes: 3, seconds: 25)));
-    await app.settle(tester);
+      expect(pauseButton, findsOneWidget);
 
-    expect(find.text('3:25 / 10:00'), findsOneWidget);
+      /// Play and pause is the first control at the bottom left
+      final buttonRect = tester.getRect(pauseButton);
+      final boxRect = tester.getRect(_playerBox);
 
-    await tester.tap(find.byTooltip('Закрыть (Esc)'));
-    await app.settle(tester);
+      expect(buttonRect.left - boxRect.left, lessThan(40));
+      expect(boxRect.bottom - buttonRect.bottom, lessThan(40));
+      expect(
+        tester.getRect(find.byTooltip('Назад на 10 секунд (j)')).left,
+        greaterThan(buttonRect.left),
+      );
 
-    expect(_video, findsNothing);
-    expect(app.videoPlayerService.calls.last, 'stop');
-    expect(app.videoLibraryRepository.savedPositions.last.position, const Duration(minutes: 3, seconds: 25));
-    expect(find.textContaining('Остановились на 3:25'), findsOneWidget);
+      /// No big button in the middle until the space bar is pressed
+      expect(find.byIcon(Icons.pause_rounded), findsOneWidget);
 
-    /// The next opening continues from there
-    await _openFirst(tester, app);
+      await _press(tester, LogicalKeyboardKey.space);
+      await tester.pump(const Duration(milliseconds: 50));
 
-    expect(app.videoPlayerService.openedStart, const Duration(minutes: 3, seconds: 25));
+      expect(app.videoPlayerService.calls, contains('pause'));
+      expect(find.byTooltip('Смотреть (k)'), findsOneWidget);
 
-    await _closePlayer(tester, app);
-    await app.close();
-  });
+      /// The flash shows the pause icon and fades out
+      final flash = find.byIcon(Icons.pause_rounded);
 
-  testWidgets('пробел ставит на паузу и возобновляет с анимацией в центре; кнопка паузы — слева внизу', (tester) async {
-    final app = await _pumpPlayer(tester);
+      expect(flash, findsOneWidget);
+      expect(tester.getCenter(flash), tester.getCenter(_playerBox));
 
-    await _openFirst(tester, app);
+      await tester.pump(const Duration(milliseconds: 600));
 
-    final pauseButton = find.byTooltip('Пауза (k)');
+      final opacity = tester.widget<Opacity>(
+        find.ancestor(of: flash, matching: find.byType(Opacity)).first,
+      );
 
-    expect(pauseButton, findsOneWidget);
+      expect(opacity.opacity, 0);
 
-    /// Play and pause is the first control at the bottom left
-    final buttonRect = tester.getRect(pauseButton);
-    final boxRect = tester.getRect(_playerBox);
+      await _press(tester, LogicalKeyboardKey.keyK);
+      await app.settle(tester);
 
-    expect(buttonRect.left - boxRect.left, lessThan(40));
-    expect(boxRect.bottom - buttonRect.bottom, lessThan(40));
-    expect(tester.getRect(find.byTooltip('Назад на 10 секунд (j)')).left, greaterThan(buttonRect.left));
+      expect(app.videoPlayerService.calls.last, 'play');
+      expect(find.byTooltip('Пауза (k)'), findsOneWidget);
 
-    /// No big button in the middle until the space bar is pressed
-    expect(find.byIcon(Icons.pause_rounded), findsOneWidget);
+      await _closePlayer(tester, app);
+      await app.close();
+    },
+  );
 
-    await _press(tester, LogicalKeyboardKey.space);
-    await tester.pump(const Duration(milliseconds: 50));
+  testWidgets(
+    'J, L и стрелки перематывают на 10 секунд, нажатия подряд складываются в подсказке',
+    (tester) async {
+      final app = await _pumpPlayer(tester);
 
-    expect(app.videoPlayerService.calls, contains('pause'));
-    expect(find.byTooltip('Смотреть (k)'), findsOneWidget);
+      await _openFirst(tester, app);
 
-    /// The flash shows the pause icon and fades out
-    final flash = find.byIcon(Icons.pause_rounded);
+      app.videoPlayerService.emit(
+        (playback) => playback.copyWith(position: const Duration(minutes: 1)),
+      );
+      await app.settle(tester);
 
-    expect(flash, findsOneWidget);
-    expect(tester.getCenter(flash), tester.getCenter(_playerBox));
+      await _press(tester, LogicalKeyboardKey.keyJ);
 
-    await tester.pump(const Duration(milliseconds: 600));
+      expect(app.videoPlayerService.calls.last, 'seek 50');
+      expect(find.text('10 секунд'), findsOneWidget);
 
-    final opacity = tester.widget<Opacity>(find.ancestor(of: flash, matching: find.byType(Opacity)).first);
+      /// The hint sits over the left side
+      expect(
+        tester.getCenter(find.text('10 секунд')).dx,
+        lessThan(tester.getCenter(_playerBox).dx),
+      );
 
-    expect(opacity.opacity, 0);
+      await _press(tester, LogicalKeyboardKey.arrowLeft);
 
-    await _press(tester, LogicalKeyboardKey.keyK);
-    await app.settle(tester);
+      expect(app.videoPlayerService.calls.last, 'seek 40');
+      expect(find.text('20 секунд'), findsOneWidget);
 
-    expect(app.videoPlayerService.calls.last, 'play');
-    expect(find.byTooltip('Пауза (k)'), findsOneWidget);
+      await _press(tester, LogicalKeyboardKey.keyL);
 
-    await _closePlayer(tester, app);
-    await app.close();
-  });
+      expect(app.videoPlayerService.calls.last, 'seek 50');
+      expect(find.text('10 секунд'), findsOneWidget);
+      expect(
+        tester.getCenter(find.text('10 секунд')).dx,
+        greaterThan(tester.getCenter(_playerBox).dx),
+      );
 
-  testWidgets('J, L и стрелки перематывают на 10 секунд, нажатия подряд складываются в подсказке', (tester) async {
-    final app = await _pumpPlayer(tester);
+      await _press(tester, LogicalKeyboardKey.arrowRight);
 
-    await _openFirst(tester, app);
+      expect(app.videoPlayerService.calls.last, 'seek 60');
+      expect(find.text('20 секунд'), findsOneWidget);
 
-    app.videoPlayerService.emit((playback) => playback.copyWith(position: const Duration(minutes: 1)));
-    await app.settle(tester);
+      await app.settle(tester);
+      await tester.pump(const Duration(milliseconds: 200));
 
-    await _press(tester, LogicalKeyboardKey.keyJ);
+      expect(find.text('20 секунд'), findsNothing);
 
-    expect(app.videoPlayerService.calls.last, 'seek 50');
-    expect(find.text('10 секунд'), findsOneWidget);
+      /// The buttons at the bottom seek too
+      await tester.tap(find.byTooltip('Вперёд на 10 секунд (l)'));
+      await tester.pump();
 
-    /// The hint sits over the left side
-    expect(tester.getCenter(find.text('10 секунд')).dx, lessThan(tester.getCenter(_playerBox).dx));
+      expect(app.videoPlayerService.calls.last, 'seek 70');
 
-    await _press(tester, LogicalKeyboardKey.arrowLeft);
+      await tester.tap(find.byTooltip('Назад на 10 секунд (j)'));
+      await tester.pump();
 
-    expect(app.videoPlayerService.calls.last, 'seek 40');
-    expect(find.text('20 секунд'), findsOneWidget);
+      expect(app.videoPlayerService.calls.last, 'seek 60');
 
-    await _press(tester, LogicalKeyboardKey.keyL);
+      await _closePlayer(tester, app);
+      await app.close();
+    },
+  );
 
-    expect(app.videoPlayerService.calls.last, 'seek 50');
-    expect(find.text('10 секунд'), findsOneWidget);
-    expect(tester.getCenter(find.text('10 секунд')).dx, greaterThan(tester.getCenter(_playerBox).dx));
+  testWidgets(
+    'двойной клик у краёв перематывает, частые клики после него продолжают; одиночный клик — пауза',
+    (tester) async {
+      final app = await _pumpPlayer(tester);
 
-    await _press(tester, LogicalKeyboardKey.arrowRight);
+      await _openFirst(tester, app);
 
-    expect(app.videoPlayerService.calls.last, 'seek 60');
-    expect(find.text('20 секунд'), findsOneWidget);
+      app.videoPlayerService.emit(
+        (playback) => playback.copyWith(position: const Duration(minutes: 1)),
+      );
+      await app.settle(tester);
 
-    await app.settle(tester);
-    await tester.pump(const Duration(milliseconds: 200));
+      final box = tester.getRect(_playerBox);
 
-    expect(find.text('20 секунд'), findsNothing);
+      /// 35% from the edges seek, the rest is the middle
+      final left = Offset(box.left + box.width * 0.3, box.center.dy);
+      final right = Offset(box.right - box.width * 0.3, box.center.dy);
+      final middle = box.center;
 
-    /// The buttons at the bottom seek too
-    await tester.tap(find.byTooltip('Вперёд на 10 секунд (l)'));
-    await tester.pump();
+      await tester.tapAt(right);
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.tapAt(right);
+      await tester.pump();
 
-    expect(app.videoPlayerService.calls.last, 'seek 70');
+      expect(app.videoPlayerService.calls.last, 'seek 70');
+      expect(find.text('10 секунд'), findsOneWidget);
 
-    await tester.tap(find.byTooltip('Назад на 10 секунд (j)'));
-    await tester.pump();
+      await tester.pump(const Duration(milliseconds: 200));
+      await tester.tapAt(right);
+      await tester.pump();
 
-    expect(app.videoPlayerService.calls.last, 'seek 60');
+      expect(app.videoPlayerService.calls.last, 'seek 80');
+      expect(find.text('20 секунд'), findsOneWidget);
 
-    await _closePlayer(tester, app);
-    await app.close();
-  });
+      await app.settle(tester);
 
-  testWidgets('двойной клик у краёв перематывает, частые клики после него продолжают; одиночный клик — пауза', (tester) async {
-    final app = await _pumpPlayer(tester);
+      await tester.tapAt(left);
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.tapAt(left);
+      await tester.pump();
 
-    await _openFirst(tester, app);
+      expect(app.videoPlayerService.calls.last, 'seek 70');
+      expect(app.videoPlayerService.calls, isNot(contains('pause')));
 
-    app.videoPlayerService.emit((playback) => playback.copyWith(position: const Duration(minutes: 1)));
-    await app.settle(tester);
+      await app.settle(tester);
 
-    final box = tester.getRect(_playerBox);
+      /// A single click waits for a second one, then pauses
+      await tester.tapAt(middle);
+      await tester.pump(const Duration(milliseconds: 100));
 
-    /// 35% from the edges seek, the rest is the middle
-    final left = Offset(box.left + box.width * 0.3, box.center.dy);
-    final right = Offset(box.right - box.width * 0.3, box.center.dy);
-    final middle = box.center;
+      expect(app.videoPlayerService.calls, isNot(contains('pause')));
 
-    await tester.tapAt(right);
-    await tester.pump(const Duration(milliseconds: 100));
-    await tester.tapAt(right);
-    await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
 
-    expect(app.videoPlayerService.calls.last, 'seek 70');
-    expect(find.text('10 секунд'), findsOneWidget);
+      expect(app.videoPlayerService.calls.last, 'pause');
 
-    await tester.pump(const Duration(milliseconds: 200));
-    await tester.tapAt(right);
-    await tester.pump();
+      /// A double click in the middle switches full screen
+      await tester.tapAt(middle);
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.tapAt(middle);
+      await app.settle(tester);
 
-    expect(app.videoPlayerService.calls.last, 'seek 80');
-    expect(find.text('20 секунд'), findsOneWidget);
+      expect(app.appWindowService.fullScreen, isTrue);
+      expect(app.videoPlayerService.calls.last, 'pause');
 
-    await app.settle(tester);
+      await _closePlayer(tester, app);
+      await app.close();
+    },
+  );
 
-    await tester.tapAt(left);
-    await tester.pump(const Duration(milliseconds: 100));
-    await tester.tapAt(left);
-    await tester.pump();
+  testWidgets(
+    'F, кнопка и двойной клик разворачивают во весь экран; Esc выходит из него, затем закрывает плеер',
+    (tester) async {
+      final app = await _pumpPlayer(tester);
 
-    expect(app.videoPlayerService.calls.last, 'seek 70');
-    expect(app.videoPlayerService.calls, isNot(contains('pause')));
+      await _openFirst(tester, app);
+      await _press(tester, LogicalKeyboardKey.keyF);
+      await app.settle(tester);
 
-    await app.settle(tester);
+      expect(app.appWindowService.fullScreen, isTrue);
+      expect(app.appWindowController.state.isFullScreen, isTrue);
+      expect(tester.getSize(_playerBox), _window);
+      expect(
+        find.byTooltip('Выйти из полноэкранного режима (f)'),
+        findsOneWidget,
+      );
 
-    /// A single click waits for a second one, then pauses
-    await tester.tapAt(middle);
-    await tester.pump(const Duration(milliseconds: 100));
+      await _press(tester, LogicalKeyboardKey.escape);
+      await app.settle(tester);
 
-    expect(app.videoPlayerService.calls, isNot(contains('pause')));
+      expect(app.appWindowService.fullScreen, isFalse);
+      expect(tester.getSize(_playerBox), const Size(960, 640));
 
-    await tester.pump(const Duration(milliseconds: 300));
+      await tester.tap(find.byTooltip('Во весь экран (f)'));
+      await app.settle(tester);
 
-    expect(app.videoPlayerService.calls.last, 'pause');
+      expect(app.appWindowService.fullScreen, isTrue);
 
-    /// A double click in the middle switches full screen
-    await tester.tapAt(middle);
-    await tester.pump(const Duration(milliseconds: 100));
-    await tester.tapAt(middle);
-    await app.settle(tester);
+      /// Closing the player leaves full screen too
+      await tester.tap(find.byTooltip('Закрыть (Esc)'));
+      await app.settle(tester);
 
-    expect(app.appWindowService.fullScreen, isTrue);
-    expect(app.videoPlayerService.calls.last, 'pause');
+      expect(_video, findsNothing);
+      expect(app.appWindowService.fullScreen, isFalse);
 
-    await _closePlayer(tester, app);
-    await app.close();
-  });
+      await _openFirst(tester, app);
+      await _press(tester, LogicalKeyboardKey.escape);
+      await app.settle(tester);
 
-  testWidgets('F, кнопка и двойной клик разворачивают во весь экран; Esc выходит из него, затем закрывает плеер', (tester) async {
-    final app = await _pumpPlayer(tester);
+      expect(_video, findsNothing);
 
-    await _openFirst(tester, app);
-    await _press(tester, LogicalKeyboardKey.keyF);
-    await app.settle(tester);
+      await app.close();
+    },
+  );
 
-    expect(app.appWindowService.fullScreen, isTrue);
-    expect(app.appWindowController.state.isFullScreen, isTrue);
-    expect(tester.getSize(_playerBox), _window);
-    expect(find.byTooltip('Выйти из полноэкранного режима (f)'), findsOneWidget);
+  testWidgets(
+    'скорость 1.25, 1.5 и 2 выбирается в меню, Shift+. и Shift+, переключают её',
+    (tester) async {
+      final app = await _pumpPlayer(tester);
 
-    await _press(tester, LogicalKeyboardKey.escape);
-    await app.settle(tester);
+      await _openFirst(tester, app);
+      await tester.tap(find.text('1×'));
+      await app.settle(tester);
 
-    expect(app.appWindowService.fullScreen, isFalse);
-    expect(tester.getSize(_playerBox), const Size(960, 640));
+      expect(find.text('Скорость воспроизведения'), findsWidgets);
 
-    await tester.tap(find.byTooltip('Во весь экран (f)'));
-    await app.settle(tester);
+      for (final option in ['Обычная', '1.25', '1.5', '2']) {
+        expect(find.text(option), findsOneWidget);
+      }
 
-    expect(app.appWindowService.fullScreen, isTrue);
+      await tester.tap(find.text('1.5'));
+      await app.settle(tester);
 
-    /// Closing the player leaves full screen too
-    await tester.tap(find.byTooltip('Закрыть (Esc)'));
-    await app.settle(tester);
+      expect(app.videoPlayerService.calls.last, 'rate 1.5');
+      expect(find.text('1.5×'), findsOneWidget);
 
-    expect(_video, findsNothing);
-    expect(app.appWindowService.fullScreen, isFalse);
+      await tester.sendKeyDownEvent(LogicalKeyboardKey.shiftLeft);
+      await tester.sendKeyEvent(LogicalKeyboardKey.period);
+      await tester.sendKeyUpEvent(LogicalKeyboardKey.shiftLeft);
+      await app.settle(tester);
 
-    await _openFirst(tester, app);
-    await _press(tester, LogicalKeyboardKey.escape);
-    await app.settle(tester);
+      expect(app.videoPlayerService.calls.last, 'rate 2.0');
+      expect(find.text('2×'), findsOneWidget);
 
-    expect(_video, findsNothing);
+      await tester.sendKeyDownEvent(LogicalKeyboardKey.shiftLeft);
+      await tester.sendKeyEvent(LogicalKeyboardKey.comma);
+      await tester.sendKeyEvent(LogicalKeyboardKey.comma);
+      await tester.sendKeyEvent(LogicalKeyboardKey.comma);
+      await tester.sendKeyUpEvent(LogicalKeyboardKey.shiftLeft);
+      await app.settle(tester);
 
-    await app.close();
-  });
+      expect(find.text('1×'), findsOneWidget);
 
-  testWidgets('скорость 1.25, 1.5 и 2 выбирается в меню, Shift+. и Shift+, переключают её', (tester) async {
-    final app = await _pumpPlayer(tester);
+      await _closePlayer(tester, app);
+      await app.close();
+    },
+  );
 
-    await _openFirst(tester, app);
-    await tester.tap(find.text('1×'));
-    await app.settle(tester);
+  testWidgets(
+    'полоса прогресса перематывает кликом и перетаскиванием, цифры — на долю видео',
+    (tester) async {
+      final app = await _pumpPlayer(tester);
 
-    expect(find.text('Скорость воспроизведения'), findsWidgets);
+      await _openFirst(tester, app);
 
-    for (final option in ['Обычная', '1.25', '1.5', '2']) {
-      expect(find.text(option), findsOneWidget);
-    }
+      final box = tester.getRect(_playerBox);
+      final timeline = tester.getRect(find.byTooltip('Пауза (k)'));
 
-    await tester.tap(find.text('1.5'));
-    await app.settle(tester);
+      /// The bar lies just above the buttons across the whole player
+      final barY = timeline.top - 14;
 
-    expect(app.videoPlayerService.calls.last, 'rate 1.5');
-    expect(find.text('1.5×'), findsOneWidget);
+      await tester.tapAt(Offset(box.left + 12 + (box.width - 24) / 2, barY));
+      await tester.pump();
 
-    await tester.sendKeyDownEvent(LogicalKeyboardKey.shiftLeft);
-    await tester.sendKeyEvent(LogicalKeyboardKey.period);
-    await tester.sendKeyUpEvent(LogicalKeyboardKey.shiftLeft);
-    await app.settle(tester);
+      expect(app.videoPlayerService.calls.last, 'seek 300');
 
-    expect(app.videoPlayerService.calls.last, 'rate 2.0');
-    expect(find.text('2×'), findsOneWidget);
+      await tester.dragFrom(
+        Offset(box.left + 12 + (box.width - 24) / 4, barY),
+        Offset((box.width - 24) / 2, 0),
+      );
+      await app.settle(tester);
 
-    await tester.sendKeyDownEvent(LogicalKeyboardKey.shiftLeft);
-    await tester.sendKeyEvent(LogicalKeyboardKey.comma);
-    await tester.sendKeyEvent(LogicalKeyboardKey.comma);
-    await tester.sendKeyEvent(LogicalKeyboardKey.comma);
-    await tester.sendKeyUpEvent(LogicalKeyboardKey.shiftLeft);
-    await app.settle(tester);
+      expect(app.videoPlayerService.calls.last, 'seek 450');
 
-    expect(find.text('1×'), findsOneWidget);
+      await _press(tester, LogicalKeyboardKey.digit3);
 
-    await _closePlayer(tester, app);
-    await app.close();
-  });
+      expect(app.videoPlayerService.calls.last, 'seek 180');
 
-  testWidgets('полоса прогресса перематывает кликом и перетаскиванием, цифры — на долю видео', (tester) async {
-    final app = await _pumpPlayer(tester);
+      await _press(tester, LogicalKeyboardKey.home);
 
-    await _openFirst(tester, app);
+      expect(app.videoPlayerService.calls.last, 'seek 0');
 
-    final box = tester.getRect(_playerBox);
-    final timeline = tester.getRect(find.byTooltip('Пауза (k)'));
+      await _closePlayer(tester, app);
+      await app.close();
+    },
+  );
 
-    /// The bar lies just above the buttons across the whole player
-    final barY = timeline.top - 14;
-
-    await tester.tapAt(Offset(box.left + 12 + (box.width - 24) / 2, barY));
-    await tester.pump();
-
-    expect(app.videoPlayerService.calls.last, 'seek 300');
-
-    await tester.dragFrom(Offset(box.left + 12 + (box.width - 24) / 4, barY), Offset((box.width - 24) / 2, 0));
-    await app.settle(tester);
-
-    expect(app.videoPlayerService.calls.last, 'seek 450');
-
-    await _press(tester, LogicalKeyboardKey.digit3);
-
-    expect(app.videoPlayerService.calls.last, 'seek 180');
-
-    await _press(tester, LogicalKeyboardKey.home);
-
-    expect(app.videoPlayerService.calls.last, 'seek 0');
-
-    await _closePlayer(tester, app);
-    await app.close();
-  });
-
-  testWidgets('M и стрелки вверх и вниз меняют звук и показывают уровень', (tester) async {
+  testWidgets('M и стрелки вверх и вниз меняют звук и показывают уровень', (
+    tester,
+  ) async {
     final app = await _pumpPlayer(tester);
 
     await _openFirst(tester, app);
@@ -482,68 +594,102 @@ void main() {
     await app.close();
   });
 
-  testWidgets('управление прячется через 3 секунды просмотра и появляется от движения мыши', (tester) async {
-    final app = await _pumpPlayer(tester);
+  testWidgets(
+    'управление прячется через 3 секунды просмотра и появляется от движения мыши',
+    (tester) async {
+      final app = await _pumpPlayer(tester);
 
-    await _openFirst(tester, app);
+      await _openFirst(tester, app);
 
-    double controlsOpacity() => tester
-        .widget<AnimatedOpacity>(find.ancestor(of: find.byTooltip('Пауза (k)'), matching: find.byType(AnimatedOpacity)).first)
-        .opacity;
+      double controlsOpacity() => tester
+          .widget<AnimatedOpacity>(
+            find
+                .ancestor(
+                  of: find.byTooltip('Пауза (k)'),
+                  matching: find.byType(AnimatedOpacity),
+                )
+                .first,
+          )
+          .opacity;
 
-    expect(controlsOpacity(), 1);
+      expect(controlsOpacity(), 1);
 
-    await tester.pump(const Duration(seconds: 3));
-    await tester.pump(const Duration(milliseconds: 300));
+      await tester.pump(const Duration(seconds: 3));
+      await tester.pump(const Duration(milliseconds: 300));
 
-    expect(controlsOpacity(), 0);
+      expect(controlsOpacity(), 0);
 
-    final mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+      final mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
 
-    addTearDown(mouse.removePointer);
-    await mouse.addPointer(location: tester.getCenter(_playerBox));
-    await mouse.moveTo(tester.getCenter(_playerBox) + const Offset(10, 10));
-    await tester.pump();
+      addTearDown(mouse.removePointer);
+      await mouse.addPointer(location: tester.getCenter(_playerBox));
+      await mouse.moveTo(tester.getCenter(_playerBox) + const Offset(10, 10));
+      await tester.pump();
 
-    expect(controlsOpacity(), 1);
+      expect(controlsOpacity(), 1);
 
-    /// A paused video keeps the controls
-    await _press(tester, LogicalKeyboardKey.space);
-    await tester.pump(const Duration(seconds: 4));
+      /// A paused video keeps the controls
+      await _press(tester, LogicalKeyboardKey.space);
+      await tester.pump(const Duration(seconds: 4));
 
-    expect(find.ancestor(of: find.byTooltip('Смотреть (k)'), matching: find.byType(AnimatedOpacity)), findsWidgets);
-    expect(
-      tester.widget<AnimatedOpacity>(
-        find.ancestor(of: find.byTooltip('Смотреть (k)'), matching: find.byType(AnimatedOpacity)).first,
-      ).opacity,
-      1,
-    );
+      expect(
+        find.ancestor(
+          of: find.byTooltip('Смотреть (k)'),
+          matching: find.byType(AnimatedOpacity),
+        ),
+        findsWidgets,
+      );
+      expect(
+        tester
+            .widget<AnimatedOpacity>(
+              find
+                  .ancestor(
+                    of: find.byTooltip('Смотреть (k)'),
+                    matching: find.byType(AnimatedOpacity),
+                  )
+                  .first,
+            )
+            .opacity,
+        1,
+      );
 
-    await _closePlayer(tester, app);
-    await app.close();
-  });
+      await _closePlayer(tester, app);
+      await app.close();
+    },
+  );
 
-  testWidgets('ошибка воспроизведения: причина, «Повторить» и «Закрыть»', (tester) async {
+  testWidgets('ошибка воспроизведения: причина, «Повторить» и «Закрыть»', (
+    tester,
+  ) async {
     final app = await _pumpPlayer(tester);
 
     app.videoPlayerService.openError = 'no decoder';
 
     await _openFirst(tester, app);
 
-    expect(find.textContaining('Не удалось воспроизвести видео'), findsOneWidget);
+    expect(
+      find.textContaining('Не удалось воспроизвести видео'),
+      findsOneWidget,
+    );
 
     app.videoPlayerService.openError = null;
 
-    await tester.tap(find.descendant(of: _playerBox, matching: find.text('Повторить')));
+    await tester.tap(
+      find.descendant(of: _playerBox, matching: find.text('Повторить')),
+    );
     await app.settle(tester);
 
     expect(find.textContaining('Не удалось воспроизвести видео'), findsNothing);
     expect(find.byTooltip('Пауза (k)'), findsOneWidget);
 
-    app.videoPlayerService.emit((playback) => playback.copyWith(error: 'broken', isPlaying: false));
+    app.videoPlayerService.emit(
+      (playback) => playback.copyWith(error: 'broken', isPlaying: false),
+    );
     await app.settle(tester);
 
-    await tester.tap(find.descendant(of: _playerBox, matching: find.text('Закрыть')));
+    await tester.tap(
+      find.descendant(of: _playerBox, matching: find.text('Закрыть')),
+    );
     await app.settle(tester);
 
     expect(_video, findsNothing);

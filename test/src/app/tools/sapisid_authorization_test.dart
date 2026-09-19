@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:crypto/crypto.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:youtube_downloader/src/app/tools/tools.dart';
+import 'package:black_cat/src/app/tools/tools.dart';
 
 void main() {
   test('SapisidAuthorization повторяет алгоритм веб-клиента', () {
@@ -16,7 +16,11 @@ void main() {
       'SAPISID3PHASH 1757930000_${sha('1757930000 SID3 https://www.youtube.com')}',
     );
     expect(
-      SapisidAuthorization.build(sapisid: 'SID1', userSessionId: 'USER', now: now),
+      SapisidAuthorization.build(
+        sapisid: 'SID1',
+        userSessionId: 'USER',
+        now: now,
+      ),
       'SAPISIDHASH 1757930000_${sha('USER 1757930000 SID1 https://www.youtube.com')}_u',
     );
     expect(SapisidAuthorization.build(now: now), isNull);

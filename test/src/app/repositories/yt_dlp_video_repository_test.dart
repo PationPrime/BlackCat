@@ -5,15 +5,15 @@ import 'dart:math' as math;
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path/path.dart' as p;
-import 'package:youtube_downloader/src/app/constants/constants.dart';
-import 'package:youtube_downloader/src/app/data_sources/data_sources.dart';
-import 'package:youtube_downloader/src/app/errors/errors.dart';
-import 'package:youtube_downloader/src/app/models/models.dart';
-import 'package:youtube_downloader/src/app/operation_result/operation_result.dart';
-import 'package:youtube_downloader/src/app/repositories/repositories.dart';
-import 'package:youtube_downloader/src/app/services/services.dart';
-import 'package:youtube_downloader/src/app/session/session_store.dart';
-import 'package:youtube_downloader/src/app/tools/tools.dart';
+import 'package:black_cat/src/app/constants/constants.dart';
+import 'package:black_cat/src/app/data_sources/data_sources.dart';
+import 'package:black_cat/src/app/errors/errors.dart';
+import 'package:black_cat/src/app/models/models.dart';
+import 'package:black_cat/src/app/operation_result/operation_result.dart';
+import 'package:black_cat/src/app/repositories/repositories.dart';
+import 'package:black_cat/src/app/services/services.dart';
+import 'package:black_cat/src/app/session/session_store.dart';
+import 'package:black_cat/src/app/tools/tools.dart';
 
 import '../../support/dash_stream_builder.dart';
 import '../../support/slice_state.dart';
@@ -33,7 +33,8 @@ class _TestFileSystemService extends FileSystemServiceImpl {
   Future<String> supportFolder() async => p.join(root.path, 'support');
 
   @override
-  Future<String> defaultDownloadsFolder() async => p.join(root.path, 'Downloads');
+  Future<String> defaultDownloadsFolder() async =>
+      p.join(root.path, 'Downloads');
 }
 
 /// Serves the streams with Range support, slowly enough to stop a download
@@ -64,7 +65,9 @@ final class _StreamServer {
       if (header case final range?) {
         final match = RegExp(r'bytes=(\d+)-(\d*)').firstMatch(range)!;
         start = int.parse(match.group(1)!);
-        end = match.group(2)!.isEmpty ? end : math.min(end, int.parse(match.group(2)!));
+        end = match.group(2)!.isEmpty
+            ? end
+            : math.min(end, int.parse(match.group(2)!));
       }
 
       final response = request.response;
@@ -72,25 +75,35 @@ final class _StreamServer {
       if (start >= content.length) {
         response
           ..statusCode = HttpStatus.requestedRangeNotSatisfiable
-          ..headers.set(HttpHeaders.contentRangeHeader, 'bytes */${content.length}');
+          ..headers.set(
+            HttpHeaders.contentRangeHeader,
+            'bytes */${content.length}',
+          );
         await response.close();
 
         return;
       }
 
       response
-        ..statusCode = header == null ? HttpStatus.ok : HttpStatus.partialContent
+        ..statusCode = header == null
+            ? HttpStatus.ok
+            : HttpStatus.partialContent
         ..headers.contentType = ContentType('video', 'mp4')
         ..headers.contentLength = end - start + 1
         ..headers.set(HttpHeaders.acceptRangesHeader, 'bytes');
 
       if (header != null) {
-        response.headers.set(HttpHeaders.contentRangeHeader, 'bytes $start-$end/${content.length}');
+        response.headers.set(
+          HttpHeaders.contentRangeHeader,
+          'bytes $start-$end/${content.length}',
+        );
       }
 
       try {
         for (var offset = start; offset <= end; offset += 64 * 1024) {
-          response.add(content.sublist(offset, math.min(offset + 64 * 1024, end + 1)));
+          response.add(
+            content.sublist(offset, math.min(offset + 64 * 1024, end + 1)),
+          );
           await response.flush();
           await Future<void>.delayed(const Duration(milliseconds: 15));
         }
@@ -118,7 +131,8 @@ final class _LocalInfoYtDlpService implements YtDlpService {
   bool get isSupported => _ytDlpService.isSupported;
 
   @override
-  Future<YtDlpSetupModel> setup({bool refresh = false}) => _ytDlpService.setup(refresh: refresh);
+  Future<YtDlpSetupModel> setup({bool refresh = false}) =>
+      _ytDlpService.setup(refresh: refresh);
 
   @override
   Future<YtDlpRunResult> run(
@@ -132,7 +146,11 @@ final class _LocalInfoYtDlpService implements YtDlpService {
       return YtDlpRunResult(exitCode: 0, stdout: infoJson());
     }
 
-    return _ytDlpService.run(arguments, onLine: onLine, cancellation: cancellation);
+    return _ytDlpService.run(
+      arguments,
+      onLine: onLine,
+      cancellation: cancellation,
+    );
   }
 }
 
@@ -244,7 +262,9 @@ void main() {
 
   setUpAll(() async {
     final tools = await Directory.systemTemp.createTemp('yt-dlp-tools');
-    final setup = await YtDlpServiceImpl(fileSystemService: _TestFileSystemService(tools)).setup();
+    final setup = await YtDlpServiceImpl(
+      fileSystemService: _TestFileSystemService(tools),
+    ).setup();
 
     await tools.delete(recursive: true);
 
@@ -256,11 +276,17 @@ void main() {
   setUp(() async {
     root = await Directory.systemTemp.createTemp('yt-dlp-repository');
     dubbed = false;
-    server = _StreamServer({'video': video, 'audio': audio, 'audio-en': englishAudio});
+    server = _StreamServer({
+      'video': video,
+      'audio': audio,
+      'audio-en': englishAudio,
+    });
     await server.start();
 
     final fileSystemService = _TestFileSystemService(root);
-    final localAuthenticationDataSource = LocalAuthenticationDataSourceImpl(fileSystemService: fileSystemService);
+    final localAuthenticationDataSource = LocalAuthenticationDataSourceImpl(
+      fileSystemService: fileSystemService,
+    );
 
     ytDlpService = _LocalInfoYtDlpService(
       YtDlpServiceImpl(fileSystemService: fileSystemService),
@@ -270,7 +296,9 @@ void main() {
       ytDlpService: ytDlpService,
       mediaMuxerService: const Mp4MediaMuxerServiceImpl(),
       fileSystemService: fileSystemService,
-      sessionStore: SessionStore(localAuthenticationDataSource: localAuthenticationDataSource),
+      sessionStore: SessionStore(
+        localAuthenticationDataSource: localAuthenticationDataSource,
+      ),
       localAuthenticationDataSource: localAuthenticationDataSource,
       localDownloadStateDataSource: const LocalDownloadStateDataSourceImpl(),
     );
@@ -292,181 +320,277 @@ void main() {
     return types;
   }
 
-  test('yt-dlp скачивает видео и звук, приложение склеивает их в MP4', () async {
-    if (skipReason != null) return markTestSkipped(skipReason!);
+  test(
+    'yt-dlp скачивает видео и звук, приложение склеивает их в MP4',
+    () async {
+      if (skipReason != null) return markTestSkipped(skipReason!);
 
-    final info = await repository.getVideoInfo(_url);
+      final info = await repository.getVideoInfo(_url);
 
-    expect(info.failure, isNull, reason: info.failure?.message);
-    expect(info.requireData.title, _title);
-    expect([for (final quality in info.requireData.qualities) quality.id], ['1080', QualityModel.audioId]);
+      expect(info.failure, isNull, reason: info.failure?.message);
+      expect(info.requireData.title, _title);
+      expect(
+        [for (final quality in info.requireData.qualities) quality.id],
+        ['1080', QualityModel.audioId],
+      );
 
-    final progress = <DownloadProgressModel>[];
-    var streams = <DownloadStreamModel>[];
+      final progress = <DownloadProgressModel>[];
+      var streams = <DownloadStreamModel>[];
 
-    final result = await repository.downloadVideo(
-      taskId: 'task-1',
-      url: _url,
-      quality: '1080',
-      onStreamsSelected: (selected) => streams = selected,
-      onProgress: progress.add,
-    );
+      final result = await repository.downloadVideo(
+        taskId: 'task-1',
+        url: _url,
+        quality: '1080',
+        onStreamsSelected: (selected) => streams = selected,
+        onProgress: progress.add,
+      );
 
-    expect(result.failure, isNull, reason: result.failure?.message);
+      expect(result.failure, isNull, reason: result.failure?.message);
 
-    /// Once measured, the speed does not vanish between chunks and streams
-    expect(
-      progress.where((item) => item.stage.isDownloading).skipWhile((item) => item.speed == null),
-      isNotEmpty,
-    );
-    expect(
-      progress.where((item) => item.stage.isDownloading).skipWhile((item) => item.speed == null),
-      everyElement(isA<DownloadProgressModel>().having((item) => item.speed, 'speed', isNotNull)),
-    );
-    expect(result.requireData.path, p.join(root.path, 'Downloads', '$_title.mp4'));
-    expect(result.requireData.sizeBytes, await File(result.requireData.path).length());
-    expect(topLevelBoxes(await File(result.requireData.path).readAsBytes()), ['ftyp', 'moov', 'mdat']);
-
-    expect(streams, [
-      DownloadStreamModel(role: DownloadStreamRole.video, itag: 137, contentLength: video.length),
-      DownloadStreamModel(role: DownloadStreamRole.audio, itag: 140, contentLength: audio.length),
-    ]);
-    expect(progress.last.stage, DownloadStage.processing);
-    expect(
-      progress.where((item) => item.stage.isDownloading).last.downloadedBytes,
-      video.length + audio.length,
-    );
-
-    /// The info of the search is reused: its links are still valid
-    expect(ytDlpService.extractions, 1);
-    expect(await Directory(p.join(root.path, StorageConstants.downloadWorkFolder, 'task-1')).exists(), isFalse);
-  }, timeout: const Timeout(Duration(minutes: 2)));
-
-  test('остановленная загрузка продолжается с места остановки', () async {
-    if (skipReason != null) return markTestSkipped(skipReason!);
-
-    final cancellation = DownloadCancellation();
-    var streams = <DownloadStreamModel>[];
-
-    final stopped = await repository.downloadVideo(
-      taskId: 'task-2',
-      url: _url,
-      quality: '1080',
-      cancellation: cancellation,
-      onStreamsSelected: (selected) => streams = selected,
-      onProgress: (progress) {
-        if ((progress.downloadedBytes ?? 0) > 512 * 1024) {
-          cancellation.cancel();
-        }
-      },
-    );
-
-    expect(stopped.failure?.code, const VideoErrorCodes().canceled);
-
-    final workDirectory = p.join(root.path, StorageConstants.downloadWorkFolder, 'task-2');
-    final videoPart = File(DownloadPartFiles.path(workDirectory, streams.first));
-    final stoppedAt = await videoPart.length();
-
-    expect(stoppedAt, inInclusiveRange(512 * 1024, video.length - 1));
-
-    final progress = <DownloadProgressModel>[];
-    final resumed = await repository.downloadVideo(
-      taskId: 'task-2',
-      url: _url,
-      quality: '1080',
-      streams: streams,
-      onProgress: progress.add,
-    );
-
-    expect(resumed.failure, isNull, reason: resumed.failure?.message);
-    expect(progress.first.downloadedBytes, greaterThanOrEqualTo(stoppedAt));
-    expect(server.ranges['video']!.last, startsWith('bytes=$stoppedAt-'));
-    expect(topLevelBoxes(await File(resumed.requireData.path).readAsBytes()), ['ftyp', 'moov', 'mdat']);
-  }, timeout: const Timeout(Duration(minutes: 2)));
-
-  test('после встроенного загрузчика yt-dlp продолжает с непрерывного начала его слайсов', () async {
-    if (skipReason != null) return markTestSkipped(skipReason!);
-
-    const sliceSize = 1 << 20;
-    final streams = [
-      DownloadStreamModel(role: DownloadStreamRole.video, itag: 137, contentLength: video.length),
-      DownloadStreamModel(role: DownloadStreamRole.audio, itag: 140, contentLength: audio.length),
-    ];
-    final workDirectory = p.join(root.path, StorageConstants.downloadWorkFolder, 'task-3');
-
-    /// The second slice is started, the third one is done: only the start
-    /// up to the gap can be continued in order
-    writeSlicedDownload(
-      workDirectory: workDirectory,
-      downloadId: 'task-3',
-      sliceSize: sliceSize,
-      files: [
-        (
-          name: DownloadPartFiles.fileName(streams.first),
-          content: video,
-          counters: [sliceSize, 300000, sliceSize],
+      /// Once measured, the speed does not vanish between chunks and streams
+      expect(
+        progress
+            .where((item) => item.stage.isDownloading)
+            .skipWhile((item) => item.speed == null),
+        isNotEmpty,
+      );
+      expect(
+        progress
+            .where((item) => item.stage.isDownloading)
+            .skipWhile((item) => item.speed == null),
+        everyElement(
+          isA<DownloadProgressModel>().having(
+            (item) => item.speed,
+            'speed',
+            isNotNull,
+          ),
         ),
-        (name: DownloadPartFiles.fileName(streams.last), content: audio, counters: [audio.length]),
-      ],
-    );
+      );
+      expect(
+        result.requireData.path,
+        p.join(root.path, 'Downloads', '$_title.mp4'),
+      );
+      expect(
+        result.requireData.sizeBytes,
+        await File(result.requireData.path).length(),
+      );
+      expect(topLevelBoxes(await File(result.requireData.path).readAsBytes()), [
+        'ftyp',
+        'moov',
+        'mdat',
+      ]);
 
-    final result = await repository.downloadVideo(
-      taskId: 'task-3',
-      url: _url,
-      quality: '1080',
-      streams: streams,
-    );
+      expect(streams, [
+        DownloadStreamModel(
+          role: DownloadStreamRole.video,
+          itag: 137,
+          contentLength: video.length,
+        ),
+        DownloadStreamModel(
+          role: DownloadStreamRole.audio,
+          itag: 140,
+          contentLength: audio.length,
+        ),
+      ]);
+      expect(progress.last.stage, DownloadStage.processing);
+      expect(
+        progress.where((item) => item.stage.isDownloading).last.downloadedBytes,
+        video.length + audio.length,
+      );
 
-    expect(result.failure, isNull, reason: result.failure?.message);
-    expect(server.ranges['video']!.first, startsWith('bytes=${sliceSize + 300000}-'));
-    expect(server.ranges['audio'], isNull);
-    expect(topLevelBoxes(await File(result.requireData.path).readAsBytes()), ['ftyp', 'moov', 'mdat']);
-  }, timeout: const Timeout(Duration(minutes: 2)));
+      /// The info of the search is reused: its links are still valid
+      expect(ytDlpService.extractions, 1);
+      expect(
+        await Directory(
+          p.join(root.path, StorageConstants.downloadWorkFolder, 'task-1'),
+        ).exists(),
+        isFalse,
+      );
+    },
+    timeout: const Timeout(Duration(minutes: 2)),
+  );
 
-  test('дублированное видео: скачивается оригинальная дорожка, у которой свой номер у yt-dlp', () async {
-    if (skipReason != null) return markTestSkipped(skipReason!);
+  test(
+    'остановленная загрузка продолжается с места остановки',
+    () async {
+      if (skipReason != null) return markTestSkipped(skipReason!);
 
-    dubbed = true;
+      final cancellation = DownloadCancellation();
+      var streams = <DownloadStreamModel>[];
 
-    final info = await repository.getVideoInfo(_url);
+      final stopped = await repository.downloadVideo(
+        taskId: 'task-2',
+        url: _url,
+        quality: '1080',
+        cancellation: cancellation,
+        onStreamsSelected: (selected) => streams = selected,
+        onProgress: (progress) {
+          if ((progress.downloadedBytes ?? 0) > 512 * 1024) {
+            cancellation.cancel();
+          }
+        },
+      );
 
-    expect(info.failure, isNull, reason: info.failure?.message);
-    expect([for (final quality in info.requireData.qualities) quality.id], ['1080', QualityModel.audioId]);
+      expect(stopped.failure?.code, const VideoErrorCodes().canceled);
 
-    final cancellation = DownloadCancellation();
-    var streams = <DownloadStreamModel>[];
+      final workDirectory = p.join(
+        root.path,
+        StorageConstants.downloadWorkFolder,
+        'task-2',
+      );
+      final videoPart = File(
+        DownloadPartFiles.path(workDirectory, streams.first),
+      );
+      final stoppedAt = await videoPart.length();
 
-    final stopped = await repository.downloadVideo(
-      taskId: 'task-3',
-      url: _url,
-      quality: QualityModel.audioId,
-      cancellation: cancellation,
-      onStreamsSelected: (selected) => streams = selected,
-      onProgress: (progress) {
-        if ((progress.downloadedBytes ?? 0) > 0) {
-          cancellation.cancel();
-        }
-      },
-    );
+      expect(stoppedAt, inInclusiveRange(512 * 1024, video.length - 1));
 
-    /// The audio is tiny: it may finish before the stop
-    expect(stopped.failure?.code, anyOf(isNull, const VideoErrorCodes().canceled));
-    expect(streams, [DownloadStreamModel(role: DownloadStreamRole.audio, itag: 140, contentLength: audio.length)]);
+      final progress = <DownloadProgressModel>[];
+      final resumed = await repository.downloadVideo(
+        taskId: 'task-2',
+        url: _url,
+        quality: '1080',
+        streams: streams,
+        onProgress: progress.add,
+      );
 
-    final resumed = await repository.downloadVideo(
-      taskId: 'task-3',
-      url: _url,
-      quality: QualityModel.audioId,
-      streams: streams,
-    );
+      expect(resumed.failure, isNull, reason: resumed.failure?.message);
+      expect(progress.first.downloadedBytes, greaterThanOrEqualTo(stoppedAt));
+      expect(server.ranges['video']!.last, startsWith('bytes=$stoppedAt-'));
+      expect(
+        topLevelBoxes(await File(resumed.requireData.path).readAsBytes()),
+        ['ftyp', 'moov', 'mdat'],
+      );
+    },
+    timeout: const Timeout(Duration(minutes: 2)),
+  );
 
-    expect(resumed.failure, isNull, reason: resumed.failure?.message);
-    expect(server.ranges['audio-en'], isNull);
-    expect(server.ranges['audio'], isNotEmpty);
+  test(
+    'после встроенного загрузчика yt-dlp продолжает с непрерывного начала его слайсов',
+    () async {
+      if (skipReason != null) return markTestSkipped(skipReason!);
 
-    final file = await File(resumed.requireData.path).readAsBytes();
+      const sliceSize = 1 << 20;
+      final streams = [
+        DownloadStreamModel(
+          role: DownloadStreamRole.video,
+          itag: 137,
+          contentLength: video.length,
+        ),
+        DownloadStreamModel(
+          role: DownloadStreamRole.audio,
+          itag: 140,
+          contentLength: audio.length,
+        ),
+      ];
+      final workDirectory = p.join(
+        root.path,
+        StorageConstants.downloadWorkFolder,
+        'task-3',
+      );
 
-    expect(String.fromCharCodes(file).contains('A0'), isTrue);
-    expect(String.fromCharCodes(file).contains('dubbed'), isFalse);
-  }, timeout: const Timeout(Duration(minutes: 2)));
+      /// The second slice is started, the third one is done: only the start
+      /// up to the gap can be continued in order
+      writeSlicedDownload(
+        workDirectory: workDirectory,
+        downloadId: 'task-3',
+        sliceSize: sliceSize,
+        files: [
+          (
+            name: DownloadPartFiles.fileName(streams.first),
+            content: video,
+            counters: [sliceSize, 300000, sliceSize],
+          ),
+          (
+            name: DownloadPartFiles.fileName(streams.last),
+            content: audio,
+            counters: [audio.length],
+          ),
+        ],
+      );
+
+      final result = await repository.downloadVideo(
+        taskId: 'task-3',
+        url: _url,
+        quality: '1080',
+        streams: streams,
+      );
+
+      expect(result.failure, isNull, reason: result.failure?.message);
+      expect(
+        server.ranges['video']!.first,
+        startsWith('bytes=${sliceSize + 300000}-'),
+      );
+      expect(server.ranges['audio'], isNull);
+      expect(topLevelBoxes(await File(result.requireData.path).readAsBytes()), [
+        'ftyp',
+        'moov',
+        'mdat',
+      ]);
+    },
+    timeout: const Timeout(Duration(minutes: 2)),
+  );
+
+  test(
+    'дублированное видео: скачивается оригинальная дорожка, у которой свой номер у yt-dlp',
+    () async {
+      if (skipReason != null) return markTestSkipped(skipReason!);
+
+      dubbed = true;
+
+      final info = await repository.getVideoInfo(_url);
+
+      expect(info.failure, isNull, reason: info.failure?.message);
+      expect(
+        [for (final quality in info.requireData.qualities) quality.id],
+        ['1080', QualityModel.audioId],
+      );
+
+      final cancellation = DownloadCancellation();
+      var streams = <DownloadStreamModel>[];
+
+      final stopped = await repository.downloadVideo(
+        taskId: 'task-3',
+        url: _url,
+        quality: QualityModel.audioId,
+        cancellation: cancellation,
+        onStreamsSelected: (selected) => streams = selected,
+        onProgress: (progress) {
+          if ((progress.downloadedBytes ?? 0) > 0) {
+            cancellation.cancel();
+          }
+        },
+      );
+
+      /// The audio is tiny: it may finish before the stop
+      expect(
+        stopped.failure?.code,
+        anyOf(isNull, const VideoErrorCodes().canceled),
+      );
+      expect(streams, [
+        DownloadStreamModel(
+          role: DownloadStreamRole.audio,
+          itag: 140,
+          contentLength: audio.length,
+        ),
+      ]);
+
+      final resumed = await repository.downloadVideo(
+        taskId: 'task-3',
+        url: _url,
+        quality: QualityModel.audioId,
+        streams: streams,
+      );
+
+      expect(resumed.failure, isNull, reason: resumed.failure?.message);
+      expect(server.ranges['audio-en'], isNull);
+      expect(server.ranges['audio'], isNotEmpty);
+
+      final file = await File(resumed.requireData.path).readAsBytes();
+
+      expect(String.fromCharCodes(file).contains('A0'), isTrue);
+      expect(String.fromCharCodes(file).contains('dubbed'), isFalse);
+    },
+    timeout: const Timeout(Duration(minutes: 2)),
+  );
 }

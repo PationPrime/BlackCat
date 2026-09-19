@@ -10,7 +10,7 @@ import 'package:path_provider/path_provider.dart';
 import '../../constants/constants.dart';
 
 abstract interface class FileSystemService {
-  /// `%LOCALAPPDATA%\YT Download\<name>`: WebView2 profiles, cache
+  /// `%LOCALAPPDATA%\BlackCat\<name>`: WebView2 profiles, cache
   Future<String> localAppFolder(String name);
 
   /// Folder for settings and cookies in `%APPDATA%`

@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:youtube_downloader/src/app/models/models.dart';
-import 'package:youtube_downloader/src/app/shared_controllers/shared_controllers.dart';
+import 'package:black_cat/src/app/models/models.dart';
+import 'package:black_cat/src/app/shared_controllers/shared_controllers.dart';
 
 import '../../support/fake_services.dart';
 
@@ -29,7 +29,8 @@ void main() {
   });
 
   test('initialize: ошибка платформы оставляет системную рамку', () async {
-    final service = FakeAppWindowService()..initializeError = StateError('no window');
+    final service = FakeAppWindowService()
+      ..initializeError = StateError('no window');
     final controller = AppWindowController(appWindowService: service);
 
     await controller.initialize();
@@ -37,20 +38,23 @@ void main() {
     expect(controller.state.frame.isCustom, isFalse);
   });
 
-  test('closeWindow: без трея приложение закрывается, с треем окно прячется', () async {
-    final service = FakeAppWindowService();
-    final controller = AppWindowController(appWindowService: service);
+  test(
+    'closeWindow: без трея приложение закрывается, с треем окно прячется',
+    () async {
+      final service = FakeAppWindowService();
+      final controller = AppWindowController(appWindowService: service);
 
-    await controller.closeWindow();
+      await controller.closeWindow();
 
-    expect(service.calls, ['quit']);
+      expect(service.calls, ['quit']);
 
-    await controller.setClosesToTray(true);
-    await controller.closeWindow();
+      await controller.setClosesToTray(true);
+      await controller.closeWindow();
 
-    expect(service.preventClose, isTrue);
-    expect(service.calls, ['quit', 'hide']);
-  });
+      expect(service.preventClose, isTrue);
+      expect(service.calls, ['quit', 'hide']);
+    },
+  );
 
   test('системное закрытие окна при трее прячет окно', () async {
     final service = FakeAppWindowService();
@@ -88,33 +92,39 @@ void main() {
     expect(service.calls, containsAllInOrder(['maximize', 'unmaximize']));
   });
 
-  test('полный экран: переключается сразу и следит за событиями окна', () async {
-    final service = FakeAppWindowService();
-    final controller = AppWindowController(appWindowService: service);
+  test(
+    'полный экран: переключается сразу и следит за событиями окна',
+    () async {
+      final service = FakeAppWindowService();
+      final controller = AppWindowController(appWindowService: service);
 
-    await controller.initialize();
-    await controller.toggleFullScreen();
+      await controller.initialize();
+      await controller.toggleFullScreen();
 
-    expect(controller.state.isFullScreen, isTrue);
-    expect(service.fullScreen, isTrue);
+      expect(controller.state.isFullScreen, isTrue);
+      expect(service.fullScreen, isTrue);
 
-    /// A repeated request changes nothing
-    await controller.setFullScreen(true);
+      /// A repeated request changes nothing
+      await controller.setFullScreen(true);
 
-    expect(service.calls.where((call) => call.startsWith('setFullScreen')), hasLength(1));
+      expect(
+        service.calls.where((call) => call.startsWith('setFullScreen')),
+        hasLength(1),
+      );
 
-    service.emit(AppWindowEvent.leftFullScreen);
-    await _settle();
+      service.emit(AppWindowEvent.leftFullScreen);
+      await _settle();
 
-    expect(controller.state.isFullScreen, isFalse);
+      expect(controller.state.isFullScreen, isFalse);
 
-    service.emit(AppWindowEvent.enteredFullScreen);
-    await _settle();
+      service.emit(AppWindowEvent.enteredFullScreen);
+      await _settle();
 
-    expect(controller.state.isFullScreen, isTrue);
+      expect(controller.state.isFullScreen, isTrue);
 
-    await controller.toggleFullScreen();
+      await controller.toggleFullScreen();
 
-    expect(service.calls.last, 'setFullScreen(false)');
-  });
+      expect(service.calls.last, 'setFullScreen(false)');
+    },
+  );
 }

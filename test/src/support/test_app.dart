@@ -2,18 +2,23 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:youtube_downloader/src/app/design_system/design_system.dart';
-import 'package:youtube_downloader/src/app/models/models.dart';
-import 'package:youtube_downloader/src/app/repositories/repositories.dart';
-import 'package:youtube_downloader/src/app/router/app_router.dart';
-import 'package:youtube_downloader/src/app/services/services.dart';
-import 'package:youtube_downloader/src/app/shared_controllers/shared_controllers.dart';
-import 'package:youtube_downloader/src/modules/downloads/controllers/controllers.dart';
+import 'package:black_cat/src/app/design_system/design_system.dart';
+import 'package:black_cat/src/app/models/models.dart';
+import 'package:black_cat/src/app/repositories/repositories.dart';
+import 'package:black_cat/src/app/router/app_router.dart';
+import 'package:black_cat/src/app/services/services.dart';
+import 'package:black_cat/src/app/shared_controllers/shared_controllers.dart';
+import 'package:black_cat/src/modules/downloads/controllers/controllers.dart';
 
 import 'fake_repositories.dart';
 import 'fake_services.dart';
 
-const testQuality = QualityModel(id: '1080', kind: QualityKind.video, label: '1080p', resolution: 1080);
+const testQuality = QualityModel(
+  id: '1080',
+  kind: QualityKind.video,
+  label: '1080p',
+  resolution: 1080,
+);
 
 VideoInfoModel testVideo(String id) => VideoInfoModel(
   id: id,
@@ -48,10 +53,18 @@ final class TestApp {
   final appWindowService = FakeAppWindowService();
 
   final navigationController = AppNavigationController();
-  late final appWindowController = AppWindowController(appWindowService: appWindowService);
-  late final authorizationController = AuthorizationController(authenticationRepository: authenticationRepository);
-  late final dependenciesController = DependenciesController(dependenciesRepository: dependenciesRepository);
-  late final settingsController = SettingsController(settingsRepository: settingsRepository);
+  late final appWindowController = AppWindowController(
+    appWindowService: appWindowService,
+  );
+  late final authorizationController = AuthorizationController(
+    authenticationRepository: authenticationRepository,
+  );
+  late final dependenciesController = DependenciesController(
+    dependenciesRepository: dependenciesRepository,
+  );
+  late final settingsController = SettingsController(
+    settingsRepository: settingsRepository,
+  );
   late final queueController = DownloadQueueController(
     downloadQueueRepository: queueRepository,
     videoRepository: videoRepository,
@@ -64,26 +77,49 @@ final class TestApp {
     FakeVideoRepository? videoRepository,
     FakeYtDlpVideoRepository? ytDlpVideoRepository,
     YtDlpSetupModel setup = testReadySetup,
-  }) : videoRepository = videoRepository ?? FakeVideoRepository(infoResults: [(failure: null, data: testVideoInfo)]),
+  }) : videoRepository =
+           videoRepository ??
+           FakeVideoRepository(
+             infoResults: [(failure: null, data: testVideoInfo)],
+           ),
        ytDlpVideoRepository =
-           ytDlpVideoRepository ?? FakeYtDlpVideoRepository(infoResults: [(failure: null, data: testVideoInfo)]),
-       dependenciesRepository = FakeDependenciesRepository(setupResults: [(failure: null, data: setup)]);
+           ytDlpVideoRepository ??
+           FakeYtDlpVideoRepository(
+             infoResults: [(failure: null, data: testVideoInfo)],
+           ),
+       dependenciesRepository = FakeDependenciesRepository(
+         setupResults: [(failure: null, data: setup)],
+       );
 
   Widget _withProviders(Widget child) => MultiRepositoryProvider(
     providers: [
-      RepositoryProvider<FileSystemService>.value(value: FileSystemServiceImpl()),
+      RepositoryProvider<FileSystemService>.value(
+        value: FileSystemServiceImpl(),
+      ),
       RepositoryProvider<UrlLauncherService>.value(value: urlLauncher),
-      RepositoryProvider<VideoRepositoryInterface>.value(value: videoRepository),
-      RepositoryProvider<YtDlpVideoRepositoryInterface>.value(value: ytDlpVideoRepository),
-      RepositoryProvider<VideoLibraryRepositoryInterface>.value(value: videoLibraryRepository),
+      RepositoryProvider<VideoRepositoryInterface>.value(
+        value: videoRepository,
+      ),
+      RepositoryProvider<YtDlpVideoRepositoryInterface>.value(
+        value: ytDlpVideoRepository,
+      ),
+      RepositoryProvider<VideoLibraryRepositoryInterface>.value(
+        value: videoLibraryRepository,
+      ),
       RepositoryProvider<VideoPlayerService>.value(value: videoPlayerService),
     ],
     child: MultiBlocProvider(
       providers: [
-        BlocProvider<AppNavigationController>.value(value: navigationController),
+        BlocProvider<AppNavigationController>.value(
+          value: navigationController,
+        ),
         BlocProvider<AppWindowController>.value(value: appWindowController),
-        BlocProvider<AuthorizationController>.value(value: authorizationController),
-        BlocProvider<DependenciesController>.value(value: dependenciesController),
+        BlocProvider<AuthorizationController>.value(
+          value: authorizationController,
+        ),
+        BlocProvider<DependenciesController>.value(
+          value: dependenciesController,
+        ),
         BlocProvider<SettingsController>.value(value: settingsController),
         BlocProvider<DownloadQueueController>.value(value: queueController),
       ],
@@ -99,17 +135,29 @@ final class TestApp {
   }
 
   /// All pages with the navigation bar and the footer, on the real router
-  Future<void> pumpApp(WidgetTester tester, {Size size = const Size(1200, 900)}) async {
+  Future<void> pumpApp(
+    WidgetTester tester, {
+    Size size = const Size(1200, 900),
+  }) async {
     _setSize(tester, size);
     await settingsController.loadSettings();
     await tester.pumpWidget(
-      _withProviders(MaterialApp.router(theme: AppThemeData.darkTheme, routerConfig: AppRouter().config())),
+      _withProviders(
+        MaterialApp.router(
+          theme: AppThemeData.darkTheme,
+          routerConfig: AppRouter().config(),
+        ),
+      ),
     );
     await settle(tester);
   }
 
   /// One page without the navigation
-  Future<void> pumpPage(WidgetTester tester, Widget page, {Size size = const Size(1000, 1800)}) async {
+  Future<void> pumpPage(
+    WidgetTester tester,
+    Widget page, {
+    Size size = const Size(1000, 1800),
+  }) async {
     _setSize(tester, size);
     await authorizationController.checkAuthorization();
     await settingsController.loadSettings();

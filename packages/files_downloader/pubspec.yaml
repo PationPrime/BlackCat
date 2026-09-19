@@ -10,6 +10,7 @@ environment:
 
 dependencies:
   dio: ^5.11.1
+  ffi: ^2.2.0
   path: ^1.9.1
 
 dev_dependencies:

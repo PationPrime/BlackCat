@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
-import 'package:youtube_downloader/src/app/tools/tools.dart';
+import 'package:black_cat/src/app/tools/tools.dart';
 
 import '../../support/test_localization.dart';
 
@@ -27,7 +27,10 @@ void main() {
   test('dateTime: дата и время по языку', () {
     final dateTime = DateTime(2026, 9, 16, 14, 5);
 
-    expect(AppFormatters.dateTime(dateTime, locale: 'en'), 'Sep 16, 2026 14:05');
+    expect(
+      AppFormatters.dateTime(dateTime, locale: 'en'),
+      'Sep 16, 2026 14:05',
+    );
     expect(AppFormatters.dateTime(dateTime, locale: 'ru'), contains('2026'));
     expect(AppFormatters.dateTime(dateTime, locale: 'ru'), contains('14:05'));
     expect(AppFormatters.dateTime(null), isNull);
@@ -47,7 +50,10 @@ void main() {
       ..add(1000, now: start.add(const Duration(milliseconds: 500)))
       ..add(1000, now: start.add(const Duration(seconds: 1)));
 
-    expect(meter.bytesPerSecond(now: start.add(const Duration(seconds: 1))), 2000);
+    expect(
+      meter.bytesPerSecond(now: start.add(const Duration(seconds: 1))),
+      2000,
+    );
     expect(SpeedMeter().bytesPerSecond(), isNull);
   });
 }

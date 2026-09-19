@@ -2,7 +2,9 @@ import 'dart:isolate';
 
 import '../engine/download_api_client.dart';
 import '../engine/download_engine.dart';
+import '../models/download_error.dart';
 import '../models/download_request.dart';
+import '../models/download_result.dart';
 
 /// What the download isolate starts with
 final class WorkerBoot {
@@ -48,7 +50,18 @@ Future<void> runDownloadWorker(WorkerBoot boot) async {
 
   boot.host.send(commands.sendPort);
 
-  final result = await engine.run();
+  FilesDownloadResult result;
+
+  try {
+    result = await engine.run();
+  } catch (error) {
+    /// A bug in the engine still ends with a result, not with a dead isolate
+    result = FilesDownloadFailed(
+      boot.request.id,
+      error: FilesDownloadError(FilesDownloadErrorType.unknown, '$error'),
+      downloadedBytes: 0,
+    );
+  }
 
   commands.close();
   client.close();

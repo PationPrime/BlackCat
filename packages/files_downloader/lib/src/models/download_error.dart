@@ -16,7 +16,13 @@ enum FilesDownloadErrorType {
   /// downloads the file anew
   sourceChanged,
 
-  /// Reading or writing files failed, e.g. the disk is full
+  /// The disk has no room for the download: [FilesDownloadError.neededBytes]
+  /// is how much it still needs, [FilesDownloadError.availableBytes]
+  /// how much is free. Downloaded bytes stay: free some space and start
+  /// the download again
+  diskFull,
+
+  /// Reading or writing files failed
   fileSystem,
   unknown,
 }
@@ -30,11 +36,23 @@ final class FilesDownloadError implements Exception {
   final String? url;
   final int? statusCode;
 
+  /// File the error is about, for disk errors
+  final String? path;
+
+  /// Bytes the download still needs on disk, when the disk is full
+  final int? neededBytes;
+
+  /// Free bytes on the disk, when the disk is full and the system tells
+  final int? availableBytes;
+
   const FilesDownloadError(
     this.type,
     this.message, {
     this.url,
     this.statusCode,
+    this.path,
+    this.neededBytes,
+    this.availableBytes,
   });
 
   /// Another attempt of the same request may succeed
@@ -50,5 +68,5 @@ final class FilesDownloadError implements Exception {
   @override
   String toString() =>
       'FilesDownloadError(${type.name}${statusCode == null ? '' : ' $statusCode'}): '
-      '$message${url == null ? '' : ' [$url]'}';
+      '$message${url == null ? '' : ' [$url]'}${path == null ? '' : ' [$path]'}';
 }

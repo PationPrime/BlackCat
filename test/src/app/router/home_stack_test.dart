@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:youtube_downloader/src/app/errors/errors.dart';
-import 'package:youtube_downloader/src/app/models/models.dart';
-import 'package:youtube_downloader/src/app/widgets/widgets.dart';
-import 'package:youtube_downloader/src/modules/modules.dart';
+import 'package:black_cat/src/app/errors/errors.dart';
+import 'package:black_cat/src/app/models/models.dart';
+import 'package:black_cat/src/app/widgets/widgets.dart';
+import 'package:black_cat/src/modules/modules.dart';
 
 import '../../support/fake_repositories.dart';
 import '../../support/test_app.dart';
@@ -49,7 +49,7 @@ void main() {
         tester.getSize(_navigationBar).width,
         AppNavigationBar.expandedWidth,
       );
-      expect(_inNavigationBar('YT Download'), findsOneWidget);
+      expect(_inNavigationBar('BlackCat'), findsOneWidget);
       expect(_inNavigationBar('Главная'), findsOneWidget);
       expect(_inNavigationBar('Загрузки'), findsOneWidget);
       expect(_inNavigationBar('Настройки'), findsOneWidget);

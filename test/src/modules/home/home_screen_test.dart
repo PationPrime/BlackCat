@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:youtube_downloader/src/app/errors/errors.dart';
-import 'package:youtube_downloader/src/app/models/models.dart';
-import 'package:youtube_downloader/src/app/widgets/widgets.dart';
-import 'package:youtube_downloader/src/modules/dependencies/module.dart';
-import 'package:youtube_downloader/src/modules/home/module.dart';
+import 'package:black_cat/src/app/errors/errors.dart';
+import 'package:black_cat/src/app/models/models.dart';
+import 'package:black_cat/src/app/widgets/widgets.dart';
+import 'package:black_cat/src/modules/dependencies/module.dart';
+import 'package:black_cat/src/modules/home/module.dart';
 
 import '../../support/fake_repositories.dart';
 import '../../support/test_app.dart';

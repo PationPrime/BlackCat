@@ -1,11 +1,14 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:youtube_downloader/src/app/localization/lang/codegen_loader.g.dart';
-import 'package:youtube_downloader/src/app/models/models.dart';
+import 'package:black_cat/src/app/localization/lang/codegen_loader.g.dart';
+import 'package:black_cat/src/app/models/models.dart';
 
 final _placeholderPattern = RegExp(r'\{(\w+)\}');
 
-/// `{'app.title': 'YT Download', ...}` from nested translations
-Map<String, String> _flatten(Map<String, dynamic> translations, [String prefix = '']) => {
+/// `{'app.title': 'BlackCat', ...}` from nested translations
+Map<String, String> _flatten(
+  Map<String, dynamic> translations, [
+  String prefix = '',
+]) => {
   for (final MapEntry(:key, :value) in translations.entries)
     ...switch (value) {
       Map<String, dynamic> nested => _flatten(nested, '$prefix$key.'),
@@ -23,7 +26,10 @@ void main() {
 
   test('у каждого языка приложения есть переводы', () {
     for (final language in AppLanguageModel.values) {
-      expect(CodegenLoader.mapLocales.keys, contains(language.locale.toString()));
+      expect(
+        CodegenLoader.mapLocales.keys,
+        contains(language.locale.toString()),
+      );
     }
   });
 
@@ -33,7 +39,11 @@ void main() {
 
   test('подстановки в переводах совпадают', () {
     for (final key in russian.keys) {
-      expect(_placeholders(english[key]!), _placeholders(russian[key]!), reason: key);
+      expect(
+        _placeholders(english[key]!),
+        _placeholders(russian[key]!),
+        reason: key,
+      );
     }
   });
 }

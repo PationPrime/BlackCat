@@ -27,6 +27,16 @@ final class _Run {
   const _Run(this.result, this.progress);
 }
 
+/// Free space a test decides
+final class _DiskSpace implements DiskSpace {
+  final int? Function(String path) _available;
+
+  const _DiskSpace(this._available);
+
+  @override
+  int? availableBytes(String path) => _available(path);
+}
+
 void main() {
   late Directory root;
   late String stateDirectory;
@@ -76,6 +86,7 @@ void main() {
 
   Future<_Run> run(
     FilesDownloadRequest request, {
+    DiskSpace diskSpace = const SystemDiskSpace(),
     void Function(DownloadEngine engine, FilesDownloadProgress progress)?
     onProgress,
   }) async {
@@ -90,6 +101,7 @@ void main() {
         progress.add(value);
         onProgress?.call(engine, value);
       },
+      diskSpace: diskSpace,
     );
 
     try {
@@ -895,4 +907,173 @@ void main() {
     );
     expect(server.gets('/missing'), hasLength(1));
   });
+
+  Matcher failedWith(Matcher error) => isA<FilesDownloadFailed>().having(
+    (failed) => failed.error,
+    'error',
+    error,
+  );
+
+  TypeMatcher<FilesDownloadError> errorOf(FilesDownloadErrorType type) =>
+      isA<FilesDownloadError>().having((error) => error.type, 'type', type);
+
+  test(
+    'места на диске не хватает — загрузка не начинается и файлы не резервируются, после освобождения места идёт',
+    () async {
+      int? free = 100 * 1000;
+      final diskSpace = _DiskSpace((_) => free);
+
+      final full = await run(request(), diskSpace: diskSpace);
+
+      expect(
+        full.result,
+        failedWith(
+          errorOf(FilesDownloadErrorType.diskFull)
+              .having(
+                (e) => e.neededBytes,
+                'needed',
+                video.length + audio.length,
+              )
+              .having((e) => e.availableBytes, 'available', 100 * 1000)
+              .having((e) => e.path, 'path', savePath('video'))
+              .having((e) => e.isRetryable, 'retryable', isFalse),
+        ),
+      );
+      expect(File(savePath('video')).existsSync(), isFalse);
+      expect(File(savePath('audio')).existsSync(), isFalse);
+
+      /// Only the probes reached the server
+      expect(server.gets('/video'), hasLength(1));
+      expect(server.gets('/audio'), hasLength(1));
+      expect(full.progress.last.downloadedBytes, 0);
+
+      free = 1 << 40;
+
+      final freed = await run(request(), diskSpace: diskSpace);
+
+      expect(freed.result, isA<FilesDownloadCompleted>());
+      expectFile('video', video);
+      expectFile('audio', audio);
+    },
+  );
+
+  test(
+    'система не знает свободное место — загрузка идёт без проверки',
+    () async {
+      final outcome = await run(
+        request(paths: ['/audio']),
+        diskSpace: _DiskSpace((_) => null),
+      );
+
+      expect(outcome.result, isA<FilesDownloadCompleted>());
+      expectFile('audio', audio);
+    },
+  );
+
+  test(
+    'продолжение: на Windows занятое файлом место уже выделено, на macOS и Linux нужны только недостающие байты',
+    () async {
+      server.chunkDelay = const Duration(milliseconds: 4);
+
+      final first = await run(
+        request(),
+        onProgress: (engine, progress) {
+          if (progress.downloadedBytes > 300 * 1000) engine.stop();
+        },
+      );
+
+      expect(first.result, isA<FilesDownloadStopped>());
+
+      final saved = (await FilesDownloader.readState(
+        stateDirectory,
+        'task-1',
+      ))!;
+
+      server.chunkDelay = Duration.zero;
+      await server.idle();
+
+      final resumed = await run(request(), diskSpace: _DiskSpace((_) => 0));
+
+      if (Platform.isWindows) {
+        expect(resumed.result, isA<FilesDownloadCompleted>());
+        expectFile('video', video);
+        expectFile('audio', audio);
+      } else {
+        expect(
+          resumed.result,
+          failedWith(
+            errorOf(FilesDownloadErrorType.diskFull).having(
+              (e) => e.neededBytes,
+              'needed',
+              video.length + audio.length - saved.downloadedBytes,
+            ),
+          ),
+        );
+      }
+    },
+  );
+
+  test(
+    'на месте файла папка — ошибка файловой системы результатом, место не при чём',
+    () async {
+      Directory(savePath('audio')).createSync(recursive: true);
+
+      final outcome = await run(
+        request(paths: ['/audio']),
+        diskSpace: _DiskSpace((_) => 1 << 40),
+      );
+
+      expect(
+        outcome.result,
+        failedWith(errorOf(FilesDownloadErrorType.fileSystem)),
+      );
+      expect(outcome.progress.last.stage, FilesDownloadStage.preparing);
+    },
+  );
+
+  test(
+    'на Windows место под файл выделяется сразу: если его не хватило — diskFull, а не падение',
+    () async {
+      final free = const SystemDiskSpace().availableBytes(root.path)!;
+
+      /// An NTFS file is at most 16 TiB
+      if (free > 8 << 40) {
+        markTestSkipped('The disk is too big for a file that does not fit');
+
+        return;
+      }
+
+      final claimed = free + (1 << 30);
+
+      /// The probe says the file is bigger than the free space
+      server.bendRange = (served, start, end, total) => served.number == 1
+          ? (start: 0, end: 0, contentRange: 'bytes 0-0/$claimed')
+          : null;
+
+      var checks = 0;
+
+      final outcome = await run(
+        request(paths: ['/video']),
+
+        /// Before the start the system cannot tell: the space runs out
+        /// on the reservation
+        diskSpace: _DiskSpace(
+          (path) => checks++ == 0
+              ? null
+              : const SystemDiskSpace().availableBytes(path),
+        ),
+      );
+
+      expect(
+        outcome.result,
+        failedWith(
+          errorOf(FilesDownloadErrorType.diskFull)
+              .having((e) => e.neededBytes, 'needed', claimed)
+              .having((e) => e.availableBytes, 'available', lessThan(claimed)),
+        ),
+      );
+      expect(File(savePath('video')).lengthSync(), 0);
+    },
+    testOn: 'windows',
+  );
 }

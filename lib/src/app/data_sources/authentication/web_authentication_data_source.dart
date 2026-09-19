@@ -60,7 +60,7 @@ final class WebAuthenticationDataSourceImpl
         windowPosY: -32000,
         useWindowPositionAndSize: true,
         titleBarHeight: 0,
-        title: 'YT Download',
+        title: 'BlackCat',
         userDataFolderWindows: await _localAuthenticationDataSource
             .signInProfileFolder(),
       ),

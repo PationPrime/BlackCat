@@ -44,6 +44,9 @@ class VideoErrorHandler extends ErrorHandler<VideoErrorCodes> {
       'mux' => LocaleKeys.app_errors_video_mux,
       'stream_interrupted' => LocaleKeys.app_errors_video_stream_interrupted,
       'disk_write' => LocaleKeys.app_errors_video_disk_write,
+      'disk_full' when exception.args.isEmpty =>
+        LocaleKeys.app_errors_video_disk_full_unknown_size,
+      'disk_full' => LocaleKeys.app_errors_video_disk_full,
       '403' => LocaleKeys.app_errors_network_forbidden,
       '429' => LocaleKeys.app_errors_network_rate_limited,
       'http_status' => LocaleKeys.app_errors_network_http_status,

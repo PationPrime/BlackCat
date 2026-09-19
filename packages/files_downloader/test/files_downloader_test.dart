@@ -176,4 +176,20 @@ void main() {
       );
     },
   );
+
+  test('ошибка файла приходит результатом, изолят не падает', () async {
+    /// A folder stands where the file must be
+    Directory(p.join(root.path, 'movie.bin')).createSync();
+
+    final download = await FilesDownloader().start(request());
+
+    expect(
+      await download.result,
+      isA<FilesDownloadFailed>().having(
+        (failed) => failed.error.type,
+        'type',
+        FilesDownloadErrorType.fileSystem,
+      ),
+    );
+  });
 }

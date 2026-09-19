@@ -122,14 +122,7 @@ class _HomeStackNavigationBar extends StatelessWidget {
   });
 
   Widget _header(BuildContext context) {
-    final logo = Container(
-      width: 12,
-      height: 12,
-      decoration: BoxDecoration(
-        color: context.color.accent,
-        shape: BoxShape.circle,
-      ),
-    );
+    const logo = AppCatLogo();
 
     return Padding(
       /// The app title bar lies over the top of the window
@@ -146,7 +139,7 @@ class _HomeStackNavigationBar extends StatelessWidget {
           : Row(
               children: [
                 logo,
-                const SizedBox(width: 12),
+                const SizedBox(width: 10),
                 Expanded(
                   child: Text(
                     LocaleKeys.app_title.tr(),

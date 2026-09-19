@@ -26,6 +26,9 @@ final class VideoErrorCodes extends ErrorCodes {
 
   /// The downloading stream could not be written to disk
   final String diskWrite;
+
+  /// The disk has no room for the download
+  final String diskFull;
   final String rateLimited;
   final String webViewRuntime;
   final String jsEngine;
@@ -53,6 +56,7 @@ final class VideoErrorCodes extends ErrorCodes {
     this.streamForbidden = '403',
     this.httpStatus = 'http_status',
     this.diskWrite = 'disk_write',
+    this.diskFull = 'disk_full',
     this.rateLimited = '429',
     this.webViewRuntime = 'web_view_runtime',
     this.jsEngine = 'js_engine',

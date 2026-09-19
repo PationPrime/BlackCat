@@ -1,14 +1,18 @@
 import 'dart:async';
 
 import 'package:flutter/widgets.dart';
-import 'package:youtube_downloader/src/app/errors/errors.dart';
-import 'package:youtube_downloader/src/app/models/models.dart';
-import 'package:youtube_downloader/src/app/services/services.dart';
+import 'package:black_cat/src/app/errors/errors.dart';
+import 'package:black_cat/src/app/models/models.dart';
+import 'package:black_cat/src/app/services/services.dart';
 
 const windowsFrame = AppWindowFrameModel(
   isCustom: true,
   showsWindowButtons: true,
-  resizeEdges: {AppWindowResizeEdge.top, AppWindowResizeEdge.topLeft, AppWindowResizeEdge.topRight},
+  resizeEdges: {
+    AppWindowResizeEdge.top,
+    AppWindowResizeEdge.topLeft,
+    AppWindowResizeEdge.topRight,
+  },
 );
 
 /// Window stand-in: remembers calls and emits events on request
@@ -30,7 +34,11 @@ class FakeAppWindowService implements AppWindowService {
   final calls = <String>[];
   final resizedEdges = <AppWindowResizeEdge>[];
 
-  FakeAppWindowService({this.isSupported = true, this.frame = windowsFrame, this.maximized = false});
+  FakeAppWindowService({
+    this.isSupported = true,
+    this.frame = windowsFrame,
+    this.maximized = false,
+  });
 
   void emit(AppWindowEvent event) => _events.add(event);
 
@@ -46,7 +54,8 @@ class FakeAppWindowService implements AppWindowService {
   }
 
   @override
-  Future<void> setPreventClose(bool preventClose) async => this.preventClose = preventClose;
+  Future<void> setPreventClose(bool preventClose) async =>
+      this.preventClose = preventClose;
 
   @override
   Future<bool> isMaximized() async => maximized;
@@ -88,7 +97,8 @@ class FakeAppWindowService implements AppWindowService {
   Future<void> startDragging() async => calls.add('startDragging');
 
   @override
-  Future<void> startResizing(AppWindowResizeEdge edge) async => resizedEdges.add(edge);
+  Future<void> startResizing(AppWindowResizeEdge edge) async =>
+      resizedEdges.add(edge);
 
   @override
   Future<void> quit() async => calls.add('quit');
@@ -137,12 +147,16 @@ class FakeSystemTrayService implements SystemTrayService {
   Stream<SystemTrayEventModel> get events => _events.stream;
 
   @override
-  Future<void> initialize({required String windowsIconAsset, required String iconAsset}) async {
+  Future<void> initialize({
+    required String windowsIconAsset,
+    required String iconAsset,
+  }) async {
     if (initializeError case final error?) throw error;
   }
 
   @override
-  Future<void> setMenu(List<SystemTrayMenuItemModel> items) async => menus.add(items);
+  Future<void> setMenu(List<SystemTrayMenuItemModel> items) async =>
+      menus.add(items);
 
   @override
   Future<void> setToolTip(String toolTip) async => toolTips.add(toolTip);
@@ -228,7 +242,9 @@ class FakeVideoPlayerService implements VideoPlayerService {
     calls.add('seek ${position.inSeconds}');
 
     if (reportsSeeks) {
-      emit((playback) => playback.copyWith(position: position, isCompleted: false));
+      emit(
+        (playback) => playback.copyWith(position: position, isCompleted: false),
+      );
     }
   }
 
@@ -260,5 +276,8 @@ class FakeVideoPlayerService implements VideoPlayerService {
   Widget? view;
 
   @override
-  Widget buildView() => KeyedSubtree(key: viewKey, child: view ?? const ColoredBox(color: Color(0xFF000000)));
+  Widget buildView() => KeyedSubtree(
+    key: viewKey,
+    child: view ?? const ColoredBox(color: Color(0xFF000000)),
+  );
 }
