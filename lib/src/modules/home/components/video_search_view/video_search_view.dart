@@ -41,6 +41,10 @@ class VideoSearchView extends StatefulWidget {
   /// Right of the title, e.g. the YouTube account
   final Widget? headerTrailing;
 
+  /// Between the header and the link field, e.g. the advice to sign in
+  /// with cookies
+  final Widget? notice;
+
   /// Under the link field, e.g. the hint to install yt-dlp
   final Widget? formFooter;
 
@@ -53,6 +57,7 @@ class VideoSearchView extends StatefulWidget {
     required this.subtitle,
     this.urlHint,
     this.headerTrailing,
+    this.notice,
     this.formFooter,
     this.failureActions,
   });
@@ -156,6 +161,10 @@ class _VideoSearchViewState extends State<VideoSearchView> {
                           subtitle: widget.subtitle,
                           trailing: widget.headerTrailing,
                         ),
+                        if (widget.notice case final notice?) ...[
+                          const SizedBox(height: 20),
+                          notice,
+                        ],
                         const SizedBox(height: 32),
                         UrlSearchForm(
                           controller: _urlController,

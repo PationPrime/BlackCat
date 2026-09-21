@@ -6,13 +6,18 @@ import 'package:black_cat/src/app/models/models.dart';
 import 'package:black_cat/src/app/tools/tools.dart';
 import 'package:black_cat/src/app/widgets/widgets.dart';
 
-/// YouTube cookies.txt: how to export it from a browser, the imported file
-/// and its replacement or removal
+/// YouTube cookies.txt, the recommended way to sign in: how to export it
+/// from a browser and when to update it, the imported file and its
+/// replacement or removal. Below, the Google sign-in window as the last
+/// resort, with the reason why
 class CookiesCard extends StatelessWidget {
   static const _steps = [
     LocaleKeys.app_settings_cookies_step_1,
     LocaleKeys.app_settings_cookies_step_2,
     LocaleKeys.app_settings_cookies_step_3,
+    LocaleKeys.app_settings_cookies_step_4,
+    LocaleKeys.app_settings_cookies_step_5,
+    LocaleKeys.app_settings_cookies_step_6,
   ];
 
   /// The signed-in account; `null` when signed out
@@ -33,6 +38,10 @@ class CookiesCard extends StatelessWidget {
   final VoidCallback? onGuidePressed;
   final VoidCallback? onDismissFailurePressed;
 
+  /// The Google sign-in window: the settings warn before opening it.
+  /// `null` hides the button, e.g. while signing in
+  final VoidCallback? onSignInPressed;
+
   const CookiesCard({
     super.key,
     this.session,
@@ -45,6 +54,7 @@ class CookiesCard extends StatelessWidget {
     this.onRemovePressed,
     this.onGuidePressed,
     this.onDismissFailurePressed,
+    this.onSignInPressed,
   });
 
   Widget _instructions(BuildContext context) => Container(
@@ -88,6 +98,20 @@ class CookiesCard extends StatelessWidget {
             ],
           ),
         ],
+        const SizedBox(height: 14),
+        Text(
+          LocaleKeys.app_settings_cookies_refresh_title.tr(),
+          style: context.text.captionMedium.copyWith(
+            color: context.color.textPrimary,
+          ),
+        ),
+        const SizedBox(height: 6),
+        Text(
+          LocaleKeys.app_settings_cookies_refresh.tr(),
+          style: context.text.captionRegular.copyWith(
+            color: context.color.textSecondary,
+          ),
+        ),
         const SizedBox(height: 12),
         Row(
           mainAxisSize: MainAxisSize.min,
@@ -108,6 +132,39 @@ class CookiesCard extends StatelessWidget {
         ),
       ],
     ),
+  );
+
+  /// The Google sign-in window is still there, with the reason to avoid it
+  Widget _googleSignIn(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      Divider(height: 1, color: context.color.border),
+      const SizedBox(height: 16),
+      Text(
+        LocaleKeys.app_settings_cookies_google_title.tr(),
+        style: context.text.captionMedium.copyWith(
+          color: context.color.textPrimary,
+        ),
+      ),
+      const SizedBox(height: 4),
+      Text(
+        LocaleKeys.app_settings_cookies_google_description.tr(),
+        style: context.text.captionRegular.copyWith(
+          color: context.color.textTertiary,
+        ),
+      ),
+      if (onSignInPressed case final onPressed?) ...[
+        const SizedBox(height: 10),
+        Align(
+          alignment: Alignment.centerLeft,
+          child: AppLinkButton(
+            title: LocaleKeys.app_settings_cookies_google_sign_in.tr(),
+            titleColor: context.color.textSecondary,
+            onPressed: onPressed,
+          ),
+        ),
+      ],
+    ],
   );
 
   Widget _status(BuildContext context) {
@@ -189,20 +246,23 @@ class CookiesCard extends StatelessWidget {
                 ),
               ),
             ),
-            if (session?.isImported ?? false)
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                decoration: BoxDecoration(
-                  color: context.color.accentSubtle,
-                  borderRadius: BorderRadius.circular(999),
-                ),
-                child: Text(
-                  LocaleKeys.app_settings_cookies_imported_badge.tr(),
-                  style: context.text.footnoteRegular.copyWith(
-                    color: context.color.accent,
-                  ),
+
+            /// Cookies are the recommended way until they are in use
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+              decoration: BoxDecoration(
+                color: context.color.accentSubtle,
+                borderRadius: BorderRadius.circular(999),
+              ),
+              child: Text(
+                session?.isImported ?? false
+                    ? LocaleKeys.app_settings_cookies_imported_badge.tr()
+                    : LocaleKeys.app_settings_cookies_recommended_badge.tr(),
+                style: context.text.footnoteRegular.copyWith(
+                  color: context.color.accent,
                 ),
               ),
+            ),
           ],
         ),
         const SizedBox(height: 4),
@@ -286,6 +346,8 @@ class CookiesCard extends StatelessWidget {
             ],
           ),
         ],
+        const SizedBox(height: 20),
+        _googleSignIn(context),
       ],
     ),
   );

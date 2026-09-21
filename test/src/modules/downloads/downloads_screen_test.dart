@@ -1,6 +1,8 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:black_cat/src/app/errors/errors.dart';
 import 'package:black_cat/src/app/models/models.dart';
+import 'package:black_cat/src/app/widgets/widgets.dart';
 import 'package:black_cat/src/modules/downloads/module.dart';
 
 import '../../support/test_app.dart';
@@ -181,13 +183,15 @@ void main() {
       );
 
       /// No sign-in buttons for errors that signing in will not fix
-      expect(
-        find.descendant(
-          of: find.byType(FailedDownloadTile),
-          matching: find.text('Войти'),
-        ),
-        findsNothing,
-      );
+      for (final title in ['Добавить cookies', 'Войти через Google']) {
+        expect(
+          find.descendant(
+            of: find.byType(FailedDownloadTile),
+            matching: find.text(title),
+          ),
+          findsNothing,
+        );
+      }
 
       await tester.tap(
         find.descendant(
@@ -205,7 +209,7 @@ void main() {
   );
 
   testWidgets(
-    'ошибка входа: «Войти» повторяет загрузку, импорт cookies — все такие загрузки',
+    'ошибка входа: сначала cookies, вход через Google после предупреждения повторяет загрузку',
     (tester) async {
       final app = TestApp();
 
@@ -216,16 +220,32 @@ void main() {
       await app.settle(tester);
 
       final failed = find.byType(FailedDownloadTile);
+      final cookies = find.descendant(
+        of: failed,
+        matching: find.text('Добавить cookies'),
+      );
+      final signIn = find.descendant(
+        of: failed,
+        matching: find.text('Войти через Google'),
+      );
 
       expect(failed, findsOneWidget);
-      expect(
-        find.descendant(of: failed, matching: find.text('Войти')),
-        findsOneWidget,
-      );
+      expect(cookies, findsOneWidget);
+      expect(signIn, findsOneWidget);
+      expect([
+        for (final text in tester.widgetList<Text>(
+          find.descendant(of: failed, matching: find.byType(Text)),
+        ))
+          text.data,
+      ], containsAllInOrder(['Добавить cookies', 'Войти через Google']));
 
-      await tester.tap(
-        find.descendant(of: failed, matching: find.text('Войти')),
-      );
+      await tester.tap(signIn);
+      await app.settle(tester);
+
+      expect(find.byType(AppGoogleSignInDialog), findsOneWidget);
+      expect(app.authenticationRepository.signInCalls, 0);
+
+      await tester.tap(find.text('Всё равно войти через Google'));
       await app.settle(tester);
 
       expect(app.authenticationRepository.signInCalls, 1);
@@ -240,7 +260,7 @@ void main() {
       await tester.tap(
         find.descendant(
           of: find.byType(FailedDownloadTile),
-          matching: find.text('Импортировать cookies.txt'),
+          matching: find.text('Добавить cookies'),
         ),
       );
       await app.settle(tester);

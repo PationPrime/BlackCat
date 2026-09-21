@@ -77,11 +77,35 @@ class DownloadsScreen extends StatelessWidget {
       .read<AppNavigationController>()
       .openCookiesImport(returnTab: AppTabModel.downloads);
 
-  /// Title of the button under an error that signing in to YouTube will fix
+  /// The Google sign-in window, after the warning: it offers cookies first
+  Future<void> _signInWithGoogle(
+    BuildContext context,
+    AuthorizationState authorizationState,
+    String taskId,
+  ) {
+    final downloadQueueController = context.read<DownloadQueueController>();
+
+    return AppGoogleSignInDialog.run(
+      context,
+      cookiesImported: authorizationState.session?.isImported ?? false,
+      onAddCookies: () => _importCookies(context),
+      onSignIn: () => downloadQueueController.signInAndRetry(taskId),
+    );
+  }
+
+  /// Title of the cookies button under an error that signing in will fix
+  String _cookiesActionTitle(AuthorizationState authorizationState) =>
+      authorizationState.session?.isImported ?? false
+      ? LocaleKeys.app_authorization_update_cookies.tr()
+      : LocaleKeys.app_authorization_add_cookies.tr();
+
+  /// Title of the Google sign-in button under an error that signing in
+  /// to YouTube will fix
   String _signInActionTitle(AuthorizationState authorizationState) =>
       authorizationState.isInProgress
       ? LocaleKeys.app_authorization_waiting.tr()
-      : authorizationState.isAuthorized
+      : authorizationState.isAuthorized &&
+            !(authorizationState.session?.isImported ?? false)
       ? LocaleKeys.app_downloader_buttons_refresh_sign_in_and_retry.tr()
       : LocaleKeys.app_downloader_buttons_sign_in_and_retry.tr();
 
@@ -278,13 +302,19 @@ class DownloadsScreen extends StatelessWidget {
                                           downloadQueueController.retryTask(
                                             task.id,
                                           ),
+                                      cookiesTitle: _cookiesActionTitle(
+                                        authorizationState,
+                                      ),
                                       signInTitle: _signInActionTitle(
                                         authorizationState,
                                       ),
                                       onSignInPressed: authorizationState.isBusy
                                           ? null
-                                          : () => downloadQueueController
-                                                .signInAndRetry(task.id),
+                                          : () => _signInWithGoogle(
+                                              context,
+                                              authorizationState,
+                                              task.id,
+                                            ),
                                       onImportCookiesPressed:
                                           authorizationState.isBusy
                                           ? null

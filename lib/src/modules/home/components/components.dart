@@ -1,5 +1,6 @@
 export 'account_status/account_status.dart';
 export 'added_video_notice/added_video_notice.dart';
+export 'cookies_recommendation/cookies_recommendation.dart';
 export 'dependencies_hint/dependencies_hint.dart';
 export 'direct_download_section/direct_download_section.dart';
 export 'home_source_tabs/home_source_tabs.dart';

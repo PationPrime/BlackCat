@@ -2,10 +2,18 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:black_cat/src/app/errors/errors.dart';
 import 'package:black_cat/src/app/models/models.dart';
 import 'package:black_cat/src/app/shared_controllers/shared_controllers.dart';
+import 'package:black_cat/src/app/widgets/widgets.dart';
 import 'package:black_cat/src/modules/settings/module.dart';
 
 import '../../support/test_app.dart';
 import '../../support/test_localization.dart';
+
+/// The card is long: its buttons are scrolled into view before a tap
+Future<void> _tapVisible(WidgetTester tester, Finder finder) async {
+  await tester.ensureVisible(finder);
+  await tester.pump();
+  await tester.tap(finder);
+}
 
 void main() {
   setUpAll(loadTestTranslations);
@@ -19,8 +27,13 @@ void main() {
 
       expect(find.text('Настройки'), findsOneWidget);
       expect(find.text('Cookies YouTube'), findsOneWidget);
-      expect(find.text('Как получить cookies.txt'), findsOneWidget);
-      expect(find.textContaining('приватное (инкогнито) окно'), findsOneWidget);
+      expect(find.text('Рекомендуется'), findsOneWidget);
+      expect(find.text('Как получить и добавить cookies'), findsOneWidget);
+      expect(find.textContaining('Get cookies.txt LOCALLY'), findsOneWidget);
+      expect(find.textContaining('приватное окно (инкогнито)'), findsOneWidget);
+      expect(find.textContaining('youtube.com/robots.txt'), findsOneWidget);
+      expect(find.textContaining('не выходя из аккаунта'), findsOneWidget);
+      expect(find.text('Когда обновлять cookies'), findsOneWidget);
       expect(find.textContaining('не передавайте его другим'), findsOneWidget);
       expect(find.text('Файл не выбран'), findsOneWidget);
       expect(
@@ -28,7 +41,7 @@ void main() {
         isFalse,
       );
 
-      await tester.tap(find.text('Подробная инструкция в FAQ yt-dlp'));
+      await _tapVisible(tester, find.text('Подробная инструкция в FAQ yt-dlp'));
       await app.settle(tester);
 
       expect(app.urlLauncher.opened, [
@@ -44,7 +57,7 @@ void main() {
         data: null,
       );
 
-      await tester.tap(find.text('Выбрать cookies.txt…'));
+      await _tapVisible(tester, find.text('Выбрать cookies.txt…'));
       await app.settle(tester);
 
       final card = find.byType(CookiesCard);
@@ -70,7 +83,7 @@ void main() {
 
       app.urlLauncher.result = false;
 
-      await tester.tap(find.text('Подробная инструкция в FAQ yt-dlp'));
+      await _tapVisible(tester, find.text('Подробная инструкция в FAQ yt-dlp'));
       await app.settle(tester);
 
       expect(find.textContaining('Не удалось открыть ссылку'), findsOneWidget);
@@ -92,7 +105,10 @@ void main() {
 
       await app.pumpPage(tester, const SettingsScreen());
 
-      expect(find.textContaining('Импорт cookies заменит его'), findsOneWidget);
+      expect(
+        find.textContaining('Рекомендуем заменить его на cookies'),
+        findsOneWidget,
+      );
       expect(find.text('Удалить cookies'), findsNothing);
 
       app.authenticationRepository.importResult = (
@@ -103,7 +119,7 @@ void main() {
         ),
       );
 
-      await tester.tap(find.text('Выбрать cookies.txt…'));
+      await _tapVisible(tester, find.text('Выбрать cookies.txt…'));
       await app.settle(tester);
 
       expect(app.navigationController.state.tab, AppTabModel.settings);
@@ -114,7 +130,7 @@ void main() {
       expect(find.text(r'C:\Users\user\Downloads\cookies.txt'), findsOneWidget);
       expect(find.text('Используется'), findsOneWidget);
 
-      await tester.tap(find.text('Удалить cookies'));
+      await _tapVisible(tester, find.text('Удалить cookies'));
       await app.settle(tester);
 
       expect(app.authenticationRepository.signOutCalls, 1);
@@ -142,12 +158,12 @@ void main() {
         isTrue,
       );
       expect(
-        find.text('Как получить cookies.txt').hitTestable(),
+        find.text('Как получить и добавить cookies').hitTestable(),
         findsOneWidget,
       );
 
       /// Closing the picker keeps the request
-      await tester.tap(find.text('Выбрать cookies.txt…'));
+      await _tapVisible(tester, find.text('Выбрать cookies.txt…'));
       await app.settle(tester);
 
       expect(app.navigationController.state.tab, AppTabModel.settings);
@@ -160,7 +176,7 @@ void main() {
         ),
       );
 
-      await tester.tap(find.text('Выбрать cookies.txt…'));
+      await _tapVisible(tester, find.text('Выбрать cookies.txt…'));
       await app.settle(tester);
 
       expect(
@@ -171,6 +187,62 @@ void main() {
         tester.widget<CookiesCard>(find.byType(CookiesCard)).highlighted,
         isFalse,
       );
+
+      await app.close();
+    },
+  );
+
+  testWidgets(
+    'вход через Google в настройках — только в крайнем случае и через предупреждение',
+    (tester) async {
+      final app = TestApp();
+
+      await app.pumpPage(tester, const SettingsScreen());
+
+      expect(find.text('Вход через аккаунт Google'), findsOneWidget);
+      expect(
+        find.descendant(
+          of: find.byType(CookiesCard),
+          matching: find.textContaining('Google Cloud Console'),
+        ),
+        findsOneWidget,
+      );
+
+      /// «Добавить cookies» in the warning opens the file choice right away
+      app.authenticationRepository.importResult = (
+        failure: null,
+        data: AccountSessionModel.cookiesFile(
+          cookiesFilePath: r'C:\cookies.txt',
+          importedAt: DateTime(2026, 9, 16),
+        ),
+      );
+
+      await _tapVisible(tester, find.text('Войти через Google…'));
+      await app.settle(tester);
+
+      expect(find.byType(AppGoogleSignInDialog), findsOneWidget);
+
+      await tester.tap(
+        find.descendant(
+          of: find.byType(AppGoogleSignInDialog),
+          matching: find.text('Добавить cookies'),
+        ),
+      );
+      await app.settle(tester);
+
+      expect(app.authenticationRepository.signInCalls, 0);
+      expect(find.text('Используется'), findsOneWidget);
+
+      /// The Google window stays available for those who insist
+      await _tapVisible(tester, find.text('Войти через Google…'));
+      await app.settle(tester);
+      await tester.tap(find.text('Всё равно войти через Google'));
+      await app.settle(tester);
+
+      expect(app.authenticationRepository.signInCalls, 1);
+
+      /// Signed in through the window: nothing more to open
+      expect(find.text('Войти через Google…'), findsNothing);
 
       await app.close();
     },

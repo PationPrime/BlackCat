@@ -5,13 +5,15 @@ import 'package:black_cat/src/app/localization/lang/locale_keys.g.dart';
 import 'package:black_cat/src/app/models/models.dart';
 import 'package:black_cat/src/app/widgets/widgets.dart';
 
-/// Failed download reason with retry, sign-in and cookies import buttons
+/// Failed download reason with retry, cookies and sign-in buttons
 class DownloadTaskFailure extends StatelessWidget {
   final DownloadTaskModel task;
   final VoidCallback? onRetryPressed;
 
-  /// The sign-in and cookies import buttons are shown if signing in
-  /// to YouTube will most likely help
+  /// The cookies and sign-in buttons are shown if signing in to YouTube
+  /// will most likely help. Cookies come first: the Google sign-in window
+  /// is the last resort
+  final String? cookiesTitle;
   final String? signInTitle;
   final VoidCallback? onSignInPressed;
   final VoidCallback? onImportCookiesPressed;
@@ -20,6 +22,7 @@ class DownloadTaskFailure extends StatelessWidget {
     super.key,
     required this.task,
     this.onRetryPressed,
+    this.cookiesTitle,
     this.signInTitle,
     this.onSignInPressed,
     this.onImportCookiesPressed,
@@ -34,17 +37,17 @@ class DownloadTaskFailure extends StatelessWidget {
         compact: true,
       ),
       if (task.failureNeedsSignIn) ...[
+        AppSecondaryButton(
+          title: cookiesTitle ?? LocaleKeys.app_authorization_add_cookies.tr(),
+          onPressed: onImportCookiesPressed,
+          compact: true,
+        ),
         if (signInTitle case final title?)
           AppSecondaryButton(
             title: title,
             onPressed: onSignInPressed,
             compact: true,
           ),
-        AppSecondaryButton(
-          title: LocaleKeys.app_downloader_buttons_import_cookies.tr(),
-          onPressed: onImportCookiesPressed,
-          compact: true,
-        ),
       ],
     ];
 

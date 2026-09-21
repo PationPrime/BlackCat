@@ -5,6 +5,7 @@ export 'app_chips/app_selectable_chip.dart';
 export 'app_dialog/app_confirmation_dialog.dart';
 export 'app_dialog/app_dialog.dart';
 export 'app_failure_banner/app_failure_banner.dart';
+export 'app_google_sign_in_dialog/app_google_sign_in_dialog.dart';
 export 'app_input/app_text_field.dart';
 export 'app_navigation_bar/app_navigation_bar.dart';
 export 'app_page_header/app_page_header.dart';

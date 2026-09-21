@@ -28,6 +28,14 @@ const _signInFailure = VideoFailure(
   needsSignIn: true,
 );
 
+/// Texts inside [finder] in the order they are drawn
+List<String?> _textsOf(WidgetTester tester, Finder finder) => [
+  for (final text in tester.widgetList<Text>(
+    find.descendant(of: finder, matching: find.byType(Text)),
+  ))
+    text.data,
+];
+
 void main() {
   setUpAll(loadTestTranslations);
 
@@ -183,7 +191,7 @@ void main() {
   );
 
   testWidgets(
-    'ошибка входа: «Войти» и «Импортировать cookies.txt», новые cookies повторяют поиск',
+    'ошибка входа: сначала cookies, вход через Google — только после предупреждения',
     (tester) async {
       final app = TestApp(
         videoRepository: FakeVideoRepository(
@@ -211,28 +219,48 @@ void main() {
         findsOneWidget,
       );
       expect(
-        find.descendant(of: banner, matching: find.text('Войти')),
-        findsOneWidget,
+        _textsOf(tester, banner),
+        containsAllInOrder(['Добавить cookies', 'Войти через Google']),
       );
 
-      /// Signing in through the window repeats the search right away
+      /// The Google window opens only after the warning; cancelling it
+      /// leaves everything as it was
       await tester.tap(
-        find.descendant(of: banner, matching: find.text('Войти')),
+        find.descendant(of: banner, matching: find.text('Войти через Google')),
       );
+      await app.settle(tester);
+
+      expect(
+        find.text('Вход через Google — только в крайнем случае'),
+        findsOneWidget,
+      );
+      expect(find.textContaining('Google Cloud Console'), findsOneWidget);
+
+      await tester.tap(find.text('Отмена'));
+      await app.settle(tester);
+
+      expect(app.authenticationRepository.signInCalls, 0);
+
+      /// Insisting opens the window, and the search repeats right away
+      await tester.tap(
+        find.descendant(of: banner, matching: find.text('Войти через Google')),
+      );
+      await app.settle(tester);
+      await tester.tap(find.text('Всё равно войти через Google'));
       await app.settle(tester);
 
       expect(app.authenticationRepository.signInCalls, 1);
       expect(app.videoRepository.requestedUrls, [_url, _url]);
       expect(
-        find.descendant(of: banner, matching: find.text('Обновить вход')),
+        find.descendant(
+          of: banner,
+          matching: find.text('Обновить вход через Google'),
+        ),
         findsOneWidget,
       );
 
       await tester.tap(
-        find.descendant(
-          of: banner,
-          matching: find.text('Импортировать cookies.txt'),
-        ),
+        find.descendant(of: banner, matching: find.text('Добавить cookies')),
       );
       await app.settle(tester);
 
@@ -261,27 +289,67 @@ void main() {
   );
 
   testWidgets(
-    'вход и выход из YouTube в заголовке главной; выход недоступен во время загрузки',
+    'заголовок главной: cookies — главная кнопка, вход через Google — ссылка с предупреждением',
     (tester) async {
       final app = TestApp();
 
       await app.pumpPage(tester, const YouTubeDownloadScreen());
 
       final header = find.byType(AppPageHeader);
+      final recommendation = find.byType(CookiesRecommendation);
 
       expect(
-        find.descendant(of: header, matching: find.text('Войти в YouTube')),
+        find.descendant(of: header, matching: find.byType(AppSecondaryButton)),
+        findsOneWidget,
+      );
+      expect(
+        find.descendant(of: header, matching: find.text('Добавить cookies')),
+        findsOneWidget,
+      );
+      expect(recommendation, findsOneWidget);
+      expect(
+        find.descendant(
+          of: recommendation,
+          matching: find.text('Войдите с помощью cookies'),
+        ),
         findsOneWidget,
       );
 
+      /// The warning itself offers cookies first
       await tester.tap(
-        find.descendant(of: header, matching: find.text('Войти в YouTube')),
+        find.descendant(of: header, matching: find.text('Войти через Google')),
       );
+      await app.settle(tester);
+      await tester.tap(
+        find.descendant(
+          of: find.byType(AppDialog),
+          matching: find.text('Добавить cookies'),
+        ),
+      );
+      await app.settle(tester);
+
+      expect(app.authenticationRepository.signInCalls, 0);
+      expect(app.navigationController.state.tab, AppTabModel.settings);
+
+      await tester.tap(
+        find.descendant(of: header, matching: find.text('Войти через Google')),
+      );
+      await app.settle(tester);
+      await tester.tap(find.text('Всё равно войти через Google'));
       await app.settle(tester);
 
       expect(app.authenticationRepository.signInCalls, 1);
       expect(
-        find.descendant(of: header, matching: find.text('Аккаунт подключён')),
+        find.descendant(of: header, matching: find.text('Вход через Google')),
+        findsOneWidget,
+      );
+
+      /// Signed in through the window: the page offers to replace it
+      expect(
+        find.descendant(
+          of: recommendation,
+          matching: find.text('Заменить на cookies'),
+        ),
         findsOneWidget,
       );
 
@@ -304,9 +372,30 @@ void main() {
 
       expect(app.authenticationRepository.signOutCalls, 1);
       expect(
-        find.descendant(of: header, matching: find.text('Войти в YouTube')),
+        find.descendant(of: header, matching: find.text('Добавить cookies')),
         findsOneWidget,
       );
+
+      /// With cookies the header offers to update them, the advice is gone
+      app.authenticationRepository.importResult = (
+        failure: null,
+        data: AccountSessionModel.cookiesFile(
+          cookiesFilePath: r'C:\cookies.txt',
+          importedAt: DateTime(2026, 9, 16),
+        ),
+      );
+      await app.authorizationController.importCookies();
+      await app.settle(tester);
+
+      expect(
+        find.descendant(of: header, matching: find.text('Cookies подключены')),
+        findsOneWidget,
+      );
+      expect(
+        find.descendant(of: header, matching: find.text('Обновить')),
+        findsOneWidget,
+      );
+      expect(recommendation, findsNothing);
 
       await app.close();
     },

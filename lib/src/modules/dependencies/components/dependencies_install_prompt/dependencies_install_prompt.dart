@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:black_cat/src/app/models/models.dart';
 import 'package:black_cat/src/app/shared_controllers/shared_controllers.dart';
+import 'package:black_cat/src/app/widgets/widgets.dart';
 
 import '../dependencies_fallback_dialog/dependencies_fallback_dialog.dart';
 import '../dependencies_install_dialog/dependencies_install_dialog.dart';
@@ -67,15 +68,24 @@ class _DependenciesInstallPromptState extends State<DependenciesInstallPrompt> {
       );
     } while (action == DependenciesFallbackAction.retryInstall);
 
+    void importCookies() => appNavigationController.openCookiesImport(
+      returnTab: appNavigationController.state.tab,
+    );
+
     switch (action) {
       case DependenciesFallbackAction.addVideo:
         appNavigationController.selectTab(AppTabModel.home);
       case DependenciesFallbackAction.signIn:
-        await authorizationController.signIn();
-      case DependenciesFallbackAction.importCookies:
-        appNavigationController.openCookiesImport(
-          returnTab: appNavigationController.state.tab,
+        if (!mounted) return;
+
+        /// The Google window only after the warning, which offers cookies
+        await AppGoogleSignInDialog.run(
+          context,
+          onAddCookies: importCookies,
+          onSignIn: authorizationController.signIn,
         );
+      case DependenciesFallbackAction.importCookies:
+        importCookies();
       case DependenciesFallbackAction.retryInstall || null:
         break;
     }

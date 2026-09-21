@@ -94,6 +94,9 @@ class _SettingsViewState extends State<_SettingsView> {
     final session = context.select(
       (AuthorizationController controller) => controller.state.session,
     );
+    final authorizationBusy = context.select(
+      (AuthorizationController controller) => controller.state.isBusy,
+    );
     final hasRunningTask = context.select(
       (DownloadQueueController controller) => controller.state.hasRunningTask,
     );
@@ -211,6 +214,23 @@ class _SettingsViewState extends State<_SettingsView> {
                               onGuidePressed: _openCookiesGuide,
                               onDismissFailurePressed:
                                   cookiesImportController.dismissFailure,
+
+                              /// Already signed in through the Google window,
+                              /// or signing in right now: nothing to open
+                              onSignInPressed:
+                                  authorizationBusy ||
+                                      (session != null && !session.isImported)
+                                  ? null
+                                  : () => AppGoogleSignInDialog.run(
+                                      context,
+                                      cookiesImported:
+                                          session?.isImported ?? false,
+                                      onAddCookies:
+                                          cookiesImportController.importCookies,
+                                      onSignIn: context
+                                          .read<AuthorizationController>()
+                                          .signIn,
+                                    ),
                             );
                           },
                         ),

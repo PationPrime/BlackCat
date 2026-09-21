@@ -42,19 +42,34 @@ class YouTubeDownloadScreen extends StatelessWidget
     child: this,
   );
 
-  /// The search repeats on its own once cookies are imported
-  static void _importCookies(BuildContext context) => context
+  /// Cookies are the recommended way to sign in. The search repeats on its
+  /// own once they are imported
+  static void _addCookies(BuildContext context) => context
       .read<AppNavigationController>()
       .openCookiesImport(returnTab: AppTabModel.home);
+
+  /// The Google sign-in window, after the warning: it offers cookies first
+  static Future<void> _signInWithGoogle(
+    BuildContext context,
+    AuthorizationState authorizationState, {
+    required Future<void> Function() signIn,
+  }) => AppGoogleSignInDialog.run(
+    context,
+    cookiesImported: authorizationState.session?.isImported ?? false,
+    onAddCookies: () => _addCookies(context),
+    onSignIn: signIn,
+  );
 
   /// Title of the button under an error that signing in to YouTube will fix
   static String _signInActionTitle(AuthorizationState authorizationState) =>
       authorizationState.isInProgress
       ? LocaleKeys.app_authorization_waiting.tr()
-      : authorizationState.isAuthorized
+      : authorizationState.isAuthorized &&
+            !(authorizationState.session?.isImported ?? false)
       ? LocaleKeys.app_downloader_buttons_refresh_sign_in_and_retry.tr()
       : LocaleKeys.app_downloader_buttons_sign_in_and_retry.tr();
 
+  /// Cookies first, the Google window after them
   static List<AppFailureBannerAction> _failureActions(
     BuildContext context,
     Failure failure,
@@ -66,16 +81,22 @@ class YouTubeDownloadScreen extends StatelessWidget
 
     return [
       AppFailureBannerAction(
+        title: authorizationState.session?.isImported ?? false
+            ? LocaleKeys.app_authorization_update_cookies.tr()
+            : LocaleKeys.app_authorization_add_cookies.tr(),
+        onPressed: authorizationState.isBusy
+            ? null
+            : () => _addCookies(context),
+      ),
+      AppFailureBannerAction(
         title: _signInActionTitle(authorizationState),
         onPressed: authorizationState.isBusy
             ? null
-            : context.read<AddVideoController>().signInAndRetry,
-      ),
-      AppFailureBannerAction(
-        title: LocaleKeys.app_downloader_buttons_import_cookies.tr(),
-        onPressed: authorizationState.isBusy
-            ? null
-            : () => _importCookies(context),
+            : () => _signInWithGoogle(
+                context,
+                authorizationState,
+                signIn: context.read<AddVideoController>().signInAndRetry,
+              ),
       ),
     ];
   }
@@ -103,16 +124,36 @@ class YouTubeDownloadScreen extends StatelessWidget
           headerTrailing: AccountStatus(
             authorizationState: authorizationState,
             signOutEnabled: !hasRunningTask,
-            onSignInPressed: context.read<AuthorizationController>().signIn,
+            onAddCookiesPressed: () => _addCookies(context),
+            onSignInPressed: () => _signInWithGoogle(
+              context,
+              authorizationState,
+              signIn: context.read<AuthorizationController>().signIn,
+            ),
             onSignOutPressed: context.read<AuthorizationController>().signOut,
           ),
+
+          /// Until the account uses cookies, the page recommends them
+          notice:
+              authorizationState.isBusy ||
+                  (authorizationState.session?.isImported ?? false)
+              ? null
+              : CookiesRecommendation(
+                  signedInWithGoogle: authorizationState.isAuthorized,
+                  onAddCookiesPressed: () => _addCookies(context),
+                  onWhyPressed: () => _signInWithGoogle(
+                    context,
+                    authorizationState,
+                    signIn: context.read<AuthorizationController>().signIn,
+                  ),
+                ),
           formFooter: DependenciesHint(
             status: dependenciesStatus,
             onInstallPressed: () => DependenciesInstallDialog.show(context),
           ),
 
-          /// Error message; if signing in to YouTube will help, with
-          /// the sign-in and the cookies import
+          /// Error message; if signing in to YouTube will help, with cookies
+          /// first and the Google sign-in after them
           failureActions: (failure) =>
               _failureActions(context, failure, authorizationState),
         ),
