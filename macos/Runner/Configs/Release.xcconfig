@@ -1,2 +1,19 @@
 #include "../../Flutter/Flutter-Release.xcconfig"
 #include "Warnings.xcconfig"
+
+// Build one architecture instead of a universal binary.
+//
+// Flutter 3.44 checks the engine framework with a single
+// `lipo <binary> -verify_arch arm64 x86_64`, and the lipo of Xcode 27 takes
+// only one architecture per call. A universal Release build therefore fails
+// with "does not contain architectures", however fat the framework really is.
+// See https://github.com/flutter/flutter/issues/188461.
+//
+// Written out rather than derived: ONLY_ACTIVE_ARCH does nothing for the
+// "Flutter Assemble" aggregate target that runs the check, and
+// NATIVE_ARCH_ACTUAL is arm64e here, which the engine does not ship.
+// On an Intel Mac this line reads x86_64.
+//
+// Drop it once the SDK is on Flutter 3.47 or later, where the check is made
+// one architecture at a time, and universal builds work again.
+ARCHS = arm64

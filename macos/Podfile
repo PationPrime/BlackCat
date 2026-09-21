@@ -1,4 +1,7 @@
-platform :osx, '10.15'
+# Xcode 27 builds nothing below macOS 12, and the Flutter Podfile template
+# still asks for 10.15. The app itself targets a much later macOS; the pods
+# only have to clear Xcode's floor
+platform :osx, '12.0'
 
 # CocoaPods analytics sends network stats synchronously affecting flutter build latency.
 ENV['COCOAPODS_DISABLE_STATS'] = 'true'
@@ -38,5 +41,16 @@ end
 post_install do |installer|
   installer.pods_project.targets.each do |target|
     flutter_additional_macos_build_settings(target)
+
+    # A pod whose own podspec asks for an older macOS than Xcode 27 allows
+    # is raised to the floor; a pod that needs a later one keeps it
+    target.build_configurations.each do |config|
+      deployment_target = config.build_settings['MACOSX_DEPLOYMENT_TARGET']
+
+      if deployment_target.nil? ||
+         Gem::Version.new(deployment_target) < Gem::Version.new('12.0')
+        config.build_settings['MACOSX_DEPLOYMENT_TARGET'] = '12.0'
+      end
+    end
   end
 end
