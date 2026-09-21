@@ -20,6 +20,7 @@ final _searchField = find.descendant(
 
 const _url = 'https://youtu.be/kgA8JPY2lIA';
 const _otherUrl = 'https://youtu.be/otherVideo1';
+const _rutubeUrl = 'https://rutube.ru/shorts/7fe803e5db2951c0a6097232efc4a439/';
 
 const _signInFailure = VideoFailure(
   code: 'bot_check',
@@ -42,10 +43,10 @@ void main() {
       ),
     );
 
-    await app.pumpPage(tester, const HomeScreen());
+    await app.pumpPage(tester, const YouTubeDownloadScreen());
     await app.dependenciesController.check();
 
-    expect(find.text('Главная'), findsOneWidget);
+    expect(find.text('YouTube'), findsOneWidget);
 
     await tester.enterText(_searchField, _url);
     await tester.sendKeyEvent(LogicalKeyboardKey.enter);
@@ -66,7 +67,7 @@ void main() {
   testWidgets('пустая ссылка по Enter не ищется', (tester) async {
     final app = TestApp();
 
-    await app.pumpPage(tester, const HomeScreen());
+    await app.pumpPage(tester, const YouTubeDownloadScreen());
     await tester.enterText(_searchField, '   ');
     await tester.sendKeyEvent(LogicalKeyboardKey.enter);
     await app.settle(tester);
@@ -86,7 +87,7 @@ void main() {
         ),
       );
 
-      await app.pumpPage(tester, const HomeScreen());
+      await app.pumpPage(tester, const YouTubeDownloadScreen());
       await app.dependenciesController.check();
       await tester.enterText(_searchField, _url);
       await tester.tap(find.text('Найти'));
@@ -143,7 +144,7 @@ void main() {
     (tester) async {
       final app = TestApp(setup: const YtDlpSetupModel());
 
-      await app.pumpPage(tester, const HomeScreen());
+      await app.pumpPage(tester, const YouTubeDownloadScreen());
       await app.dependenciesController.check();
       await app.settle(tester);
 
@@ -195,7 +196,7 @@ void main() {
         setup: const YtDlpSetupModel(),
       );
 
-      await app.pumpPage(tester, const HomeScreen());
+      await app.pumpPage(tester, const YouTubeDownloadScreen());
       await tester.enterText(_searchField, _url);
       await tester.sendKeyEvent(LogicalKeyboardKey.enter);
       await app.settle(tester);
@@ -264,7 +265,7 @@ void main() {
     (tester) async {
       final app = TestApp();
 
-      await app.pumpPage(tester, const HomeScreen());
+      await app.pumpPage(tester, const YouTubeDownloadScreen());
 
       final header = find.byType(AppPageHeader);
 
@@ -310,4 +311,52 @@ void main() {
       await app.close();
     },
   );
+
+  testWidgets(
+    'вкладка RuTube ищет видео и шортсы RuTube, ссылки других сайтов не принимает',
+    (tester) async {
+      final app = TestApp(
+        ytDlpVideoRepository: FakeYtDlpVideoRepository(
+          infoResults: [(failure: null, data: testVideoInfo)],
+        ),
+      );
+
+      await app.pumpPage(tester, const RuTubeDownloadScreen());
+      await app.dependenciesController.check();
+
+      expect(find.text('RuTube'), findsOneWidget);
+
+      await tester.enterText(_searchField, _url);
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      await app.settle(tester);
+
+      expect(find.text('Это не ссылка на видео RuTube.'), findsOneWidget);
+      expect(app.ytDlpVideoRepository.requestedUrls, isEmpty);
+
+      await tester.enterText(_searchField, _rutubeUrl);
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      await app.settle(tester);
+
+      expect(app.ytDlpVideoRepository.requestedUrls, [_rutubeUrl]);
+      expect(find.byType(VideoCard), findsOneWidget);
+      expect(find.text('Это не ссылка на видео RuTube.'), findsNothing);
+
+      await app.close();
+    },
+  );
+
+  testWidgets('вкладка YouTube не принимает ссылки RuTube', (tester) async {
+    final app = TestApp();
+
+    await app.pumpPage(tester, const YouTubeDownloadScreen());
+    await tester.enterText(_searchField, _rutubeUrl);
+    await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+    await app.settle(tester);
+
+    expect(find.text('Это не ссылка на YouTube-видео.'), findsOneWidget);
+    expect(app.ytDlpVideoRepository.requestedUrls, isEmpty);
+    expect(app.videoRepository.requestedUrls, isEmpty);
+
+    await app.close();
+  });
 }

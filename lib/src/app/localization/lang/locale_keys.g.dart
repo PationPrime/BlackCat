@@ -242,6 +242,23 @@ abstract class LocaleKeys {
   static const app_errors_video_disk_full = 'app.errors.video.disk_full';
   static const app_errors_video_disk_full_unknown_size =
       'app.errors.video.disk_full_unknown_size';
+  static const app_errors_video_unsupported_url =
+      'app.errors.video.unsupported_url';
+  static const app_errors_video_not_rutube_url =
+      'app.errors.video.not_rutube_url';
+  static const app_errors_video_rutube_unavailable =
+      'app.errors.video.rutube_unavailable';
+  static const app_errors_video_rutube_live = 'app.errors.video.rutube_live';
+  static const app_errors_video_rutube_http_status =
+      'app.errors.video.rutube_http_status';
+  static const app_errors_video_rutube_no_connection =
+      'app.errors.video.rutube_no_connection';
+  static const app_errors_video_rutube_interrupted =
+      'app.errors.video.rutube_interrupted';
+  static const app_errors_video_stream_protected =
+      'app.errors.video.stream_protected';
+  static const app_errors_video_stream_format =
+      'app.errors.video.stream_format';
   static const app_errors_video_web_view_runtime =
       'app.errors.video.web_view_runtime';
   static const app_errors_video_js_engine = 'app.errors.video.js_engine';
@@ -391,8 +408,16 @@ abstract class LocaleKeys {
   static const app_navigation_settings = 'app.navigation.settings';
   static const app_navigation_donations = 'app.navigation.donations';
   static const app_navigation = 'app.navigation';
-  static const app_home_title = 'app.home.title';
-  static const app_home_subtitle = 'app.home.subtitle';
+  static const app_home_tabs_youtube = 'app.home.tabs.youtube';
+  static const app_home_tabs_rutube = 'app.home.tabs.rutube';
+  static const app_home_tabs = 'app.home.tabs';
+  static const app_home_youtube_title = 'app.home.youtube.title';
+  static const app_home_youtube_subtitle = 'app.home.youtube.subtitle';
+  static const app_home_youtube = 'app.home.youtube';
+  static const app_home_rutube_title = 'app.home.rutube.title';
+  static const app_home_rutube_subtitle = 'app.home.rutube.subtitle';
+  static const app_home_rutube_url_hint = 'app.home.rutube.url_hint';
+  static const app_home_rutube = 'app.home.rutube';
   static const app_home_added = 'app.home.added';
   static const app_home_open_downloads = 'app.home.open_downloads';
   static const app_home_clear = 'app.home.clear';

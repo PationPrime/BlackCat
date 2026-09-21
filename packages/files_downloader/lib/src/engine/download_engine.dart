@@ -22,6 +22,7 @@ import 'http_errors.dart';
 import 'remote_file_prober.dart';
 import 'slice_job.dart';
 import 'speed_control.dart';
+import 'worker_engine.dart';
 
 /// Runs one download in the current isolate: asks the servers about
 /// the files, reserves them on disk, downloads the missing slices over
@@ -29,7 +30,7 @@ import 'speed_control.dart';
 ///
 /// File writes are synchronous: the engine runs in its own isolate,
 /// and no two writes to a file can overlap
-final class DownloadEngine {
+final class DownloadEngine implements WorkerEngine {
   /// NTFS gives an extended file its space right away; APFS and ext4 make
   /// it sparse and take the space as the bytes are written
   static final _reservesSpace = Platform.isWindows;
@@ -87,6 +88,7 @@ final class DownloadEngine {
   bool get _halted => _stopped || _failure != null;
 
   /// Pauses the download; [discard] deletes the files and the state
+  @override
   void stop({bool discard = false}) {
     _discard = _discard || discard;
 
@@ -96,6 +98,7 @@ final class DownloadEngine {
     _halt();
   }
 
+  @override
   void setSpeedLimit(int? bytesPerSecond) =>
       _limiter.bytesPerSecond = bytesPerSecond;
 
@@ -135,6 +138,7 @@ final class DownloadEngine {
     _throwIfHalted();
   }
 
+  @override
   Future<FilesDownloadResult> run() async {
     Timer? progressTimer;
     Timer? checkpointTimer;

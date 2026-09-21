@@ -189,6 +189,15 @@
         "disk_write": "Could not write the file being downloaded: {error}",
         "disk_full": "Not enough disk space: the download needs {needed} more, {available} is free. Free up space and try again: the downloaded part is kept.",
         "disk_full_unknown_size": "Not enough disk space for the download. Free up space and try again: the downloaded part is kept.",
+        "unsupported_url": "This is not a YouTube or RuTube video link.",
+        "not_rutube_url": "This is not a RuTube video link.",
+        "rutube_unavailable": "The video is unavailable on RuTube.",
+        "rutube_live": "RuTube live streams can't be downloaded yet.",
+        "rutube_http_status": "RuTube responded with error {status}.",
+        "rutube_no_connection": "No connection to RuTube.",
+        "rutube_interrupted": "RuTube keeps interrupting the video download. Try again.",
+        "stream_protected": "The video is protected from downloading: its parts are encrypted.",
+        "stream_format": "The video is served in a format the app can't download yet.",
         "web_view_runtime": "Downloading requires Microsoft Edge WebView2 Runtime.",
         "js_engine": "The built-in JavaScript engine (WebView2) returned an error: {error}",
         "destination_unavailable": "Could not save the file to “{path}”: {error}",
@@ -286,8 +295,19 @@
       "donations": "Sponsor"
     },
     "home": {
-      "title": "Home",
-      "subtitle": "Paste a YouTube video link and press Enter, then choose the quality.",
+      "tabs": {
+        "youtube": "YouTube",
+        "rutube": "RuTube"
+      },
+      "youtube": {
+        "title": "YouTube",
+        "subtitle": "Paste a YouTube video link and press Enter, then choose the quality."
+      },
+      "rutube": {
+        "title": "RuTube",
+        "subtitle": "Paste a RuTube video or short link and press Enter, then choose the quality.",
+        "url_hint": "https://rutube.ru/video/..."
+      },
       "added": "“{title}” was added to downloads.",
       "open_downloads": "Open downloads",
       "clear": "Clear",

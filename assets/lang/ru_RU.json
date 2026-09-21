@@ -189,6 +189,15 @@
         "disk_write": "Не удалось записать скачиваемый файл: {error}",
         "disk_full": "Недостаточно места на диске: загрузке нужно ещё {needed}, свободно {available}. Освободите место и повторите загрузку: скачанное сохранится.",
         "disk_full_unknown_size": "Недостаточно места на диске для загрузки. Освободите место и повторите загрузку: скачанное сохранится.",
+        "unsupported_url": "Это не ссылка на видео YouTube или RuTube.",
+        "not_rutube_url": "Это не ссылка на видео RuTube.",
+        "rutube_unavailable": "Видео недоступно на RuTube.",
+        "rutube_live": "Трансляции RuTube пока не скачиваются.",
+        "rutube_http_status": "RuTube ответил ошибкой {status}.",
+        "rutube_no_connection": "Нет соединения с RuTube.",
+        "rutube_interrupted": "RuTube обрывает загрузку видео. Попробуйте ещё раз.",
+        "stream_protected": "Видео защищено от скачивания: его части зашифрованы.",
+        "stream_format": "Видео отдаётся в формате, который приложение пока не умеет скачивать.",
         "web_view_runtime": "Для скачивания нужен Microsoft Edge WebView2 Runtime.",
         "js_engine": "Встроенный JavaScript-движок (WebView2) вернул ошибку: {error}",
         "destination_unavailable": "Не удалось сохранить файл в папку «{path}»: {error}",
@@ -286,8 +295,19 @@
       "donations": "Поддержать"
     },
     "home": {
-      "title": "Главная",
-      "subtitle": "Вставьте ссылку на видео YouTube и нажмите Enter, затем выберите качество.",
+      "tabs": {
+        "youtube": "YouTube",
+        "rutube": "RuTube"
+      },
+      "youtube": {
+        "title": "YouTube",
+        "subtitle": "Вставьте ссылку на видео YouTube и нажмите Enter, затем выберите качество."
+      },
+      "rutube": {
+        "title": "RuTube",
+        "subtitle": "Вставьте ссылку на видео или шортс RuTube и нажмите Enter, затем выберите качество.",
+        "url_hint": "https://rutube.ru/video/..."
+      },
       "added": "«{title}» добавлено в загрузки.",
       "open_downloads": "Открыть загрузки",
       "clear": "Очистить",

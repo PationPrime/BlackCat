@@ -227,6 +227,18 @@ class CodegenLoader extends AssetLoader {
               "Not enough disk space: the download needs {needed} more, {available} is free. Free up space and try again: the downloaded part is kept.",
           "disk_full_unknown_size":
               "Not enough disk space for the download. Free up space and try again: the downloaded part is kept.",
+          "unsupported_url": "This is not a YouTube or RuTube video link.",
+          "not_rutube_url": "This is not a RuTube video link.",
+          "rutube_unavailable": "The video is unavailable on RuTube.",
+          "rutube_live": "RuTube live streams can't be downloaded yet.",
+          "rutube_http_status": "RuTube responded with error {status}.",
+          "rutube_no_connection": "No connection to RuTube.",
+          "rutube_interrupted":
+              "RuTube keeps interrupting the video download. Try again.",
+          "stream_protected":
+              "The video is protected from downloading: its parts are encrypted.",
+          "stream_format":
+              "The video is served in a format the app can't download yet.",
           "web_view_runtime":
               "Downloading requires Microsoft Edge WebView2 Runtime.",
           "js_engine":
@@ -348,9 +360,18 @@ class CodegenLoader extends AssetLoader {
         "donations": "Sponsor",
       },
       "home": {
-        "title": "Home",
-        "subtitle":
-            "Paste a YouTube video link and press Enter, then choose the quality.",
+        "tabs": {"youtube": "YouTube", "rutube": "RuTube"},
+        "youtube": {
+          "title": "YouTube",
+          "subtitle":
+              "Paste a YouTube video link and press Enter, then choose the quality.",
+        },
+        "rutube": {
+          "title": "RuTube",
+          "subtitle":
+              "Paste a RuTube video or short link and press Enter, then choose the quality.",
+          "url_hint": "https://rutube.ru/video/...",
+        },
         "added": "“{title}” was added to downloads.",
         "open_downloads": "Open downloads",
         "clear": "Clear",
@@ -624,6 +645,18 @@ class CodegenLoader extends AssetLoader {
               "Недостаточно места на диске: загрузке нужно ещё {needed}, свободно {available}. Освободите место и повторите загрузку: скачанное сохранится.",
           "disk_full_unknown_size":
               "Недостаточно места на диске для загрузки. Освободите место и повторите загрузку: скачанное сохранится.",
+          "unsupported_url": "Это не ссылка на видео YouTube или RuTube.",
+          "not_rutube_url": "Это не ссылка на видео RuTube.",
+          "rutube_unavailable": "Видео недоступно на RuTube.",
+          "rutube_live": "Трансляции RuTube пока не скачиваются.",
+          "rutube_http_status": "RuTube ответил ошибкой {status}.",
+          "rutube_no_connection": "Нет соединения с RuTube.",
+          "rutube_interrupted":
+              "RuTube обрывает загрузку видео. Попробуйте ещё раз.",
+          "stream_protected":
+              "Видео защищено от скачивания: его части зашифрованы.",
+          "stream_format":
+              "Видео отдаётся в формате, который приложение пока не умеет скачивать.",
           "web_view_runtime":
               "Для скачивания нужен Microsoft Edge WebView2 Runtime.",
           "js_engine":
@@ -745,9 +778,18 @@ class CodegenLoader extends AssetLoader {
         "donations": "Поддержать",
       },
       "home": {
-        "title": "Главная",
-        "subtitle":
-            "Вставьте ссылку на видео YouTube и нажмите Enter, затем выберите качество.",
+        "tabs": {"youtube": "YouTube", "rutube": "RuTube"},
+        "youtube": {
+          "title": "YouTube",
+          "subtitle":
+              "Вставьте ссылку на видео YouTube и нажмите Enter, затем выберите качество.",
+        },
+        "rutube": {
+          "title": "RuTube",
+          "subtitle":
+              "Вставьте ссылку на видео или шортс RuTube и нажмите Enter, затем выберите качество.",
+          "url_hint": "https://rutube.ru/video/...",
+        },
         "added": "«{title}» добавлено в загрузки.",
         "open_downloads": "Открыть загрузки",
         "clear": "Очистить",

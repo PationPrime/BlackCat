@@ -102,40 +102,59 @@ final class AppModule {
 
         const localDownloadStateDataSource = LocalDownloadStateDataSourceImpl();
 
-        _videoRepository = YouTubeVideoRepository(
-          remoteYouTubeDataSource: RemoteYouTubeDataSourceImpl(
-            apiProvider: _apiProvider,
+        const mediaMuxerService = Mp4MediaMuxerServiceImpl();
+
+        /// Every site has its own repository; the link picks it
+        _videoRepository = SourceVideoRepository({
+          VideoSourceModel.youtube: YouTubeVideoRepository(
+            remoteYouTubeDataSource: RemoteYouTubeDataSourceImpl(
+              apiProvider: _apiProvider,
+              sessionStore: sessionStore,
+              localPlayerDataSource: LocalPlayerDataSourceImpl(
+                fileSystemService: _fileSystemService,
+              ),
+            ),
+            remoteMediaStreamDataSource: RemoteMediaStreamDataSourceImpl(
+              apiProvider: _apiProvider,
+            ),
+            challengeSolverService: ChallengeSolverServiceImpl(
+              jsEngineService: WebViewJsEngineServiceImpl(
+                fileSystemService: _fileSystemService,
+              ),
+              loadScript: (name) => rootBundle.loadString('assets/ejs/$name'),
+            ),
+            mediaMuxerService: mediaMuxerService,
+            fileSystemService: _fileSystemService,
             sessionStore: sessionStore,
-            localPlayerDataSource: LocalPlayerDataSourceImpl(
-              fileSystemService: _fileSystemService,
+          ),
+          VideoSourceModel.rutube: RuTubeVideoRepository(
+            remoteRuTubeDataSource: RemoteRuTubeDataSourceImpl(
+              apiProvider: _apiProvider,
             ),
+            mediaMuxerService: mediaMuxerService,
+            fileSystemService: _fileSystemService,
           ),
-          remoteMediaStreamDataSource: RemoteMediaStreamDataSourceImpl(
-            apiProvider: _apiProvider,
-          ),
-          challengeSolverService: ChallengeSolverServiceImpl(
-            jsEngineService: WebViewJsEngineServiceImpl(
-              fileSystemService: _fileSystemService,
-            ),
-            loadScript: (name) => rootBundle.loadString('assets/ejs/$name'),
-          ),
-          mediaMuxerService: const Mp4MediaMuxerServiceImpl(),
-          fileSystemService: _fileSystemService,
-          sessionStore: sessionStore,
-        );
+        });
 
         final ytDlpService = YtDlpServiceImpl(
           fileSystemService: _fileSystemService,
         );
 
-        _ytDlpVideoRepository = YtDlpVideoRepository(
-          ytDlpService: ytDlpService,
-          mediaMuxerService: const Mp4MediaMuxerServiceImpl(),
-          fileSystemService: _fileSystemService,
-          sessionStore: sessionStore,
-          localAuthenticationDataSource: localAuthenticationDataSource,
-          localDownloadStateDataSource: localDownloadStateDataSource,
-        );
+        _ytDlpVideoRepository = SourceYtDlpVideoRepository({
+          VideoSourceModel.youtube: YtDlpVideoRepository(
+            ytDlpService: ytDlpService,
+            mediaMuxerService: mediaMuxerService,
+            fileSystemService: _fileSystemService,
+            sessionStore: sessionStore,
+            localAuthenticationDataSource: localAuthenticationDataSource,
+            localDownloadStateDataSource: localDownloadStateDataSource,
+          ),
+          VideoSourceModel.rutube: RuTubeYtDlpVideoRepository(
+            ytDlpService: ytDlpService,
+            mediaMuxerService: mediaMuxerService,
+            fileSystemService: _fileSystemService,
+          ),
+        });
 
         _dependenciesRepository = DependenciesRepository(
           ytDlpService: ytDlpService,

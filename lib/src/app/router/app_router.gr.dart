@@ -69,7 +69,7 @@ class HomeRoute extends PageRouteInfo<void> {
   static PageInfo page = PageInfo(
     name,
     builder: (data) {
-      return WrappedRoute(child: const HomeScreen());
+      return const HomeScreen();
     },
   );
 }
@@ -123,6 +123,22 @@ class PlayerRoute extends PageRouteInfo<void> {
 }
 
 /// generated route for
+/// [RuTubeDownloadScreen]
+class RuTubeDownloadRoute extends PageRouteInfo<void> {
+  const RuTubeDownloadRoute({List<PageRouteInfo>? children})
+    : super(RuTubeDownloadRoute.name, initialChildren: children);
+
+  static const String name = 'RuTubeDownloadRoute';
+
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      return WrappedRoute(child: const RuTubeDownloadScreen());
+    },
+  );
+}
+
+/// generated route for
 /// [SettingsScreen]
 class SettingsRoute extends PageRouteInfo<void> {
   const SettingsRoute({List<PageRouteInfo>? children})
@@ -134,6 +150,22 @@ class SettingsRoute extends PageRouteInfo<void> {
     name,
     builder: (data) {
       return WrappedRoute(child: const SettingsScreen());
+    },
+  );
+}
+
+/// generated route for
+/// [YouTubeDownloadScreen]
+class YouTubeDownloadRoute extends PageRouteInfo<void> {
+  const YouTubeDownloadRoute({List<PageRouteInfo>? children})
+    : super(YouTubeDownloadRoute.name, initialChildren: children);
+
+  static const String name = 'YouTubeDownloadRoute';
+
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      return WrappedRoute(child: const YouTubeDownloadScreen());
     },
   );
 }

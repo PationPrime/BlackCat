@@ -5,6 +5,7 @@ import 'package:files_downloader/files_downloader.dart';
 import '../../api/api.dart';
 import '../../constants/constants.dart';
 import '../../errors/errors.dart';
+import '../../models/models.dart';
 import '../../tools/tools.dart';
 
 /// A stream file of a download
@@ -158,40 +159,55 @@ final class RemoteMediaStreamDataSourceImpl
       case FilesDownloadStopped():
         throw VideoException(const VideoErrorCodes().canceled);
       case FilesDownloadFailed(:final error):
-        throw _exceptionOf(error);
+        throw mediaDownloadExceptionOf(error);
     }
   }
+}
 
-  static Exception _exceptionOf(FilesDownloadError error) {
-    const codes = VideoErrorCodes();
+/// A failed download of video bytes as the error the app shows.
+/// Refused links become [MediaStreamLinksExpiredException]: new links
+/// continue the same download. Network and server errors name the site
+/// of the video
+Exception mediaDownloadExceptionOf(
+  FilesDownloadError error, {
+  VideoSourceModel source = VideoSourceModel.youtube,
+}) {
+  const codes = VideoErrorCodes();
+  final rutube = source == VideoSourceModel.rutube;
 
-    return switch (error) {
-      FilesDownloadError(statusCode: 401 || 403 || 410) =>
-        const MediaStreamLinksExpiredException(),
-      FilesDownloadError(statusCode: 429) => VideoException(codes.rateLimited),
-      FilesDownloadError(type: FilesDownloadErrorType.httpStatus) =>
-        VideoException(
-          codes.httpStatus,
-          args: {'status': '${error.statusCode}'},
-        ),
-      FilesDownloadError(type: FilesDownloadErrorType.network) =>
-        VideoException(codes.noConnection),
-      FilesDownloadError(type: FilesDownloadErrorType.diskFull) =>
-        VideoException(codes.diskFull, args: _diskFullArgs(error)),
-      FilesDownloadError(type: FilesDownloadErrorType.fileSystem) =>
-        VideoException(codes.diskWrite, args: {'error': error.message}),
-      _ => VideoException(codes.streamInterrupted),
-    };
-  }
+  return switch (error) {
+    FilesDownloadError(statusCode: 401 || 403 || 410) =>
+      const MediaStreamLinksExpiredException(),
+    FilesDownloadError(statusCode: 429) when !rutube => VideoException(
+      codes.rateLimited,
+    ),
+    FilesDownloadError(type: FilesDownloadErrorType.httpStatus) =>
+      VideoException(
+        rutube ? codes.rutubeHttpStatus : codes.httpStatus,
+        args: {'status': '${error.statusCode}'},
+      ),
+    FilesDownloadError(type: FilesDownloadErrorType.network) => VideoException(
+      rutube ? codes.rutubeNoConnection : codes.noConnection,
+    ),
+    FilesDownloadError(type: FilesDownloadErrorType.diskFull) => VideoException(
+      codes.diskFull,
+      args: _diskFullArgs(error),
+    ),
+    FilesDownloadError(type: FilesDownloadErrorType.fileSystem) =>
+      VideoException(codes.diskWrite, args: {'error': error.message}),
+    _ => VideoException(
+      rutube ? codes.rutubeInterrupted : codes.streamInterrupted,
+    ),
+  };
+}
 
-  /// How much the download still needs and how much is free, when both
-  /// are known; without them the error text has no sizes
-  static Map<String, String> _diskFullArgs(FilesDownloadError error) {
-    final needed = AppFileSize.format(error.neededBytes);
-    final available = AppFileSize.format(error.availableBytes);
+/// How much the download still needs and how much is free, when both
+/// are known; without them the error text has no sizes
+Map<String, String> _diskFullArgs(FilesDownloadError error) {
+  final needed = AppFileSize.format(error.neededBytes);
+  final available = AppFileSize.format(error.availableBytes);
 
-    return needed == null || available == null
-        ? const {}
-        : {'needed': needed, 'available': available};
-  }
+  return needed == null || available == null
+      ? const {}
+      : {'needed': needed, 'available': available};
 }

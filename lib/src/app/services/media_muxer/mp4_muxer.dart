@@ -55,10 +55,13 @@ class _Chunk {
 }
 
 class _Track {
-  _Track(this.input, this.id);
+  _Track(this.id, [this.input]);
 
-  final _Input input;
   final int id;
+
+  /// File the samples are copied from. `null` when the samples are written
+  /// as they are converted, as with MPEG-TS
+  final _Input? input;
 
   late int timescale;
   late String handler;
@@ -69,6 +72,10 @@ class _Track {
   Uint8List? mediaHeader; // vmhd / smhd
   Uint8List? dinf;
   int editMediaTime = 0;
+
+  /// Movie time before the first sample is shown, e.g. audio that starts
+  /// after the video
+  int emptyEditDuration = 0;
 
   /// Defaults from `trex`
   int defaultDuration = 0;
@@ -151,7 +158,7 @@ class _Input {
   }
 
   Future<_Track> readTrack(int id) async {
-    final track = _Track(this, id);
+    final track = _Track(id, this);
     var haveMoov = false;
 
     for (final box in await _topLevelBoxes()) {
@@ -326,7 +333,7 @@ Future<void> _write(List<_Track> tracks, String outputPath, {required bool audio
     await output.writeFrom(mdatHeader);
 
     for (final chunk in chunks) {
-      await chunk.track.input.copyTo(output, chunk.fileOffset, chunk.byteSize);
+      await chunk.track.input!.copyTo(output, chunk.fileOffset, chunk.byteSize);
     }
   } finally {
     await output.close();
@@ -349,8 +356,13 @@ Uint8List _trak(_Track track, {required bool wide64}) {
 
   return _box('trak', [
     _tkhd(track, duration),
-    if (track.isVideo || track.editMediaTime != 0)
-      _box('edts', [_elst(duration, track.editMediaTime)]),
+    if (track.isVideo || track.editMediaTime != 0 || track.emptyEditDuration > 0)
+      _box('edts', [
+        _elst([
+          if (track.emptyEditDuration > 0) (track.emptyEditDuration, -1),
+          (duration, track.editMediaTime),
+        ]),
+      ]),
     _box('mdia', [
       _mdhd(track),
       track.hdlr,
@@ -449,12 +461,15 @@ Uint8List _tkhd(_Track track, int duration) {
   }, flags: 0x3);
 }
 
-Uint8List _elst(int segmentDuration, int mediaTime) => _fullBox('elst', 16, (data) {
-  data
-    ..setUint32(0, 1)
-    ..setUint32(4, segmentDuration)
-    ..setInt32(8, mediaTime)
-    ..setUint32(12, 0x00010000);
+/// Edits of (duration in movie time, media time); media time `-1` is an empty edit
+Uint8List _elst(List<(int, int)> entries) => _fullBox('elst', 4 + 12 * entries.length, (data) {
+  data.setUint32(0, entries.length);
+  for (final (index, (duration, mediaTime)) in entries.indexed) {
+    data
+      ..setUint32(4 + 12 * index, duration)
+      ..setInt32(8 + 12 * index, mediaTime)
+      ..setUint32(12 + 12 * index, 0x00010000);
+  }
 });
 
 Uint8List _mdhd(_Track track) {

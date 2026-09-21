@@ -22,6 +22,9 @@ class UrlSearchForm extends StatelessWidget {
   /// Width from which the field and the button go into one row
   final double rowBreakpoint;
 
+  /// Example of a link in the empty field; a YouTube link by default
+  final String? hintText;
+
   const UrlSearchForm({
     super.key,
     required this.controller,
@@ -30,6 +33,7 @@ class UrlSearchForm extends StatelessWidget {
     this.enabled = true,
     this.onSubmitted,
     this.rowBreakpoint = 640,
+    this.hintText,
   });
 
   void _submit() {
@@ -55,7 +59,7 @@ class UrlSearchForm extends StatelessWidget {
           keyboardType: TextInputType.url,
           textInputAction: TextInputAction.search,
           height: _fieldHeight,
-          hintText: LocaleKeys.app_downloader_url_hint.tr(),
+          hintText: hintText ?? LocaleKeys.app_downloader_url_hint.tr(),
 
           /// The search key of an on-screen keyboard
           onSubmitted: (_) => _submit(),

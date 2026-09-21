@@ -82,6 +82,43 @@ void main() {
     },
   );
 
+  testWidgets(
+    'на главной вкладки сайтов: YouTube по умолчанию, RuTube рядом, поиск каждой сохраняется',
+    (tester) async {
+      final app = TestApp();
+
+      await app.pumpApp(tester);
+
+      final tabs = find.byType(HomeSourceTabs);
+
+      expect(
+        find.descendant(of: tabs, matching: find.text('YouTube')),
+        findsOneWidget,
+      );
+      expect(find.byType(YouTubeDownloadScreen), findsOneWidget);
+      expect(find.byType(RuTubeDownloadScreen), findsNothing);
+
+      await tester.enterText(_searchField, _url);
+      await tester.tap(
+        find.descendant(of: tabs, matching: find.text('RuTube')),
+      );
+      await app.settle(tester);
+
+      expect(find.byType(RuTubeDownloadScreen), findsOneWidget);
+      expect(find.text('https://rutube.ru/video/...'), findsOneWidget);
+
+      await tester.tap(
+        find.descendant(of: tabs, matching: find.text('YouTube')),
+      );
+      await app.settle(tester);
+
+      expect(find.byType(YouTubeDownloadScreen), findsOneWidget);
+      expect(find.widgetWithText(TextField, _url), findsOneWidget);
+
+      await app.close();
+    },
+  );
+
   testWidgets('вход в YouTube — в заголовке главной, а не в навбаре', (
     tester,
   ) async {

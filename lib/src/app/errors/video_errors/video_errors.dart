@@ -29,6 +29,24 @@ final class VideoErrorCodes extends ErrorCodes {
 
   /// The disk has no room for the download
   final String diskFull;
+
+  /// The link is not of any supported site
+  final String unsupportedUrl;
+  final String notRuTubeUrl;
+
+  /// RuTube does not show the video: blocked in the country, removed,
+  /// private. The reason from RuTube goes as [VideoException.reason]
+  final String rutubeUnavailable;
+  final String rutubeLive;
+  final String rutubeHttpStatus;
+  final String rutubeNoConnection;
+  final String rutubeInterrupted;
+
+  /// The video segments are encrypted
+  final String streamProtected;
+
+  /// The video comes in a format the app does not download yet
+  final String streamFormat;
   final String rateLimited;
   final String webViewRuntime;
   final String jsEngine;
@@ -57,6 +75,15 @@ final class VideoErrorCodes extends ErrorCodes {
     this.httpStatus = 'http_status',
     this.diskWrite = 'disk_write',
     this.diskFull = 'disk_full',
+    this.unsupportedUrl = 'unsupported_url',
+    this.notRuTubeUrl = 'not_rutube_url',
+    this.rutubeUnavailable = 'rutube_unavailable',
+    this.rutubeLive = 'rutube_live',
+    this.rutubeHttpStatus = 'rutube_http_status',
+    this.rutubeNoConnection = 'rutube_no_connection',
+    this.rutubeInterrupted = 'rutube_interrupted',
+    this.streamProtected = 'stream_protected',
+    this.streamFormat = 'stream_format',
     this.rateLimited = '429',
     this.webViewRuntime = 'web_view_runtime',
     this.jsEngine = 'js_engine',

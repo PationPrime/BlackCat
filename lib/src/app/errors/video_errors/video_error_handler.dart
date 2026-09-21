@@ -47,6 +47,16 @@ class VideoErrorHandler extends ErrorHandler<VideoErrorCodes> {
       'disk_full' when exception.args.isEmpty =>
         LocaleKeys.app_errors_video_disk_full_unknown_size,
       'disk_full' => LocaleKeys.app_errors_video_disk_full,
+      'unsupported_url' => LocaleKeys.app_errors_video_unsupported_url,
+      'not_rutube_url' => LocaleKeys.app_errors_video_not_rutube_url,
+      'rutube_unavailable' => LocaleKeys.app_errors_video_rutube_unavailable,
+      'rutube_live' => LocaleKeys.app_errors_video_rutube_live,
+      'rutube_http_status' => LocaleKeys.app_errors_video_rutube_http_status,
+      'rutube_no_connection' =>
+        LocaleKeys.app_errors_video_rutube_no_connection,
+      'rutube_interrupted' => LocaleKeys.app_errors_video_rutube_interrupted,
+      'stream_protected' => LocaleKeys.app_errors_video_stream_protected,
+      'stream_format' => LocaleKeys.app_errors_video_stream_format,
       '403' => LocaleKeys.app_errors_network_forbidden,
       '429' => LocaleKeys.app_errors_network_rate_limited,
       'http_status' => LocaleKeys.app_errors_network_http_status,
