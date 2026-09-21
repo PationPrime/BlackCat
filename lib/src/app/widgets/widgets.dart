@@ -1,5 +1,6 @@
 export 'app_bordered_box/app_bordered_box.dart';
 export 'app_buttons/app_buttons.dart';
+export 'app_cat_logo/app_cat_logo.dart';
 export 'app_chips/app_selectable_chip.dart';
 export 'app_dialog/app_confirmation_dialog.dart';
 export 'app_dialog/app_dialog.dart';

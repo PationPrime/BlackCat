@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:youtube_downloader/src/app/design_system/design_system.dart';
+import 'package:black_cat/src/app/design_system/design_system.dart';
 
 /// Screen section title with the item count and an action on the right
 class DownloadsSectionTitle extends StatelessWidget {

@@ -1,5 +1,5 @@
-name: youtube_downloader
-description: "A new Flutter project."
+name: black_cat
+description: ""
 publish_to: 'none'
 version: 0.1.0+1
 
@@ -20,6 +20,8 @@ dependencies:
   equatable: ^2.1.0
   ffi: ^2.2.0
   file_selector: ^1.1.0
+  files_downloader:
+    path: packages/files_downloader
   flutter:
     sdk: flutter
   flutter_bloc: ^9.1.1

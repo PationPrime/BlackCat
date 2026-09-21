@@ -11,13 +11,13 @@ import 'router/app_router.dart';
 import 'shared_controllers/shared_controllers.dart';
 import 'widgets/widgets.dart';
 
-class DownloaderAppView extends StatelessWidget {
+class BlackCatAppView extends StatelessWidget {
   final AppRouter appRouter;
 
   /// Language of the first frame: the one saved in the settings
   final AppLanguageModel initialLanguage;
 
-  const DownloaderAppView({
+  const BlackCatAppView({
     required this.appRouter,
     required this.initialLanguage,
     super.key,

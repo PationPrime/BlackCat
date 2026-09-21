@@ -1,0 +1,48 @@
+<!-- BlackCat app icon: a black cat peeks in diagonally from the bottom-right
+     corner of the accent green tile. Source of the platform icons from 48 px -->
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <defs>
+    <clipPath id="tile">
+      <rect width="1024" height="1024" rx="230"/>
+    </clipPath>
+    <radialGradient id="iris" cx="50%" cy="62%" r="62%">
+      <stop offset="0" stop-color="#E4FFC2"/>
+      <stop offset="0.55" stop-color="#A8F79A"/>
+      <stop offset="1" stop-color="#80EF80"/>
+    </radialGradient>
+  </defs>
+
+  <!-- AppColors.green80EF80 -->
+  <rect width="1024" height="1024" rx="230" fill="#80EF80"/>
+
+  <g clip-path="url(#tile)">
+    <!-- The head is drawn upright around (0, 0) and turned to the corner -->
+    <g transform="translate(728 728) rotate(-45) scale(1.36)">
+      <path fill="#0C0A09" d="M -292 70
+        C -304 -10 -296 -80 -270 -136
+        Q -262 -270 -240 -352 Q -228 -398 -190 -372
+        Q -140 -330 -92 -252 Q 0 -276 92 -252
+        Q 140 -330 190 -372 Q 228 -398 240 -352
+        Q 262 -270 270 -136
+        C 296 -80 304 -10 292 70
+        C 270 206 140 266 0 266
+        C -140 266 -270 206 -292 70 Z"/>
+
+      <!-- Inside of the ears -->
+      <path fill="#292524" d="M -228 -176 Q -222 -262 -208 -322 Q -202 -344 -184 -330
+        Q -154 -300 -128 -262 Q -186 -230 -228 -176 Z"/>
+      <path fill="#292524" d="M 228 -176 Q 222 -262 208 -322 Q 202 -344 184 -330
+        Q 154 -300 128 -262 Q 186 -230 228 -176 Z"/>
+
+      <!-- Eyes -->
+      <ellipse cx="-122" cy="-46" rx="80" ry="72" transform="rotate(-10 -122 -46)" fill="url(#iris)"/>
+      <ellipse cx="122" cy="-46" rx="80" ry="72" transform="rotate(10 122 -46)" fill="url(#iris)"/>
+      <ellipse cx="-116" cy="-40" rx="40" ry="46" fill="#0C0A09"/>
+      <ellipse cx="116" cy="-40" rx="40" ry="46" fill="#0C0A09"/>
+      <circle cx="-100" cy="-58" r="14" fill="#FFFFFF"/>
+      <circle cx="132" cy="-58" r="14" fill="#FFFFFF"/>
+      <circle cx="-130" cy="-20" r="6" fill="#FFFFFF" opacity="0.7"/>
+      <circle cx="102" cy="-20" r="6" fill="#FFFFFF" opacity="0.7"/>
+    </g>
+  </g>
+</svg>

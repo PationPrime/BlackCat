@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:youtube_downloader/src/app/errors/errors.dart';
-import 'package:youtube_downloader/src/app/models/models.dart';
-import 'package:youtube_downloader/src/app/shared_controllers/shared_controllers.dart';
+import 'package:black_cat/src/app/errors/errors.dart';
+import 'package:black_cat/src/app/models/models.dart';
+import 'package:black_cat/src/app/shared_controllers/shared_controllers.dart';
 
 import '../../support/fake_repositories.dart';
 
@@ -15,7 +15,9 @@ Future<void> _settle() async {
 
 void main() {
   test('check: всё установлено — новые видео качает yt-dlp', () async {
-    final controller = DependenciesController(dependenciesRepository: FakeDependenciesRepository());
+    final controller = DependenciesController(
+      dependenciesRepository: FakeDependenciesRepository(),
+    );
 
     expect(controller.state.preferredEngine, DownloadEngineModel.builtIn);
 
@@ -28,7 +30,9 @@ void main() {
 
   test('check: без JavaScript-среды yt-dlp не используется', () async {
     final controller = DependenciesController(
-      dependenciesRepository: FakeDependenciesRepository(setupResults: [(failure: null, data: _onlyYtDlp)]),
+      dependenciesRepository: FakeDependenciesRepository(
+        setupResults: [(failure: null, data: _onlyYtDlp)],
+      ),
     );
 
     await controller.check();
@@ -40,7 +44,9 @@ void main() {
 
   test('check: платформа без yt-dlp не проверяется', () async {
     final repository = FakeDependenciesRepository(isSupported: false);
-    final controller = DependenciesController(dependenciesRepository: repository);
+    final controller = DependenciesController(
+      dependenciesRepository: repository,
+    );
 
     await controller.check();
 
@@ -49,95 +55,121 @@ void main() {
     expect(repository.setupCalls, 0);
   });
 
-  test('install: шаги отмечают установленные программы, итог — готово', () async {
-    final repository = FakeDependenciesRepository(
-      setupResults: [(failure: null, data: const YtDlpSetupModel())],
-    );
-    final controller = DependenciesController(dependenciesRepository: repository);
+  test(
+    'install: шаги отмечают установленные программы, итог — готово',
+    () async {
+      final repository = FakeDependenciesRepository(
+        setupResults: [(failure: null, data: const YtDlpSetupModel())],
+      );
+      final controller = DependenciesController(
+        dependenciesRepository: repository,
+      );
 
-    await controller.check();
+      await controller.check();
 
-    final installed = controller.install();
+      final installed = controller.install();
 
-    await _settle();
+      await _settle();
 
-    expect(controller.state.status, DependenciesStatus.installing);
-    expect(controller.state.installing, [DependencyKind.ytDlp, DependencyKind.jsRuntime]);
+      expect(controller.state.status, DependenciesStatus.installing);
+      expect(controller.state.installing, [
+        DependencyKind.ytDlp,
+        DependencyKind.jsRuntime,
+      ]);
 
-    /// A second request while installing is ignored
-    expect(await controller.install(), isFalse);
-    expect(repository.installs, hasLength(1));
+      /// A second request while installing is ignored
+      expect(await controller.install(), isFalse);
+      expect(repository.installs, hasLength(1));
 
-    final install = repository.installs.single;
+      final install = repository.installs.single;
 
-    install.report(
-      const DependencyInstallProgressModel(
-        kind: DependencyKind.ytDlp,
-        stage: DependencyInstallStage.downloading,
-        receivedBytes: 50,
-        totalBytes: 200,
-      ),
-    );
+      install.report(
+        const DependencyInstallProgressModel(
+          kind: DependencyKind.ytDlp,
+          stage: DependencyInstallStage.downloading,
+          receivedBytes: 50,
+          totalBytes: 200,
+        ),
+      );
 
-    expect(controller.state.progress?.fraction, 0.25);
+      expect(controller.state.progress?.fraction, 0.25);
 
-    install.report(const DependencyInstallProgressModel(kind: DependencyKind.ytDlp, stage: DependencyInstallStage.done));
+      install.report(
+        const DependencyInstallProgressModel(
+          kind: DependencyKind.ytDlp,
+          stage: DependencyInstallStage.done,
+        ),
+      );
 
-    expect(controller.state.installed, {DependencyKind.ytDlp});
+      expect(controller.state.installed, {DependencyKind.ytDlp});
 
-    install.succeed();
+      install.succeed();
 
-    expect(await installed, isTrue);
-    expect(controller.state.status, DependenciesStatus.ready);
-    expect(controller.state.installed, {DependencyKind.ytDlp, DependencyKind.jsRuntime});
-    expect(controller.state.progress, isNull);
-    expect(controller.state.preferredEngine, DownloadEngineModel.ytDlp);
-  });
+      expect(await installed, isTrue);
+      expect(controller.state.status, DependenciesStatus.ready);
+      expect(controller.state.installed, {
+        DependencyKind.ytDlp,
+        DependencyKind.jsRuntime,
+      });
+      expect(controller.state.progress, isNull);
+      expect(controller.state.preferredEngine, DownloadEngineModel.ytDlp);
+    },
+  );
 
-  test('install: ошибка запоминается, установленное к этому времени учитывается', () async {
-    final repository = FakeDependenciesRepository(
-      setupResults: [
-        (failure: null, data: const YtDlpSetupModel()),
-        (failure: null, data: _onlyYtDlp),
-      ],
-    );
-    final controller = DependenciesController(dependenciesRepository: repository);
+  test(
+    'install: ошибка запоминается, установленное к этому времени учитывается',
+    () async {
+      final repository = FakeDependenciesRepository(
+        setupResults: [
+          (failure: null, data: const YtDlpSetupModel()),
+          (failure: null, data: _onlyYtDlp),
+        ],
+      );
+      final controller = DependenciesController(
+        dependenciesRepository: repository,
+      );
 
-    await controller.check();
+      await controller.check();
 
-    final installed = controller.install();
+      final installed = controller.install();
 
-    await _settle();
+      await _settle();
 
-    const failure = DependencyFailure(code: 'download', message: 'Не удалось скачать Deno');
+      const failure = DependencyFailure(
+        code: 'download',
+        message: 'Не удалось скачать Deno',
+      );
 
-    repository.installs.single.failWith(failure);
+      repository.installs.single.failWith(failure);
 
-    expect(await installed, isFalse);
-    expect(controller.state.status, DependenciesStatus.failed);
-    expect(controller.state.failure, failure);
-    expect(controller.state.setup, _onlyYtDlp);
-    expect(controller.state.status.canInstall, isTrue);
-    expect(controller.state.preferredEngine, DownloadEngineModel.builtIn);
+      expect(await installed, isFalse);
+      expect(controller.state.status, DependenciesStatus.failed);
+      expect(controller.state.failure, failure);
+      expect(controller.state.setup, _onlyYtDlp);
+      expect(controller.state.status.canInstall, isTrue);
+      expect(controller.state.preferredEngine, DownloadEngineModel.builtIn);
 
-    /// The retry shows only what is still missing
-    final retried = controller.install();
+      /// The retry shows only what is still missing
+      final retried = controller.install();
 
-    await _settle();
+      await _settle();
 
-    expect(controller.state.installing, [DependencyKind.jsRuntime]);
-    expect(controller.state.failure, isNull);
+      expect(controller.state.installing, [DependencyKind.jsRuntime]);
+      expect(controller.state.failure, isNull);
 
-    repository.installs.last.succeed();
+      repository.installs.last.succeed();
 
-    expect(await retried, isTrue);
-  });
+      expect(await retried, isTrue);
+    },
+  );
 
   test('cancelInstall останавливает установку', () async {
     final repository = FakeDependenciesRepository(
       setupResults: [(failure: null, data: const YtDlpSetupModel())],
     );
-    final controller = DependenciesController(dependenciesRepository: repository);
+    final controller = DependenciesController(
+      dependenciesRepository: repository,
+    );
 
     await controller.check();
 
@@ -151,6 +183,9 @@ void main() {
     expect(repository.installs.single.cancellation?.isCancelled, isTrue);
     expect(controller.state.status, DependenciesStatus.failed);
     expect(controller.state.isCanceled, isTrue);
-    expect(controller.state.failure?.code, const DependencyErrorCodes().canceled);
+    expect(
+      controller.state.failure?.code,
+      const DependencyErrorCodes().canceled,
+    );
   });
 }

@@ -1,14 +1,22 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:youtube_downloader/src/app/errors/errors.dart';
-import 'package:youtube_downloader/src/app/models/models.dart';
-import 'package:youtube_downloader/src/app/shared_controllers/shared_controllers.dart';
-import 'package:youtube_downloader/src/modules/downloads/controllers/controllers.dart';
+import 'package:black_cat/src/app/errors/errors.dart';
+import 'package:black_cat/src/app/models/models.dart';
+import 'package:black_cat/src/app/shared_controllers/shared_controllers.dart';
+import 'package:black_cat/src/modules/downloads/controllers/controllers.dart';
 
 import '../../support/fake_repositories.dart';
 
 const _videoStreams = [
-  DownloadStreamModel(role: DownloadStreamRole.video, itag: 160, contentLength: 800),
-  DownloadStreamModel(role: DownloadStreamRole.audio, itag: 140, contentLength: 200),
+  DownloadStreamModel(
+    role: DownloadStreamRole.video,
+    itag: 160,
+    contentLength: 800,
+  ),
+  DownloadStreamModel(
+    role: DownloadStreamRole.audio,
+    itag: 140,
+    contentLength: 200,
+  ),
 ];
 
 VideoInfoModel _video(String id) => VideoInfoModel(
@@ -18,7 +26,12 @@ VideoInfoModel _video(String id) => VideoInfoModel(
   qualities: testVideoInfo.qualities,
 );
 
-const _quality1080 = QualityModel(id: '1080', kind: QualityKind.video, label: '1080p', resolution: 1080);
+const _quality1080 = QualityModel(
+  id: '1080',
+  kind: QualityKind.video,
+  label: '1080p',
+  resolution: 1080,
+);
 
 /// Lets the queue change chain and running downloads complete
 Future<void> _settle() async {
@@ -35,7 +48,9 @@ final class _Harness {
   final queueRepository = FakeDownloadQueueRepository();
   final settingsRepository = FakeSettingsRepository();
   final authenticationRepository = FakeAuthenticationRepository();
-  late final authorization = AuthorizationController(authenticationRepository: authenticationRepository);
+  late final authorization = AuthorizationController(
+    authenticationRepository: authenticationRepository,
+  );
 
   late final controller = DownloadQueueController(
     downloadQueueRepository: queueRepository,
@@ -57,13 +72,20 @@ final class _Harness {
     QualityModel quality = _quality1080,
     DownloadEngineModel engine = DownloadEngineModel.builtIn,
   }) async {
-    await controller.addTask(video: _video(id), quality: quality, engine: engine);
+    await controller.addTask(
+      video: _video(id),
+      quality: quality,
+      engine: engine,
+    );
     await _settle();
   }
 
-  String taskIdOf(String videoId) => state.allTasks.firstWhere((task) => task.video.id == videoId).id;
+  String taskIdOf(String videoId) =>
+      state.allTasks.firstWhere((task) => task.video.id == videoId).id;
 
-  List<String> get queueVideoIds => [for (final task in state.queue) task.video.id];
+  List<String> get queueVideoIds => [
+    for (final task in state.queue) task.video.id,
+  ];
 }
 
 DownloadTaskModel _restoredTask(
@@ -88,51 +110,69 @@ DownloadTaskModel _restoredTask(
 );
 
 void main() {
-  test('addTask: первое видео сразу качается, следующие встают в конец очереди', () async {
-    final harness = _Harness();
+  test(
+    'addTask: первое видео сразу качается, следующие встают в конец очереди',
+    () async {
+      final harness = _Harness();
 
-    await harness.add('a');
+      await harness.add('a');
 
-    expect(harness.state.activeTask?.video.id, 'a');
-    expect(harness.state.activeTask?.status, DownloadTaskStatus.downloading);
-    expect(harness.downloads.single.url, _video('a').url);
-    expect(harness.downloads.single.quality, '1080');
-    expect(harness.downloads.single.destinationDirectory, r'C:\Users\user\Downloads');
+      expect(harness.state.activeTask?.video.id, 'a');
+      expect(harness.state.activeTask?.status, DownloadTaskStatus.downloading);
+      expect(harness.downloads.single.url, _video('a').url);
+      expect(harness.downloads.single.quality, '1080');
+      expect(
+        harness.downloads.single.destinationDirectory,
+        r'C:\Users\user\Downloads',
+      );
 
-    await harness.add('b');
-    await harness.add('c');
+      await harness.add('b');
+      await harness.add('c');
 
-    expect(harness.queueVideoIds, ['b', 'c']);
-    expect([for (final task in harness.state.queue) task.position], [0, 1]);
-    expect(harness.downloads, hasLength(1));
-    expect(harness.queueRepository.saved[harness.taskIdOf('c')]?.section, DownloadTaskSection.queue);
-  });
+      expect(harness.queueVideoIds, ['b', 'c']);
+      expect([for (final task in harness.state.queue) task.position], [0, 1]);
+      expect(harness.downloads, hasLength(1));
+      expect(
+        harness.queueRepository.saved[harness.taskIdOf('c')]?.section,
+        DownloadTaskSection.queue,
+      );
+    },
+  );
 
-  test('готовая загрузка уходит в скачанные с размером, временем и превью, следующая начинается сама', () async {
-    final harness = _Harness();
+  test(
+    'готовая загрузка уходит в скачанные с размером, временем и превью, следующая начинается сама',
+    () async {
+      final harness = _Harness();
 
-    await harness.add('a');
-    await harness.add('b');
+      await harness.add('a');
+      await harness.add('b');
 
-    final beforeFinish = DateTime.now();
+      final beforeFinish = DateTime.now();
 
-    harness.downloads.first.succeed(r'C:\Users\user\Downloads\Видео a.mp4', sizeBytes: 70000000);
-    await _settle();
+      harness.downloads.first.succeed(
+        r'C:\Users\user\Downloads\Видео a.mp4',
+        sizeBytes: 70000000,
+      );
+      await _settle();
 
-    final downloaded = harness.state.finished.single;
+      final downloaded = harness.state.finished.single;
 
-    expect(downloaded.video.id, 'a');
-    expect(downloaded.status, DownloadTaskStatus.done);
-    expect(downloaded.filePath, r'C:\Users\user\Downloads\Видео a.mp4');
-    expect(downloaded.fileSizeBytes, 70000000);
-    expect(downloaded.completedAt!.isBefore(beforeFinish), isFalse);
-    expect(downloaded.thumbnailPath, r'C:\Thumbnails\thumb.jpg');
-    expect(harness.queueRepository.thumbnailTaskIds, [downloaded.id]);
-    expect(harness.queueRepository.saved[downloaded.id]?.thumbnailPath, r'C:\Thumbnails\thumb.jpg');
-    expect(harness.state.activeTask?.video.id, 'b');
-    expect(harness.state.queue, isEmpty);
-    expect(harness.downloads.last.taskId, harness.taskIdOf('b'));
-  });
+      expect(downloaded.video.id, 'a');
+      expect(downloaded.status, DownloadTaskStatus.done);
+      expect(downloaded.filePath, r'C:\Users\user\Downloads\Видео a.mp4');
+      expect(downloaded.fileSizeBytes, 70000000);
+      expect(downloaded.completedAt!.isBefore(beforeFinish), isFalse);
+      expect(downloaded.thumbnailPath, r'C:\Thumbnails\thumb.jpg');
+      expect(harness.queueRepository.thumbnailTaskIds, [downloaded.id]);
+      expect(
+        harness.queueRepository.saved[downloaded.id]?.thumbnailPath,
+        r'C:\Thumbnails\thumb.jpg',
+      );
+      expect(harness.state.activeTask?.video.id, 'b');
+      expect(harness.state.queue, isEmpty);
+      expect(harness.downloads.last.taskId, harness.taskIdOf('b'));
+    },
+  );
 
   test('прогресс и выбранные потоки сохраняются для возобновления', () async {
     final harness = _Harness();
@@ -143,7 +183,14 @@ void main() {
 
     download.selectStreams(_videoStreams);
     download.reportProgress(
-      const DownloadProgressModel(DownloadStage.downloading, 40, speed: 100, eta: 6, downloadedBytes: 400, totalBytes: 1000),
+      const DownloadProgressModel(
+        DownloadStage.downloading,
+        40,
+        speed: 100,
+        eta: 6,
+        downloadedBytes: 400,
+        totalBytes: 1000,
+      ),
     );
     await _settle();
 
@@ -153,84 +200,108 @@ void main() {
     expect(activeTask.totalBytes, 1000);
     expect(activeTask.percent, 40);
     expect(activeTask.speed, 100);
-    expect(harness.queueRepository.saved[activeTask.id]?.streams, _videoStreams);
-  });
-
-  test('startTask: активная загрузка встаёт на паузу в начало очереди, выбранное видео качается', () async {
-    final harness = _Harness();
-
-    await harness.add('a');
-    await harness.add('b');
-    await harness.add('c');
-
-    harness.downloads.first
-      ..selectStreams(_videoStreams)
-      ..reportProgress(const DownloadProgressModel(DownloadStage.downloading, 50, downloadedBytes: 500, totalBytes: 1000));
-
-    await harness.controller.startTask(harness.taskIdOf('c'));
-    await _settle();
-
-    expect(harness.downloads.first.isCancelled, isTrue);
-    expect(harness.state.activeTask?.video.id, 'c');
-    expect(harness.state.activeTask?.status, DownloadTaskStatus.downloading);
-    expect(harness.queueVideoIds, ['a', 'b']);
-    expect(harness.state.queue.first.status, DownloadTaskStatus.paused);
-    expect(harness.state.queue.first.downloadedBytes, 500);
-    expect(harness.state.queue.first.speed, isNull);
-    expect(harness.downloads.last.taskId, harness.taskIdOf('c'));
-
-    /// After "c", "a" continues with the same streams
-    harness.downloads.last.succeed(r'C:\Downloads\c.mp4');
-    await _settle();
-
-    expect(harness.state.activeTask?.video.id, 'a');
-    expect(harness.downloads.last.taskId, harness.taskIdOf('a'));
-    expect(harness.downloads.last.streams, _videoStreams);
-  });
-
-  test('startTask во время склейки: выбранное видео начнётся сразу после неё', () async {
-    final harness = _Harness();
-
-    await harness.add('a');
-    await harness.add('b');
-    await harness.add('c');
-
-    harness.downloads.first.reportProgress(
-      const DownloadProgressModel(DownloadStage.processing, 100, downloadedBytes: 1000, totalBytes: 1000),
+    expect(
+      harness.queueRepository.saved[activeTask.id]?.streams,
+      _videoStreams,
     );
-
-    await harness.controller.startTask(harness.taskIdOf('c'));
-    await _settle();
-
-    expect(harness.downloads.first.isCancelled, isFalse);
-    expect(harness.state.activeTask?.status, DownloadTaskStatus.processing);
-    expect(harness.queueVideoIds, ['c', 'b']);
   });
 
-  test('pauseActiveTask и resumeActiveTask: пауза не запускает очередь, продолжение — с тех же потоков', () async {
-    final harness = _Harness();
+  test(
+    'startTask: активная загрузка встаёт на паузу в начало очереди, выбранное видео качается',
+    () async {
+      final harness = _Harness();
 
-    await harness.add('a');
-    await harness.add('b');
+      await harness.add('a');
+      await harness.add('b');
+      await harness.add('c');
 
-    harness.downloads.single.selectStreams(_videoStreams);
+      harness.downloads.first
+        ..selectStreams(_videoStreams)
+        ..reportProgress(
+          const DownloadProgressModel(
+            DownloadStage.downloading,
+            50,
+            downloadedBytes: 500,
+            totalBytes: 1000,
+          ),
+        );
 
-    await harness.controller.pauseActiveTask();
-    await _settle();
+      await harness.controller.startTask(harness.taskIdOf('c'));
+      await _settle();
 
-    expect(harness.downloads.single.isCancelled, isTrue);
-    expect(harness.state.activeTask?.video.id, 'a');
-    expect(harness.state.activeTask?.status, DownloadTaskStatus.paused);
-    expect(harness.queueVideoIds, ['b']);
-    expect(harness.downloads, hasLength(1));
+      expect(harness.downloads.first.isCancelled, isTrue);
+      expect(harness.state.activeTask?.video.id, 'c');
+      expect(harness.state.activeTask?.status, DownloadTaskStatus.downloading);
+      expect(harness.queueVideoIds, ['a', 'b']);
+      expect(harness.state.queue.first.status, DownloadTaskStatus.paused);
+      expect(harness.state.queue.first.downloadedBytes, 500);
+      expect(harness.state.queue.first.speed, isNull);
+      expect(harness.downloads.last.taskId, harness.taskIdOf('c'));
 
-    await harness.controller.resumeActiveTask();
-    await _settle();
+      /// After "c", "a" continues with the same streams
+      harness.downloads.last.succeed(r'C:\Downloads\c.mp4');
+      await _settle();
 
-    expect(harness.state.activeTask?.status, DownloadTaskStatus.downloading);
-    expect(harness.downloads, hasLength(2));
-    expect(harness.downloads.last.streams, _videoStreams);
-  });
+      expect(harness.state.activeTask?.video.id, 'a');
+      expect(harness.downloads.last.taskId, harness.taskIdOf('a'));
+      expect(harness.downloads.last.streams, _videoStreams);
+    },
+  );
+
+  test(
+    'startTask во время склейки: выбранное видео начнётся сразу после неё',
+    () async {
+      final harness = _Harness();
+
+      await harness.add('a');
+      await harness.add('b');
+      await harness.add('c');
+
+      harness.downloads.first.reportProgress(
+        const DownloadProgressModel(
+          DownloadStage.processing,
+          100,
+          downloadedBytes: 1000,
+          totalBytes: 1000,
+        ),
+      );
+
+      await harness.controller.startTask(harness.taskIdOf('c'));
+      await _settle();
+
+      expect(harness.downloads.first.isCancelled, isFalse);
+      expect(harness.state.activeTask?.status, DownloadTaskStatus.processing);
+      expect(harness.queueVideoIds, ['c', 'b']);
+    },
+  );
+
+  test(
+    'pauseActiveTask и resumeActiveTask: пауза не запускает очередь, продолжение — с тех же потоков',
+    () async {
+      final harness = _Harness();
+
+      await harness.add('a');
+      await harness.add('b');
+
+      harness.downloads.single.selectStreams(_videoStreams);
+
+      await harness.controller.pauseActiveTask();
+      await _settle();
+
+      expect(harness.downloads.single.isCancelled, isTrue);
+      expect(harness.state.activeTask?.video.id, 'a');
+      expect(harness.state.activeTask?.status, DownloadTaskStatus.paused);
+      expect(harness.queueVideoIds, ['b']);
+      expect(harness.downloads, hasLength(1));
+
+      await harness.controller.resumeActiveTask();
+      await _settle();
+
+      expect(harness.state.activeTask?.status, DownloadTaskStatus.downloading);
+      expect(harness.downloads, hasLength(2));
+      expect(harness.downloads.last.streams, _videoStreams);
+    },
+  );
 
   test('moveQueuedTask переставляет очередь сразу и сохраняет места', () async {
     final harness = _Harness();
@@ -250,23 +321,26 @@ void main() {
     expect(harness.queueRepository.saved[harness.taskIdOf('c')]?.position, 2);
   });
 
-  test('removeTask активной: загрузка останавливается, файлы удаляются, начинается следующая', () async {
-    final harness = _Harness();
+  test(
+    'removeTask активной: загрузка останавливается, файлы удаляются, начинается следующая',
+    () async {
+      final harness = _Harness();
 
-    await harness.add('a');
-    await harness.add('b');
+      await harness.add('a');
+      await harness.add('b');
 
-    final taskId = harness.taskIdOf('a');
+      final taskId = harness.taskIdOf('a');
 
-    await harness.controller.removeTask(taskId);
-    await _settle();
+      await harness.controller.removeTask(taskId);
+      await _settle();
 
-    expect(harness.downloads.first.isCancelled, isTrue);
-    expect(harness.queueRepository.removedTaskIds, [taskId]);
-    expect(harness.state.taskById(taskId), isNull);
-    expect(harness.state.activeTask?.video.id, 'b');
-    expect(harness.downloads.last.taskId, harness.taskIdOf('b'));
-  });
+      expect(harness.downloads.first.isCancelled, isTrue);
+      expect(harness.queueRepository.removedTaskIds, [taskId]);
+      expect(harness.state.taskById(taskId), isNull);
+      expect(harness.state.activeTask?.video.id, 'b');
+      expect(harness.downloads.last.taskId, harness.taskIdOf('b'));
+    },
+  );
 
   test('removeTask из очереди не трогает активную загрузку', () async {
     final harness = _Harness();
@@ -283,298 +357,398 @@ void main() {
     expect(harness.state.queue.single.position, 0);
   });
 
-  test('ошибка загрузки: видео уходит в «Ошибку скачивания», повтор возвращает его в начало очереди с теми же потоками', () async {
-    final harness = _Harness();
+  test(
+    'ошибка загрузки: видео уходит в «Ошибку скачивания», повтор возвращает его в начало очереди с теми же потоками',
+    () async {
+      final harness = _Harness();
 
-    await harness.add('a');
-    await harness.add('b');
-    await harness.add('c');
+      await harness.add('a');
+      await harness.add('b');
+      await harness.add('c');
 
-    harness.downloads.first.selectStreams(_videoStreams);
-    harness.downloads.first.failWith(
-      const VideoFailure(code: 'unplayable', message: 'Войдите в аккаунт', needsSignIn: true),
-    );
-    await _settle();
+      harness.downloads.first.selectStreams(_videoStreams);
+      harness.downloads.first.failWith(
+        const VideoFailure(
+          code: 'unplayable',
+          message: 'Войдите в аккаунт',
+          needsSignIn: true,
+        ),
+      );
+      await _settle();
 
-    final failedTask = harness.state.failed.single;
+      final failedTask = harness.state.failed.single;
 
-    expect(failedTask.video.id, 'a');
-    expect(failedTask.status, DownloadTaskStatus.failed);
-    expect(failedTask.section, DownloadTaskSection.failed);
-    expect(failedTask.failureMessage, 'Войдите в аккаунт');
-    expect(failedTask.failureNeedsSignIn, isTrue);
-    expect(harness.queueRepository.saved[failedTask.id]?.section, DownloadTaskSection.failed);
-    expect(harness.queueVideoIds, ['c']);
-    expect(harness.state.finished, isEmpty);
-    expect(harness.state.activeTask?.video.id, 'b');
+      expect(failedTask.video.id, 'a');
+      expect(failedTask.status, DownloadTaskStatus.failed);
+      expect(failedTask.section, DownloadTaskSection.failed);
+      expect(failedTask.failureMessage, 'Войдите в аккаунт');
+      expect(failedTask.failureNeedsSignIn, isTrue);
+      expect(
+        harness.queueRepository.saved[failedTask.id]?.section,
+        DownloadTaskSection.failed,
+      );
+      expect(harness.queueVideoIds, ['c']);
+      expect(harness.state.finished, isEmpty);
+      expect(harness.state.activeTask?.video.id, 'b');
 
-    /// "b" is done: "c" starts next, the failed "a" waits for a retry
-    harness.downloads.last.succeed(r'C:\Downloads\b.mp4');
-    await _settle();
+      /// "b" is done: "c" starts next, the failed "a" waits for a retry
+      harness.downloads.last.succeed(r'C:\Downloads\b.mp4');
+      await _settle();
 
-    expect(harness.state.activeTask?.video.id, 'c');
-    expect(harness.queueVideoIds, isEmpty);
-    expect(harness.state.failed, hasLength(1));
+      expect(harness.state.activeTask?.video.id, 'c');
+      expect(harness.queueVideoIds, isEmpty);
+      expect(harness.state.failed, hasLength(1));
 
-    await harness.controller.signInAndRetry(failedTask.id);
-    await _settle();
+      await harness.controller.signInAndRetry(failedTask.id);
+      await _settle();
 
-    expect(harness.authenticationRepository.signInCalls, 1);
-    expect(harness.state.failed, isEmpty);
-    expect(harness.state.queue.single.id, failedTask.id);
-    expect(harness.state.queue.single.status, DownloadTaskStatus.queued);
-    expect(harness.state.queue.single.failureMessage, isNull);
+      expect(harness.authenticationRepository.signInCalls, 1);
+      expect(harness.state.failed, isEmpty);
+      expect(harness.state.queue.single.id, failedTask.id);
+      expect(harness.state.queue.single.status, DownloadTaskStatus.queued);
+      expect(harness.state.queue.single.failureMessage, isNull);
 
-    harness.downloads.last.succeed(r'C:\Downloads\c.mp4');
-    await _settle();
+      harness.downloads.last.succeed(r'C:\Downloads\c.mp4');
+      await _settle();
 
-    expect(harness.downloads.last.taskId, failedTask.id);
-    expect(harness.downloads.last.streams, _videoStreams);
-  });
+      expect(harness.downloads.last.taskId, failedTask.id);
+      expect(harness.downloads.last.streams, _videoStreams);
+    },
+  );
 
-  test('упавшая загрузка сама не начинается, «Скачать сейчас» запускает её прямо из ошибок', () async {
-    final harness = _Harness();
+  test(
+    'упавшая загрузка сама не начинается, «Скачать сейчас» запускает её прямо из ошибок',
+    () async {
+      final harness = _Harness();
 
-    await harness.add('a');
+      await harness.add('a');
 
-    harness.downloads.single.failWith(const VideoFailure(code: 'mux', message: 'Не удалось собрать файл'));
-    await _settle();
+      harness.downloads.single.failWith(
+        const VideoFailure(code: 'mux', message: 'Не удалось собрать файл'),
+      );
+      await _settle();
 
-    expect(harness.state.activeTask, isNull);
-    expect(harness.queueVideoIds, isEmpty);
-    expect([for (final task in harness.state.failed) task.video.id], ['a']);
-    expect(harness.downloads, hasLength(1));
+      expect(harness.state.activeTask, isNull);
+      expect(harness.queueVideoIds, isEmpty);
+      expect([for (final task in harness.state.failed) task.video.id], ['a']);
+      expect(harness.downloads, hasLength(1));
 
-    await harness.controller.startTask(harness.taskIdOf('a'));
-    await _settle();
+      await harness.controller.startTask(harness.taskIdOf('a'));
+      await _settle();
 
-    expect(harness.state.activeTask?.status, DownloadTaskStatus.downloading);
-    expect(harness.state.activeTask?.failureMessage, isNull);
-    expect(harness.state.failed, isEmpty);
-    expect(harness.downloads, hasLength(2));
-  });
+      expect(harness.state.activeTask?.status, DownloadTaskStatus.downloading);
+      expect(harness.state.activeTask?.failureMessage, isNull);
+      expect(harness.state.failed, isEmpty);
+      expect(harness.downloads, hasLength(2));
+    },
+  );
 
-  test('ошибки: новые сверху, удаление убирает загрузку вместе с файлами', () async {
-    final harness = _Harness();
+  test(
+    'ошибки: новые сверху, удаление убирает загрузку вместе с файлами',
+    () async {
+      final harness = _Harness();
 
-    await harness.add('a');
-    await harness.add('b');
+      await harness.add('a');
+      await harness.add('b');
 
-    harness.downloads.first.failWith(const VideoFailure(code: 'mux', message: 'a'));
-    await _settle();
-    harness.downloads.last.failWith(const VideoFailure(code: 'mux', message: 'b'));
-    await _settle();
+      harness.downloads.first.failWith(
+        const VideoFailure(code: 'mux', message: 'a'),
+      );
+      await _settle();
+      harness.downloads.last.failWith(
+        const VideoFailure(code: 'mux', message: 'b'),
+      );
+      await _settle();
 
-    expect([for (final task in harness.state.failed) task.video.id], ['b', 'a']);
-    expect([for (final task in harness.state.failed) task.position], [0, 1]);
+      expect(
+        [for (final task in harness.state.failed) task.video.id],
+        ['b', 'a'],
+      );
+      expect([for (final task in harness.state.failed) task.position], [0, 1]);
 
-    await harness.controller.removeTask(harness.taskIdOf('b'));
-    await _settle();
+      await harness.controller.removeTask(harness.taskIdOf('b'));
+      await _settle();
 
-    expect([for (final task in harness.state.failed) task.video.id], ['a']);
-    expect(harness.queueRepository.removedTaskIds, hasLength(1));
-    expect(harness.downloads, hasLength(2));
-  });
+      expect([for (final task in harness.state.failed) task.video.id], ['a']);
+      expect(harness.queueRepository.removedTaskIds, hasLength(1));
+      expect(harness.downloads, hasLength(2));
+    },
+  );
 
   group('дубликаты в ошибках', () {
-    test('видео, добавленное заново после ошибки, возвращается из ошибок, а не копируется', () async {
-      final harness = _Harness();
+    test(
+      'видео, добавленное заново после ошибки, возвращается из ошибок, а не копируется',
+      () async {
+        final harness = _Harness();
 
-      await harness.add('a');
+        await harness.add('a');
 
-      final taskId = harness.taskIdOf('a');
+        final taskId = harness.taskIdOf('a');
 
-      harness.downloads.single.selectStreams(_videoStreams);
-      harness.downloads.single.failWith(
-        const VideoFailure(code: 'quality_unavailable', message: 'Выбранное качество больше недоступно.'),
-      );
-      await _settle();
+        harness.downloads.single.selectStreams(_videoStreams);
+        harness.downloads.single.failWith(
+          const VideoFailure(
+            code: 'quality_unavailable',
+            message: 'Выбранное качество больше недоступно.',
+          ),
+        );
+        await _settle();
 
-      final refreshed = VideoInfoModel(
-        id: 'a',
-        title: 'Видео a (новое название)',
-        url: 'https://youtu.be/a',
-        qualities: testVideoInfo.qualities,
-      );
+        final refreshed = VideoInfoModel(
+          id: 'a',
+          title: 'Видео a (новое название)',
+          url: 'https://youtu.be/a',
+          qualities: testVideoInfo.qualities,
+        );
 
-      await harness.controller.addTask(video: refreshed, quality: _quality1080, engine: DownloadEngineModel.ytDlp);
-      await _settle();
+        await harness.controller.addTask(
+          video: refreshed,
+          quality: _quality1080,
+          engine: DownloadEngineModel.ytDlp,
+        );
+        await _settle();
 
-      expect(harness.state.failed, isEmpty);
-      expect(harness.state.allTasks, hasLength(1));
+        expect(harness.state.failed, isEmpty);
+        expect(harness.state.allTasks, hasLength(1));
 
-      final retried = harness.state.activeTask!;
+        final retried = harness.state.activeTask!;
 
-      expect(retried.id, taskId);
-      expect(retried.video.title, 'Видео a (новое название)');
-      expect(retried.engine, DownloadEngineModel.ytDlp);
-      expect(retried.failureMessage, isNull);
-      expect(harness.ytDlpVideoRepository.downloads.single.taskId, taskId);
-      expect(harness.ytDlpVideoRepository.downloads.single.streams, _videoStreams);
+        expect(retried.id, taskId);
+        expect(retried.video.title, 'Видео a (новое название)');
+        expect(retried.engine, DownloadEngineModel.ytDlp);
+        expect(retried.failureMessage, isNull);
+        expect(harness.ytDlpVideoRepository.downloads.single.taskId, taskId);
+        expect(
+          harness.ytDlpVideoRepository.downloads.single.streams,
+          _videoStreams,
+        );
 
-      /// It fails again: still one entry in the errors
-      harness.ytDlpVideoRepository.downloads.single.failWith(
-        const VideoFailure(code: 'quality_unavailable', message: 'Выбранное качество больше недоступно.'),
-      );
-      await _settle();
+        /// It fails again: still one entry in the errors
+        harness.ytDlpVideoRepository.downloads.single.failWith(
+          const VideoFailure(
+            code: 'quality_unavailable',
+            message: 'Выбранное качество больше недоступно.',
+          ),
+        );
+        await _settle();
 
-      expect(harness.state.failed.single.id, taskId);
-    });
+        expect(harness.state.failed.single.id, taskId);
+      },
+    );
 
-    test('видео, специально добавленное дважды, может оказаться в ошибках дважды', () async {
-      final harness = _Harness();
+    test(
+      'видео, специально добавленное дважды, может оказаться в ошибках дважды',
+      () async {
+        final harness = _Harness();
 
-      await harness.add('a');
-      await harness.add('a');
+        await harness.add('a');
+        await harness.add('a');
 
-      expect(harness.state.allTasks, hasLength(2));
+        expect(harness.state.allTasks, hasLength(2));
 
-      harness.downloads.single.failWith(const VideoFailure(code: 'mux', message: 'первая копия'));
-      await _settle();
-      harness.downloads.last.failWith(const VideoFailure(code: 'mux', message: 'вторая копия'));
-      await _settle();
+        harness.downloads.single.failWith(
+          const VideoFailure(code: 'mux', message: 'первая копия'),
+        );
+        await _settle();
+        harness.downloads.last.failWith(
+          const VideoFailure(code: 'mux', message: 'вторая копия'),
+        );
+        await _settle();
 
-      expect([for (final task in harness.state.failed) task.failureMessage], ['вторая копия', 'первая копия']);
-    });
+        expect(
+          [for (final task in harness.state.failed) task.failureMessage],
+          ['вторая копия', 'первая копия'],
+        );
+      },
+    );
 
     test('то же видео в другом качестве — отдельная загрузка', () async {
       final harness = _Harness();
 
       await harness.add('a');
 
-      harness.downloads.single.failWith(const VideoFailure(code: 'mux', message: 'не собралось'));
+      harness.downloads.single.failWith(
+        const VideoFailure(code: 'mux', message: 'не собралось'),
+      );
       await _settle();
 
-      await harness.add('a', quality: const QualityModel(id: QualityModel.audioId, kind: QualityKind.audio));
+      await harness.add(
+        'a',
+        quality: const QualityModel(
+          id: QualityModel.audioId,
+          kind: QualityKind.audio,
+        ),
+      );
 
       expect(harness.state.failed.single.quality.id, '1080');
       expect(harness.state.activeTask?.quality.id, QualityModel.audioId);
-      expect(harness.state.activeTask?.id, isNot(harness.state.failed.single.id));
+      expect(
+        harness.state.activeTask?.id,
+        isNot(harness.state.failed.single.id),
+      );
     });
   });
 
-  test('clearFinished очищает список скачанных вместе с копиями превью', () async {
-    final harness = _Harness();
-
-    await harness.add('a');
-
-    harness.downloads.single.succeed(r'C:\Downloads\a.mp4');
-    await _settle();
-
-    final taskId = harness.taskIdOf('a');
-
-    await harness.controller.clearFinished();
-    await _settle();
-
-    expect(harness.state.finished, isEmpty);
-    expect(harness.queueRepository.removedTaskIds, [taskId]);
-  });
-
-  test('загрузка через yt-dlp качается им до конца, даже после паузы', () async {
-    final harness = _Harness();
-
-    await harness.add('a', engine: DownloadEngineModel.ytDlp);
-    await harness.add('b');
-
-    final ytDlpDownload = harness.ytDlpVideoRepository.downloads.single;
-    final taskId = harness.taskIdOf('a');
-
-    expect(harness.downloads, isEmpty);
-    expect(ytDlpDownload.taskId, taskId);
-    expect(harness.state.activeTask?.engine, DownloadEngineModel.ytDlp);
-    expect(harness.queueRepository.saved[taskId]?.engine, DownloadEngineModel.ytDlp);
-
-    ytDlpDownload.selectStreams(_videoStreams);
-
-    await harness.controller.pauseActiveTask();
-    await _settle();
-    await harness.controller.resumeActiveTask();
-    await _settle();
-
-    expect(harness.ytDlpVideoRepository.downloads, hasLength(2));
-    expect(harness.ytDlpVideoRepository.downloads.last.streams, _videoStreams);
-
-    harness.ytDlpVideoRepository.downloads.last.succeed(r'C:\Downloads.mp4');
-    await _settle();
-
-    /// The next video was added for the built-in downloader
-    expect(harness.downloads.single.taskId, harness.taskIdOf('b'));
-  });
-
-  test('yt-dlp пропал: загрузка продолжается встроенным загрузчиком с тех же потоков', () async {
-    final harness = _Harness();
-
-    await harness.add('a', engine: DownloadEngineModel.ytDlp);
-
-    final taskId = harness.taskIdOf('a');
-    final ytDlpDownload = harness.ytDlpVideoRepository.downloads.single;
-
-    ytDlpDownload.selectStreams(_videoStreams);
-    await _settle();
-
-    ytDlpDownload.failWith(
-      const VideoFailure(code: 'ytdlp_not_found', message: 'yt-dlp не найден'),
-    );
-    await _settle();
-
-    final builtIn = harness.downloads.single;
-
-    expect(builtIn.taskId, taskId);
-    expect(builtIn.streams, _videoStreams);
-    expect(harness.state.activeTask?.engine, DownloadEngineModel.builtIn);
-    expect(harness.state.activeTask?.status, DownloadTaskStatus.downloading);
-    expect(harness.queueRepository.saved[taskId]?.engine, DownloadEngineModel.builtIn);
-
-    builtIn.succeed(r'C:\Downloads\a.mp4');
-    await _settle();
-
-    expect(harness.state.finished.single.engine, DownloadEngineModel.builtIn);
-  });
-
-  test('другие ошибки yt-dlp не переключают загрузку на встроенный загрузчик', () async {
-    final harness = _Harness();
-
-    await harness.add('a', engine: DownloadEngineModel.ytDlp);
-
-    harness.ytDlpVideoRepository.downloads.single.failWith(
-      const VideoFailure(code: 'bot_check', message: 'Войдите', needsSignIn: true),
-    );
-    await _settle();
-
-    expect(harness.downloads, isEmpty);
-    expect(harness.state.failed.single.status, DownloadTaskStatus.failed);
-    expect(harness.state.failed.single.failureNeedsSignIn, isTrue);
-    expect(harness.state.failed.single.engine, DownloadEngineModel.ytDlp);
-  });
-
-  group('restoreQueue', () {
-    test('загрузка, прерванная закрытием приложения, продолжается с сохранёнными потоками', () async {
+  test(
+    'clearFinished очищает список скачанных вместе с копиями превью',
+    () async {
       final harness = _Harness();
 
-      harness.queueRepository.restoreResult = (
-        failure: null,
-        data: [
-          _restoredTask(
-            'a',
-            status: DownloadTaskStatus.downloading,
-            section: DownloadTaskSection.active,
-            downloadedBytes: 640,
-            streams: _videoStreams,
-          ),
-          _restoredTask('b', status: DownloadTaskStatus.queued, section: DownloadTaskSection.queue),
-        ],
-      );
+      await harness.add('a');
 
-      await harness.controller.restoreQueue();
+      harness.downloads.single.succeed(r'C:\Downloads\a.mp4');
       await _settle();
 
-      expect(harness.state.isRestoring, isFalse);
+      final taskId = harness.taskIdOf('a');
+
+      await harness.controller.clearFinished();
+      await _settle();
+
+      expect(harness.state.finished, isEmpty);
+      expect(harness.queueRepository.removedTaskIds, [taskId]);
+    },
+  );
+
+  test(
+    'загрузка через yt-dlp качается им до конца, даже после паузы',
+    () async {
+      final harness = _Harness();
+
+      await harness.add('a', engine: DownloadEngineModel.ytDlp);
+      await harness.add('b');
+
+      final ytDlpDownload = harness.ytDlpVideoRepository.downloads.single;
+      final taskId = harness.taskIdOf('a');
+
+      expect(harness.downloads, isEmpty);
+      expect(ytDlpDownload.taskId, taskId);
+      expect(harness.state.activeTask?.engine, DownloadEngineModel.ytDlp);
+      expect(
+        harness.queueRepository.saved[taskId]?.engine,
+        DownloadEngineModel.ytDlp,
+      );
+
+      ytDlpDownload.selectStreams(_videoStreams);
+
+      await harness.controller.pauseActiveTask();
+      await _settle();
+      await harness.controller.resumeActiveTask();
+      await _settle();
+
+      expect(harness.ytDlpVideoRepository.downloads, hasLength(2));
+      expect(
+        harness.ytDlpVideoRepository.downloads.last.streams,
+        _videoStreams,
+      );
+
+      harness.ytDlpVideoRepository.downloads.last.succeed(r'C:\Downloads.mp4');
+      await _settle();
+
+      /// The next video was added for the built-in downloader
+      expect(harness.downloads.single.taskId, harness.taskIdOf('b'));
+    },
+  );
+
+  test(
+    'yt-dlp пропал: загрузка продолжается встроенным загрузчиком с тех же потоков',
+    () async {
+      final harness = _Harness();
+
+      await harness.add('a', engine: DownloadEngineModel.ytDlp);
+
+      final taskId = harness.taskIdOf('a');
+      final ytDlpDownload = harness.ytDlpVideoRepository.downloads.single;
+
+      ytDlpDownload.selectStreams(_videoStreams);
+      await _settle();
+
+      ytDlpDownload.failWith(
+        const VideoFailure(
+          code: 'ytdlp_not_found',
+          message: 'yt-dlp не найден',
+        ),
+      );
+      await _settle();
+
+      final builtIn = harness.downloads.single;
+
+      expect(builtIn.taskId, taskId);
+      expect(builtIn.streams, _videoStreams);
+      expect(harness.state.activeTask?.engine, DownloadEngineModel.builtIn);
       expect(harness.state.activeTask?.status, DownloadTaskStatus.downloading);
-      expect(harness.state.activeTask?.downloadedBytes, 640);
-      expect(harness.downloads.single.taskId, 'task-a');
-      expect(harness.downloads.single.streams, _videoStreams);
-      expect(harness.queueVideoIds, ['b']);
-    });
+      expect(
+        harness.queueRepository.saved[taskId]?.engine,
+        DownloadEngineModel.builtIn,
+      );
+
+      builtIn.succeed(r'C:\Downloads\a.mp4');
+      await _settle();
+
+      expect(harness.state.finished.single.engine, DownloadEngineModel.builtIn);
+    },
+  );
+
+  test(
+    'другие ошибки yt-dlp не переключают загрузку на встроенный загрузчик',
+    () async {
+      final harness = _Harness();
+
+      await harness.add('a', engine: DownloadEngineModel.ytDlp);
+
+      harness.ytDlpVideoRepository.downloads.single.failWith(
+        const VideoFailure(
+          code: 'bot_check',
+          message: 'Войдите',
+          needsSignIn: true,
+        ),
+      );
+      await _settle();
+
+      expect(harness.downloads, isEmpty);
+      expect(harness.state.failed.single.status, DownloadTaskStatus.failed);
+      expect(harness.state.failed.single.failureNeedsSignIn, isTrue);
+      expect(harness.state.failed.single.engine, DownloadEngineModel.ytDlp);
+    },
+  );
+
+  group('restoreQueue', () {
+    test(
+      'загрузка, прерванная закрытием приложения, продолжается с сохранёнными потоками',
+      () async {
+        final harness = _Harness();
+
+        harness.queueRepository.restoreResult = (
+          failure: null,
+          data: [
+            _restoredTask(
+              'a',
+              status: DownloadTaskStatus.downloading,
+              section: DownloadTaskSection.active,
+              downloadedBytes: 640,
+              streams: _videoStreams,
+            ),
+            _restoredTask(
+              'b',
+              status: DownloadTaskStatus.queued,
+              section: DownloadTaskSection.queue,
+            ),
+          ],
+        );
+
+        await harness.controller.restoreQueue();
+        await _settle();
+
+        expect(harness.state.isRestoring, isFalse);
+        expect(
+          harness.state.activeTask?.status,
+          DownloadTaskStatus.downloading,
+        );
+        expect(harness.state.activeTask?.downloadedBytes, 640);
+        expect(harness.downloads.single.taskId, 'task-a');
+        expect(harness.downloads.single.streams, _videoStreams);
+        expect(harness.queueVideoIds, ['b']);
+      },
+    );
 
     test('поставленная на паузу загрузка ждёт пользователя', () async {
       final harness = _Harness();
@@ -589,7 +763,11 @@ void main() {
             downloadedBytes: 640,
             streams: _videoStreams,
           ),
-          _restoredTask('b', status: DownloadTaskStatus.queued, section: DownloadTaskSection.queue),
+          _restoredTask(
+            'b',
+            status: DownloadTaskStatus.queued,
+            section: DownloadTaskSection.queue,
+          ),
         ],
       );
 
@@ -607,8 +785,17 @@ void main() {
       harness.queueRepository.restoreResult = (
         failure: null,
         data: [
-          _restoredTask('b', status: DownloadTaskStatus.queued, section: DownloadTaskSection.queue, position: 1),
-          _restoredTask('a', status: DownloadTaskStatus.paused, section: DownloadTaskSection.queue),
+          _restoredTask(
+            'b',
+            status: DownloadTaskStatus.queued,
+            section: DownloadTaskSection.queue,
+            position: 1,
+          ),
+          _restoredTask(
+            'a',
+            status: DownloadTaskStatus.paused,
+            section: DownloadTaskSection.queue,
+          ),
         ]..sort((a, b) => a.position.compareTo(b.position)),
       );
 
@@ -620,37 +807,81 @@ void main() {
       expect(harness.queueVideoIds, ['b']);
     });
 
-    test('упавшие загрузки, в том числе прежних версий из очереди и завершённых, собираются в ошибках', () async {
-      final harness = _Harness();
+    test(
+      'упавшие загрузки, в том числе прежних версий из очереди и завершённых, собираются в ошибках',
+      () async {
+        final harness = _Harness();
 
-      harness.queueRepository.restoreResult = (
-        failure: null,
-        data: [
-          _restoredTask('b', status: DownloadTaskStatus.queued, section: DownloadTaskSection.queue),
-          _restoredTask('old-queue', status: DownloadTaskStatus.failed, section: DownloadTaskSection.queue, position: 1),
-          _restoredTask('failed', status: DownloadTaskStatus.failed, section: DownloadTaskSection.failed),
-          _restoredTask('done', status: DownloadTaskStatus.done, section: DownloadTaskSection.finished),
-          _restoredTask('old-finished', status: DownloadTaskStatus.failed, section: DownloadTaskSection.finished, position: 1),
-        ],
-      );
+        harness.queueRepository.restoreResult = (
+          failure: null,
+          data: [
+            _restoredTask(
+              'b',
+              status: DownloadTaskStatus.queued,
+              section: DownloadTaskSection.queue,
+            ),
+            _restoredTask(
+              'old-queue',
+              status: DownloadTaskStatus.failed,
+              section: DownloadTaskSection.queue,
+              position: 1,
+            ),
+            _restoredTask(
+              'failed',
+              status: DownloadTaskStatus.failed,
+              section: DownloadTaskSection.failed,
+            ),
+            _restoredTask(
+              'done',
+              status: DownloadTaskStatus.done,
+              section: DownloadTaskSection.finished,
+            ),
+            _restoredTask(
+              'old-finished',
+              status: DownloadTaskStatus.failed,
+              section: DownloadTaskSection.finished,
+              position: 1,
+            ),
+          ],
+        );
 
-      await harness.controller.restoreQueue();
-      await _settle();
+        await harness.controller.restoreQueue();
+        await _settle();
 
-      expect([for (final task in harness.state.finished) task.video.id], ['done']);
-      expect(harness.state.activeTask?.video.id, 'b');
-      expect(harness.queueVideoIds, isEmpty);
-      expect([for (final task in harness.state.failed) task.video.id], ['old-queue', 'failed', 'old-finished']);
-      expect(
-        [for (final task in harness.state.failed) (task.section, task.position)],
-        [(DownloadTaskSection.failed, 0), (DownloadTaskSection.failed, 1), (DownloadTaskSection.failed, 2)],
-      );
-      expect(harness.queueRepository.saved['task-old-finished']?.section, DownloadTaskSection.failed);
-    });
+        expect(
+          [for (final task in harness.state.finished) task.video.id],
+          ['done'],
+        );
+        expect(harness.state.activeTask?.video.id, 'b');
+        expect(harness.queueVideoIds, isEmpty);
+        expect(
+          [for (final task in harness.state.failed) task.video.id],
+          ['old-queue', 'failed', 'old-finished'],
+        );
+        expect(
+          [
+            for (final task in harness.state.failed)
+              (task.section, task.position),
+          ],
+          [
+            (DownloadTaskSection.failed, 0),
+            (DownloadTaskSection.failed, 1),
+            (DownloadTaskSection.failed, 2),
+          ],
+        );
+        expect(
+          harness.queueRepository.saved['task-old-finished']?.section,
+          DownloadTaskSection.failed,
+        );
+      },
+    );
 
     test('ошибка чтения базы показывается на экране', () async {
       final harness = _Harness();
-      const failure = DownloadQueueFailure(code: 'storage', message: 'База недоступна');
+      const failure = DownloadQueueFailure(
+        code: 'storage',
+        message: 'База недоступна',
+      );
 
       harness.queueRepository.restoreResult = (failure: failure, data: null);
 
@@ -662,142 +893,209 @@ void main() {
     });
   });
 
-  test('импортированные cookies повторяют все загрузки, которым нужен вход', () async {
-    final harness = _Harness();
+  test(
+    'импортированные cookies повторяют все загрузки, которым нужен вход',
+    () async {
+      final harness = _Harness();
 
-    await harness.authorization.checkAuthorization();
-    await harness.add('a');
-    await harness.add('b');
-    await harness.add('c');
+      await harness.authorization.checkAuthorization();
+      await harness.add('a');
+      await harness.add('b');
+      await harness.add('c');
 
-    const signIn = VideoFailure(code: 'bot_check', message: 'Войдите', needsSignIn: true);
+      const signIn = VideoFailure(
+        code: 'bot_check',
+        message: 'Войдите',
+        needsSignIn: true,
+      );
 
-    harness.downloads[0].failWith(signIn);
-    await _settle();
-    harness.downloads[1].failWith(const VideoFailure(code: 'private_video', message: 'Приватное'));
-    await _settle();
-    harness.downloads[2].failWith(signIn);
-    await _settle();
+      harness.downloads[0].failWith(signIn);
+      await _settle();
+      harness.downloads[1].failWith(
+        const VideoFailure(code: 'private_video', message: 'Приватное'),
+      );
+      await _settle();
+      harness.downloads[2].failWith(signIn);
+      await _settle();
 
-    expect(harness.state.activeTask, isNull);
-    expect(harness.state.queue, isEmpty);
-    expect([for (final task in harness.state.failed) task.video.id], ['c', 'b', 'a']);
+      expect(harness.state.activeTask, isNull);
+      expect(harness.state.queue, isEmpty);
+      expect(
+        [for (final task in harness.state.failed) task.video.id],
+        ['c', 'b', 'a'],
+      );
 
-    harness.authenticationRepository.importResult = (
-      failure: null,
-      data: AccountSessionModel.cookiesFile(cookiesFilePath: r'C:\cookies.txt', importedAt: DateTime(2026, 9, 16)),
-    );
-    await harness.authorization.importCookies();
-    await _settle();
+      harness.authenticationRepository.importResult = (
+        failure: null,
+        data: AccountSessionModel.cookiesFile(
+          cookiesFilePath: r'C:\cookies.txt',
+          importedAt: DateTime(2026, 9, 16),
+        ),
+      );
+      await harness.authorization.importCookies();
+      await _settle();
 
-    /// The first retried download starts, the other waits; the private video stays failed
-    expect(harness.downloads, hasLength(4));
-    expect(harness.state.activeTask?.video.id, 'c');
-    expect(harness.queueVideoIds, ['a']);
-    expect(harness.state.queue.single.status, DownloadTaskStatus.queued);
-    expect([for (final task in harness.state.failed) task.video.id], ['b']);
-  });
+      /// The first retried download starts, the other waits; the private video stays failed
+      expect(harness.downloads, hasLength(4));
+      expect(harness.state.activeTask?.video.id, 'c');
+      expect(harness.queueVideoIds, ['a']);
+      expect(harness.state.queue.single.status, DownloadTaskStatus.queued);
+      expect([for (final task in harness.state.failed) task.video.id], ['b']);
+    },
+  );
 
-  test('отчёт без скорости не стирает скорость и оставшееся время, склейка — стирает', () async {
-    final harness = _Harness();
+  test(
+    'отчёт без скорости не стирает скорость и оставшееся время, склейка — стирает',
+    () async {
+      final harness = _Harness();
 
-    await harness.add('a');
+      await harness.add('a');
 
-    final download = harness.downloads.single;
+      final download = harness.downloads.single;
 
-    download.reportProgress(
-      const DownloadProgressModel(DownloadStage.downloading, 10, speed: 100, eta: 9, downloadedBytes: 100, totalBytes: 1000),
-    );
+      download.reportProgress(
+        const DownloadProgressModel(
+          DownloadStage.downloading,
+          10,
+          speed: 100,
+          eta: 9,
+          downloadedBytes: 100,
+          totalBytes: 1000,
+        ),
+      );
 
-    expect(harness.state.activeTask?.speed, 100);
-    expect(harness.state.activeTask?.eta, 9);
+      expect(harness.state.activeTask?.speed, 100);
+      expect(harness.state.activeTask?.eta, 9);
 
-    /// A new chunk starts without a speed
-    download.reportProgress(
-      const DownloadProgressModel(DownloadStage.downloading, 50, downloadedBytes: 500, totalBytes: 1000),
-    );
+      /// A new chunk starts without a speed
+      download.reportProgress(
+        const DownloadProgressModel(
+          DownloadStage.downloading,
+          50,
+          downloadedBytes: 500,
+          totalBytes: 1000,
+        ),
+      );
 
-    expect(harness.state.activeTask?.speed, 100);
-    expect(harness.state.activeTask?.eta, 5);
-    expect(harness.state.activeTask?.downloadedBytes, 500);
+      expect(harness.state.activeTask?.speed, 100);
+      expect(harness.state.activeTask?.eta, 5);
+      expect(harness.state.activeTask?.downloadedBytes, 500);
 
-    download.reportProgress(
-      const DownloadProgressModel(DownloadStage.downloading, 60, speed: 200, eta: 2, downloadedBytes: 600, totalBytes: 1000),
-    );
+      download.reportProgress(
+        const DownloadProgressModel(
+          DownloadStage.downloading,
+          60,
+          speed: 200,
+          eta: 2,
+          downloadedBytes: 600,
+          totalBytes: 1000,
+        ),
+      );
 
-    expect(harness.state.activeTask?.speed, 200);
-    expect(harness.state.activeTask?.eta, 2);
+      expect(harness.state.activeTask?.speed, 200);
+      expect(harness.state.activeTask?.eta, 2);
 
-    download.reportProgress(
-      const DownloadProgressModel(DownloadStage.processing, 100, downloadedBytes: 1000, totalBytes: 1000),
-    );
+      download.reportProgress(
+        const DownloadProgressModel(
+          DownloadStage.processing,
+          100,
+          downloadedBytes: 1000,
+          totalBytes: 1000,
+        ),
+      );
 
-    expect(harness.state.activeTask?.status, DownloadTaskStatus.processing);
-    expect(harness.state.activeTask?.speed, isNull);
-    expect(harness.state.activeTask?.eta, isNull);
-  });
+      expect(harness.state.activeTask?.status, DownloadTaskStatus.processing);
+      expect(harness.state.activeTask?.speed, isNull);
+      expect(harness.state.activeTask?.eta, isNull);
+    },
+  );
 
-  test('прогресс показывается не чаще раза за интервал, новая стадия — сразу', () async {
-    final harness = _Harness(progressUpdateInterval: const Duration(milliseconds: 300));
+  test(
+    'прогресс показывается не чаще раза за интервал, новая стадия — сразу',
+    () async {
+      final harness = _Harness(
+        progressUpdateInterval: const Duration(milliseconds: 300),
+      );
 
-    await harness.add('a');
+      await harness.add('a');
 
-    final download = harness.downloads.single;
+      final download = harness.downloads.single;
 
-    DownloadProgressModel downloading(int bytes, {num? speed}) => DownloadProgressModel(
-      DownloadStage.downloading,
-      bytes / 10,
-      speed: speed,
-      downloadedBytes: bytes,
-      totalBytes: 1000,
-    );
+      DownloadProgressModel downloading(int bytes, {num? speed}) =>
+          DownloadProgressModel(
+            DownloadStage.downloading,
+            bytes / 10,
+            speed: speed,
+            downloadedBytes: bytes,
+            totalBytes: 1000,
+          );
 
-    download.reportProgress(downloading(100, speed: 50));
+      download.reportProgress(downloading(100, speed: 50));
 
-    expect(harness.state.activeTask?.downloadedBytes, 100);
+      expect(harness.state.activeTask?.downloadedBytes, 100);
 
-    /// Sooner reports wait; the newest one is shown with the last known speed
-    download.reportProgress(downloading(200, speed: 80));
-    download.reportProgress(downloading(300));
+      /// Sooner reports wait; the newest one is shown with the last known speed
+      download.reportProgress(downloading(200, speed: 80));
+      download.reportProgress(downloading(300));
 
-    expect(harness.state.activeTask?.downloadedBytes, 100);
-    expect(harness.state.activeTask?.speed, 50);
+      expect(harness.state.activeTask?.downloadedBytes, 100);
+      expect(harness.state.activeTask?.speed, 50);
 
-    await Future<void>.delayed(const Duration(milliseconds: 450));
+      await Future<void>.delayed(const Duration(milliseconds: 450));
 
-    expect(harness.state.activeTask?.downloadedBytes, 300);
-    expect(harness.state.activeTask?.speed, 80);
+      expect(harness.state.activeTask?.downloadedBytes, 300);
+      expect(harness.state.activeTask?.speed, 80);
 
-    download.reportProgress(downloading(400, speed: 90));
-    download.reportProgress(const DownloadProgressModel(DownloadStage.processing, 100, downloadedBytes: 1000, totalBytes: 1000));
+      download.reportProgress(downloading(400, speed: 90));
+      download.reportProgress(
+        const DownloadProgressModel(
+          DownloadStage.processing,
+          100,
+          downloadedBytes: 1000,
+          totalBytes: 1000,
+        ),
+      );
 
-    expect(harness.state.activeTask?.status, DownloadTaskStatus.processing);
-    expect(harness.state.activeTask?.downloadedBytes, 1000);
+      expect(harness.state.activeTask?.status, DownloadTaskStatus.processing);
+      expect(harness.state.activeTask?.downloadedBytes, 1000);
 
-    /// The report that waited is dropped: the stage has moved on
-    await Future<void>.delayed(const Duration(milliseconds: 450));
+      /// The report that waited is dropped: the stage has moved on
+      await Future<void>.delayed(const Duration(milliseconds: 450));
 
-    expect(harness.state.activeTask?.status, DownloadTaskStatus.processing);
-    expect(harness.state.activeTask?.downloadedBytes, 1000);
+      expect(harness.state.activeTask?.status, DownloadTaskStatus.processing);
+      expect(harness.state.activeTask?.downloadedBytes, 1000);
 
-    download.succeed(r'C:\Downloads\a.mp4');
-    await _settle();
+      download.succeed(r'C:\Downloads\a.mp4');
+      await _settle();
 
-    expect(harness.state.finished.single.status, DownloadTaskStatus.done);
-  });
+      expect(harness.state.finished.single.status, DownloadTaskStatus.done);
+    },
+  );
 
   test('пауза отменяет ждущий показ прогресса', () async {
-    final harness = _Harness(progressUpdateInterval: const Duration(milliseconds: 300));
+    final harness = _Harness(
+      progressUpdateInterval: const Duration(milliseconds: 300),
+    );
 
     await harness.add('a');
 
     final download = harness.downloads.single;
 
     download.reportProgress(
-      const DownloadProgressModel(DownloadStage.downloading, 10, downloadedBytes: 100, totalBytes: 1000),
+      const DownloadProgressModel(
+        DownloadStage.downloading,
+        10,
+        downloadedBytes: 100,
+        totalBytes: 1000,
+      ),
     );
     download.reportProgress(
-      const DownloadProgressModel(DownloadStage.downloading, 20, downloadedBytes: 200, totalBytes: 1000),
+      const DownloadProgressModel(
+        DownloadStage.downloading,
+        20,
+        downloadedBytes: 200,
+        totalBytes: 1000,
+      ),
     );
 
     await harness.controller.pauseActiveTask();

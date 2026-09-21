@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:dio/dio.dart';
 import 'package:path/path.dart' as p;
 
 import '../../data_sources/data_sources.dart';
@@ -22,8 +21,10 @@ typedef _StreamPart = ({DownloadStreamModel stream, StreamFormatDto format});
 /// 2. Stream links contain the `n` challenge (sometimes an encrypted signature too);
 ///    the functions that solve them live in the player JavaScript and are run by
 ///    [ChallengeSolverService].
-/// 3. Video and audio are downloaded in 10 MiB chunks into files of the
-///    [DownloadPartFiles] format and muxed into MP4 in Dart
+/// 3. Video and audio are downloaded in 10 MiB slices over several
+///    connections into files of the [DownloadPartFiles] format; slice
+///    progress lives in the work folder, so a paused download continues.
+///    The files are muxed into MP4 in Dart
 final class YouTubeVideoRepository implements VideoRepositoryInterface {
   final RemoteYouTubeDataSource _remoteYouTubeDataSource;
   final RemoteMediaStreamDataSource _remoteMediaStreamDataSource;
@@ -101,6 +102,7 @@ final class YouTubeVideoRepository implements VideoRepositoryInterface {
 
       Future<String> download(ResolvedVideoDto resolved) => _download(
         resolved,
+        taskId: taskId,
         quality: quality,
         previousStreams: selectedStreams,
         workDirectory: workDirectory.path,
@@ -116,16 +118,17 @@ final class YouTubeVideoRepository implements VideoRepositoryInterface {
 
       try {
         filePath = await download(resolved);
-      } on DioException catch (error) {
-        if (error.response?.statusCode != 403) {
-          rethrow;
-        }
-
+      } on MediaStreamLinksExpiredException {
         _throwIfCancelled(cancellation);
 
         /// Links are bound to the session and expire: take fresh ones and continue
         resolved = _resolvedVideos[link.id] = await _resolve(link.id);
-        filePath = await download(resolved);
+
+        try {
+          filePath = await download(resolved);
+        } on MediaStreamLinksExpiredException {
+          throw VideoException(const VideoErrorCodes().streamForbidden);
+        }
       }
 
       final destination =
@@ -308,6 +311,7 @@ final class YouTubeVideoRepository implements VideoRepositoryInterface {
 
   Future<String> _download(
     ResolvedVideoDto resolved, {
+    required String taskId,
     required String quality,
     required List<DownloadStreamModel> previousStreams,
     required String workDirectory,
@@ -332,73 +336,38 @@ final class YouTubeVideoRepository implements VideoRepositoryInterface {
       0,
       (sum, part) => sum + part.stream.contentLength,
     );
-    var received = 0;
 
-    /// Downloaded before the pause: the streams continue from these bytes
-    for (final part in parts) {
-      received += DownloadPartFiles.resumableBytes(
-        await _fileSystemService.fileLength(partPath(part)),
-        part.stream,
-      );
-    }
-
-    final speedMeter = SpeedMeter();
-    var lastReport = DateTime.fromMillisecondsSinceEpoch(0);
-
-    void reportDownloading({required DateTime now}) {
-      final speed = speedMeter.bytesPerSecond(now: now);
-
-      onProgress?.call(
-        DownloadProgressModel(
-          DownloadStage.downloading,
-          total == 0 ? 0 : (received / total * 1000).floor() / 10,
-          speed: speed,
-          eta: speed == null || speed == 0 ? null : (total - received) / speed,
-          downloadedBytes: received,
-          totalBytes: total,
-        ),
-      );
-    }
-
-    reportDownloading(now: DateTime.now());
-
-    void onBytes(int bytes) {
-      received += bytes;
-      speedMeter.add(bytes);
-
-      final now = DateTime.now();
-
-      if (now.difference(lastReport) < const Duration(milliseconds: 250) &&
-          received != total) {
-        return;
-      }
-
-      lastReport = now;
-      reportDownloading(now: now);
-    }
-
-    /// Own token: if one stream fails, the other one stops,
-    /// while [cancellation] stays untouched
-    final cancelToken = CancelToken();
-
-    unawaited(cancellation?.whenCancelled.then((_) => cancelToken.cancel()));
-
-    try {
-      await Future.wait([
+    await _remoteMediaStreamDataSource.downloadStreams(
+      downloadId: taskId,
+      stateDirectory: workDirectory,
+      cancellation: cancellation,
+      streams: [
         for (final part in parts)
-          _remoteMediaStreamDataSource.downloadStream(
-            resolved.urls[part.format]!,
-            length: part.stream.contentLength,
+          MediaStreamTarget(
+            url: resolved.urls[part.format]!,
             path: partPath(part),
-            onBytes: onBytes,
-            cancelToken: cancelToken,
+            length: part.stream.contentLength,
+            fingerprint: DownloadPartFiles.fileName(part.stream),
           ),
-      ], eagerError: true);
-    } catch (_) {
-      cancelToken.cancel();
+      ],
+      onProgress: (progress) {
+        final received = progress.downloadedBytes;
+        final speed = progress.bytesPerSecond;
 
-      rethrow;
-    }
+        onProgress?.call(
+          DownloadProgressModel(
+            DownloadStage.downloading,
+            total == 0 ? 0 : (received / total * 1000).floor() / 10,
+            speed: speed,
+            eta: speed == null || speed == 0
+                ? null
+                : (total - received) / speed,
+            downloadedBytes: received,
+            totalBytes: total,
+          ),
+        );
+      },
+    );
 
     _throwIfCancelled(cancellation);
 

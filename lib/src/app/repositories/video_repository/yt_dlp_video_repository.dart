@@ -30,7 +30,7 @@ final class YtDlpVideoRepository implements YtDlpVideoRepositoryInterface {
   static const _infoFileName = 'yt-dlp-info.json';
   static const _cookiesFileName = 'yt-dlp-cookies.txt';
 
-  /// Folder in `%LOCALAPPDATA%\YT Download` for cookies of searches
+  /// Folder in `%LOCALAPPDATA%\BlackCat` for cookies of searches
   static const _searchFolder = 'yt-dlp';
 
   static const _progressInterval = Duration(milliseconds: 250);
@@ -40,6 +40,7 @@ final class YtDlpVideoRepository implements YtDlpVideoRepositoryInterface {
   final FileSystemService _fileSystemService;
   final SessionStore _sessionStore;
   final LocalAuthenticationDataSource _localAuthenticationDataSource;
+  final LocalDownloadStateDataSource _localDownloadStateDataSource;
 
   final _infos = <String, _YtDlpVideoInfo>{};
 
@@ -49,6 +50,7 @@ final class YtDlpVideoRepository implements YtDlpVideoRepositoryInterface {
     required this._fileSystemService,
     required this._sessionStore,
     required this._localAuthenticationDataSource,
+    required this._localDownloadStateDataSource,
   });
 
   @override
@@ -126,6 +128,7 @@ final class YtDlpVideoRepository implements YtDlpVideoRepositoryInterface {
 
       Future<String> download(_YtDlpVideoInfo info) => _download(
         info,
+        taskId: taskId,
         quality: quality,
         previousStreams: selectedStreams,
         workDirectory: workDirectory,
@@ -361,6 +364,7 @@ final class YtDlpVideoRepository implements YtDlpVideoRepositoryInterface {
 
   Future<String> _download(
     _YtDlpVideoInfo info, {
+    required String taskId,
     required String quality,
     required List<DownloadStreamModel> previousStreams,
     required String workDirectory,
@@ -376,6 +380,12 @@ final class YtDlpVideoRepository implements YtDlpVideoRepositoryInterface {
 
     onStreamsSelected?.call([for (final part in parts) part.stream]);
 
+    /// yt-dlp continues a stream file from its length: the slices of the
+    /// built-in downloader become their contiguous start
+    await _localDownloadStateDataSource.toSequentialParts(
+      workDirectory: workDirectory,
+      downloadId: taskId,
+    );
     await _deleteStaleParts(workDirectory, parts);
 
     final infoPath = p.join(workDirectory, _infoFileName);

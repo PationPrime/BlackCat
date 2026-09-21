@@ -1,10 +1,10 @@
 import 'package:drift/drift.dart' show DatabaseConnection;
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:youtube_downloader/src/app/dto/dto.dart';
-import 'package:youtube_downloader/src/app/models/models.dart';
-import 'package:youtube_downloader/src/app/storage/database/database.dart';
-import 'package:youtube_downloader/src/app/storage/database/providers/providers.dart';
+import 'package:black_cat/src/app/dto/dto.dart';
+import 'package:black_cat/src/app/models/models.dart';
+import 'package:black_cat/src/app/storage/database/database.dart';
+import 'package:black_cat/src/app/storage/database/providers/providers.dart';
 
 /// Schema version 1 exactly as drift created it before the downloaded list
 const _schemaV1 = [
@@ -23,103 +23,132 @@ const _schemaV1 = [
 ];
 
 void main() {
-  test('миграция с версии 1 сохраняет загрузки и добавляет поля скачанного видео и способ скачивания', () async {
-    final database = AppDatabase.forTesting(
-      DatabaseConnection(
-        NativeDatabase.memory(
-          setup: (db) {
-            _schemaV1.forEach(db.execute);
-            db.execute(
-              'INSERT INTO download_tasks_table (id, video_id, video_url, title, quality_id, quality_kind, '
-              'status, section, file_path, created_at, updated_at) VALUES '
-              "('a', 'video-a', 'https://youtu.be/video-a', 'Видео a', '1080', 'video', 'done', 'finished', "
-              r"'C:\Downloads\a.mp4', 1788000000, 1788000000)",
-            );
-            db.execute("INSERT INTO download_task_streams_table VALUES ('a', 'audio', 140, 1000)");
-            db.execute('PRAGMA user_version = 1');
-          },
+  test(
+    'миграция с версии 1 сохраняет загрузки и добавляет поля скачанного видео и способ скачивания',
+    () async {
+      final database = AppDatabase.forTesting(
+        DatabaseConnection(
+          NativeDatabase.memory(
+            setup: (db) {
+              _schemaV1.forEach(db.execute);
+              db.execute(
+                'INSERT INTO download_tasks_table (id, video_id, video_url, title, quality_id, quality_kind, '
+                'status, section, file_path, created_at, updated_at) VALUES '
+                "('a', 'video-a', 'https://youtu.be/video-a', 'Видео a', '1080', 'video', 'done', 'finished', "
+                r"'C:\Downloads\a.mp4', 1788000000, 1788000000)",
+              );
+              db.execute(
+                "INSERT INTO download_task_streams_table VALUES ('a', 'audio', 140, 1000)",
+              );
+              db.execute('PRAGMA user_version = 1');
+            },
+          ),
         ),
-      ),
-    );
+      );
 
-    final provider = DownloadTaskTableProvider(databaseInstance: database);
-    final task = (await provider.getTasks()).single;
+      final provider = DownloadTaskTableProvider(databaseInstance: database);
+      final task = (await provider.getTasks()).single;
 
-    expect(task.status, DownloadTaskStatus.done);
-    expect(task.filePath, r'C:\Downloads\a.mp4');
-    expect(task.streams.single.itag, 140);
-    expect(task.fileSizeBytes, isNull);
-    expect(task.thumbnailPath, isNull);
-    expect(task.completedAt, isNull);
-    expect(task.engine, DownloadEngineModel.builtIn);
+      expect(task.status, DownloadTaskStatus.done);
+      expect(task.filePath, r'C:\Downloads\a.mp4');
+      expect(task.streams.single.itag, 140);
+      expect(task.fileSizeBytes, isNull);
+      expect(task.thumbnailPath, isNull);
+      expect(task.completedAt, isNull);
+      expect(task.engine, DownloadEngineModel.builtIn);
 
-    await provider.saveTasks([
-      DownloadTaskDto.fromModel(
-        task.toModel().copyWith(fileSizeBytes: 2048, thumbnailPath: r'C:\Thumbnails\a.jpg'),
-      ),
-    ]);
-
-    final migrated = (await provider.getTasks()).single;
-
-    expect(migrated.fileSizeBytes, 2048);
-    expect(migrated.thumbnailPath, r'C:\Thumbnails\a.jpg');
-
-    await database.close();
-  });
-
-  test('миграция на версию 4 добавляет библиотеку плеера, загрузки остаются', () async {
-    final database = AppDatabase.forTesting(
-      DatabaseConnection(
-        NativeDatabase.memory(
-          setup: (db) {
-            _schemaV1.forEach(db.execute);
-            db.execute('PRAGMA user_version = 1');
-          },
+      await provider.saveTasks([
+        DownloadTaskDto.fromModel(
+          task.toModel().copyWith(
+            fileSizeBytes: 2048,
+            thumbnailPath: r'C:\Thumbnails\a.jpg',
+          ),
         ),
-      ),
-    );
+      ]);
 
-    final library = LibraryVideoTableProvider(databaseInstance: database);
+      final migrated = (await provider.getTasks()).single;
 
-    expect(await library.getVideos(), isEmpty);
+      expect(migrated.fileSizeBytes, 2048);
+      expect(migrated.thumbnailPath, r'C:\Thumbnails\a.jpg');
 
-    await library.saveVideos([
-      LibraryVideoDto(
-        id: 'a',
-        path: r'C:\Downloads\a.mp4',
-        title: 'Ролик',
-        sizeBytes: 2048,
-        modifiedAt: DateTime(2026, 9, 1, 12),
-      ),
-    ]);
-    await library.updatePosition(videoId: 'a', positionMs: 65000, durationMs: 120000, watchedAt: DateTime(2026, 9, 2));
-    await library.updateMetadata(videoId: 'a', durationMs: 121000, thumbnailPath: r'C:\Thumbnails\a.jpg');
+      await database.close();
+    },
+  );
 
-    final video = (await library.getVideos()).single.toModel();
+  test(
+    'миграция на версию 4 добавляет библиотеку плеера, загрузки остаются',
+    () async {
+      final database = AppDatabase.forTesting(
+        DatabaseConnection(
+          NativeDatabase.memory(
+            setup: (db) {
+              _schemaV1.forEach(db.execute);
+              db.execute('PRAGMA user_version = 1');
+            },
+          ),
+        ),
+      );
 
-    expect(video.title, 'Ролик');
-    expect(video.modifiedAt, DateTime(2026, 9, 1, 12));
-    expect(video.position, const Duration(seconds: 65));
-    expect(video.duration, const Duration(seconds: 121));
-    expect(video.thumbnailPath, r'C:\Thumbnails\a.jpg');
-    expect(video.isMetadataLoaded, isTrue);
-    expect(video.watchedAt, DateTime(2026, 9, 2));
+      final library = LibraryVideoTableProvider(databaseInstance: database);
 
-    /// Saving the file again keeps nothing stale: the row is replaced
-    await library.saveVideos([
-      LibraryVideoDto(id: 'a', path: r'C:\Downloads\a.mp4', title: 'Ролик', sizeBytes: 4096, modifiedAt: DateTime(2026, 9, 3)),
-    ]);
+      expect(await library.getVideos(), isEmpty);
 
-    final replaced = (await library.getVideos()).single;
+      await library.saveVideos([
+        LibraryVideoDto(
+          id: 'a',
+          path: r'C:\Downloads\a.mp4',
+          title: 'Ролик',
+          sizeBytes: 2048,
+          modifiedAt: DateTime(2026, 9, 1, 12),
+        ),
+      ]);
+      await library.updatePosition(
+        videoId: 'a',
+        positionMs: 65000,
+        durationMs: 120000,
+        watchedAt: DateTime(2026, 9, 2),
+      );
+      await library.updateMetadata(
+        videoId: 'a',
+        durationMs: 121000,
+        thumbnailPath: r'C:\Thumbnails\a.jpg',
+      );
 
-    expect(replaced.sizeBytes, 4096);
-    expect(replaced.positionMs, 0);
+      final video = (await library.getVideos()).single.toModel();
 
-    await library.deleteVideos(['a']);
+      expect(video.title, 'Ролик');
+      expect(video.modifiedAt, DateTime(2026, 9, 1, 12));
+      expect(video.position, const Duration(seconds: 65));
+      expect(video.duration, const Duration(seconds: 121));
+      expect(video.thumbnailPath, r'C:\Thumbnails\a.jpg');
+      expect(video.isMetadataLoaded, isTrue);
+      expect(video.watchedAt, DateTime(2026, 9, 2));
 
-    expect(await library.getVideos(), isEmpty);
-    expect(await DownloadTaskTableProvider(databaseInstance: database).getTasks(), isEmpty);
+      /// Saving the file again keeps nothing stale: the row is replaced
+      await library.saveVideos([
+        LibraryVideoDto(
+          id: 'a',
+          path: r'C:\Downloads\a.mp4',
+          title: 'Ролик',
+          sizeBytes: 4096,
+          modifiedAt: DateTime(2026, 9, 3),
+        ),
+      ]);
 
-    await database.close();
-  });
+      final replaced = (await library.getVideos()).single;
+
+      expect(replaced.sizeBytes, 4096);
+      expect(replaced.positionMs, 0);
+
+      await library.deleteVideos(['a']);
+
+      expect(await library.getVideos(), isEmpty);
+      expect(
+        await DownloadTaskTableProvider(databaseInstance: database).getTasks(),
+        isEmpty,
+      );
+
+      await database.close();
+    },
+  );
 }

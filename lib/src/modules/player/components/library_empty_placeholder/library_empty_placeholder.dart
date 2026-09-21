@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:youtube_downloader/src/app/design_system/design_system.dart';
-import 'package:youtube_downloader/src/app/widgets/widgets.dart';
+import 'package:black_cat/src/app/design_system/design_system.dart';
+import 'package:black_cat/src/app/widgets/widgets.dart';
 
 /// No videos in the download folder: a hint and the way to download one
 class LibraryEmptyPlaceholder extends StatelessWidget {

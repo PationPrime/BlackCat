@@ -16,7 +16,7 @@ class CodegenLoader extends AssetLoader {
 
   static const Map<String, dynamic> _en_US = {
     "app": {
-      "title": "YT Download",
+      "title": "BlackCat",
       "common": {
         "file_size": {
           "bytes": "{value} B",
@@ -40,7 +40,7 @@ class CodegenLoader extends AssetLoader {
         "close": "Close",
       },
       "tray": {
-        "open": "Open YT Download",
+        "open": "Open BlackCat",
         "hide": "Minimize to tray",
         "quit": "Quit",
         "no_active_download": "No active download",
@@ -105,7 +105,7 @@ class CodegenLoader extends AssetLoader {
           "add_to_queue": "Add to queue",
           "download_now": "Download",
           "cancel": "Cancel",
-          "ytdlp_hint": "Searching with yt-dlp takes a few seconds.",
+          "ytdlp_hint": "Searching may take a few seconds.",
         },
         "remove_dialog": {
           "title": "Remove the video?",
@@ -177,9 +177,8 @@ class CodegenLoader extends AssetLoader {
       },
       "donations": {
         "title": "Support the project",
-        "subtitle":
-            "YT Download is free and has no ads. If the app helps you, you can support its development.",
-        "hero_title": "Thank you for using YT Download!",
+        "subtitle": "If the app helps you, you can support its development.",
+        "hero_title": "Thank you for using BlackCat!",
         "hero_description":
             "Your support helps update the app faster when YouTube changes something and add new features.",
         "platforms_title": "Ways to support",
@@ -223,6 +222,11 @@ class CodegenLoader extends AssetLoader {
           "mux": "Could not build the file: {error}",
           "stream_interrupted":
               "YouTube keeps interrupting the stream download. Try again.",
+          "disk_write": "Could not write the file being downloaded: {error}",
+          "disk_full":
+              "Not enough disk space: the download needs {needed} more, {available} is free. Free up space and try again: the downloaded part is kept.",
+          "disk_full_unknown_size":
+              "Not enough disk space for the download. Free up space and try again: the downloaded part is kept.",
           "web_view_runtime":
               "Downloading requires Microsoft Edge WebView2 Runtime.",
           "js_engine":
@@ -350,6 +354,16 @@ class CodegenLoader extends AssetLoader {
         "added": "“{title}” was added to downloads.",
         "open_downloads": "Open downloads",
         "clear": "Clear",
+        "direct": {
+          "title": "Any link",
+          "subtitle":
+              "A check of the built-in downloader on its own: the file is downloaded with the same engine and settings as YouTube streams, only from another source. Nothing here is kept between launches.",
+          "url_hint": "https://example.com/file.zip",
+          "start": "Download file",
+          "invalid_url": "The link must start with http:// or https://",
+          "connections": "{value} connections",
+          "saved": "Saved: {path}",
+        },
       },
       "downloads": {
         "title": "Downloads",
@@ -398,7 +412,7 @@ class CodegenLoader extends AssetLoader {
   };
   static const Map<String, dynamic> _ru_RU = {
     "app": {
-      "title": "YT Download",
+      "title": "BlackCat",
       "common": {
         "file_size": {
           "bytes": "{value} Б",
@@ -422,7 +436,7 @@ class CodegenLoader extends AssetLoader {
         "close": "Закрыть",
       },
       "tray": {
-        "open": "Открыть YT Download",
+        "open": "Открыть BlackCat",
         "hide": "Свернуть в трей",
         "quit": "Выйти",
         "no_active_download": "Нет активной загрузки",
@@ -487,7 +501,7 @@ class CodegenLoader extends AssetLoader {
           "add_to_queue": "Добавить в очередь",
           "download_now": "Скачать",
           "cancel": "Отмена",
-          "ytdlp_hint": "Поиск через yt-dlp занимает несколько секунд.",
+          "ytdlp_hint": "Поиск может занимать несколько секунд.",
         },
         "remove_dialog": {
           "title": "Убрать видео?",
@@ -560,8 +574,8 @@ class CodegenLoader extends AssetLoader {
       "donations": {
         "title": "Поддержать проект",
         "subtitle":
-            "YT Download бесплатный и без рекламы. Если приложение вам помогает, вы можете поддержать его развитие.",
-        "hero_title": "Спасибо, что пользуетесь YT Download!",
+            "Если приложение вам помогает, вы можете поддержать его развитие.",
+        "hero_title": "Спасибо, что пользуетесь BlackCat!",
         "hero_description":
             "Поддержка помогает быстрее обновлять приложение, когда YouTube что-то меняет, и добавлять новые возможности.",
         "platforms_title": "Способы поддержки",
@@ -605,6 +619,11 @@ class CodegenLoader extends AssetLoader {
           "mux": "Не удалось собрать файл: {error}",
           "stream_interrupted":
               "YouTube обрывает загрузку потока. Попробуйте ещё раз.",
+          "disk_write": "Не удалось записать скачиваемый файл: {error}",
+          "disk_full":
+              "Недостаточно места на диске: загрузке нужно ещё {needed}, свободно {available}. Освободите место и повторите загрузку: скачанное сохранится.",
+          "disk_full_unknown_size":
+              "Недостаточно места на диске для загрузки. Освободите место и повторите загрузку: скачанное сохранится.",
           "web_view_runtime":
               "Для скачивания нужен Microsoft Edge WebView2 Runtime.",
           "js_engine":
@@ -732,6 +751,16 @@ class CodegenLoader extends AssetLoader {
         "added": "«{title}» добавлено в загрузки.",
         "open_downloads": "Открыть загрузки",
         "clear": "Очистить",
+        "direct": {
+          "title": "Любая ссылка",
+          "subtitle":
+              "Проверка самого загрузчика: файл скачивается тем же движком и с теми же настройками, что и потоки YouTube, только из другого источника. Между запусками здесь ничего не хранится.",
+          "url_hint": "https://example.com/file.zip",
+          "start": "Скачать файл",
+          "invalid_url": "Ссылка должна начинаться с http:// или https://",
+          "connections": "соединений: {value}",
+          "saved": "Сохранено: {path}",
+        },
       },
       "downloads": {
         "title": "Загрузки",

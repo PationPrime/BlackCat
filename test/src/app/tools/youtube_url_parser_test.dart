@@ -1,11 +1,13 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:youtube_downloader/src/app/tools/tools.dart';
+import 'package:black_cat/src/app/tools/tools.dart';
 
 const _targetUrl = 'https://www.youtube.com/watch?v=kgA8JPY2lIA';
 
 void main() {
   test('отбрасывает метку отслеживания pp', () {
-    final link = YouTubeUrlParser.parse('https://www.youtube.com/watch?v=kgA8JPY2lIA&pp=ugUEEgJydQ%3D%3D');
+    final link = YouTubeUrlParser.parse(
+      'https://www.youtube.com/watch?v=kgA8JPY2lIA&pp=ugUEEgJydQ%3D%3D',
+    );
 
     expect(link?.id, 'kgA8JPY2lIA');
     expect(link?.url, _targetUrl);

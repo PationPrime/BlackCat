@@ -2,12 +2,12 @@ import 'dart:async';
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:youtube_downloader/src/app/constants/constants.dart';
-import 'package:youtube_downloader/src/app/errors/errors.dart';
-import 'package:youtube_downloader/src/app/failure/failure.dart';
-import 'package:youtube_downloader/src/app/logger/app_logger.dart';
-import 'package:youtube_downloader/src/app/models/models.dart';
-import 'package:youtube_downloader/src/app/services/services.dart';
+import 'package:black_cat/src/app/constants/constants.dart';
+import 'package:black_cat/src/app/errors/errors.dart';
+import 'package:black_cat/src/app/failure/failure.dart';
+import 'package:black_cat/src/app/logger/app_logger.dart';
+import 'package:black_cat/src/app/models/models.dart';
+import 'package:black_cat/src/app/services/services.dart';
 
 import '../video_library_controller/video_library_controller.dart';
 

@@ -3,8 +3,8 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path/path.dart' as p;
-import 'package:youtube_downloader/src/app/api/api.dart';
-import 'package:youtube_downloader/src/app/data_sources/data_sources.dart';
+import 'package:black_cat/src/app/api/api.dart';
+import 'package:black_cat/src/app/data_sources/data_sources.dart';
 
 void main() {
   late HttpServer server;
@@ -13,7 +13,8 @@ void main() {
   final program = List<int>.generate(300 * 1024, (index) => index % 251);
   final userAgents = <String?>[];
 
-  String url(String path) => 'http://${server.address.host}:${server.port}$path';
+  String url(String path) =>
+      'http://${server.address.host}:${server.port}$path';
 
   setUp(() async {
     root = await Directory.systemTemp.createTemp('remote-dependency');
@@ -29,7 +30,10 @@ void main() {
         case '/latest/download/yt-dlp.exe':
           response
             ..statusCode = HttpStatus.found
-            ..headers.set(HttpHeaders.locationHeader, url('/assets/yt-dlp.exe'));
+            ..headers.set(
+              HttpHeaders.locationHeader,
+              url('/assets/yt-dlp.exe'),
+            );
         case '/assets/yt-dlp.exe':
           response
             ..headers.contentLength = program.length
@@ -61,7 +65,10 @@ void main() {
 
     expect(await File(path).readAsBytes(), program);
     expect(progress.last, (program.length, program.length));
-    expect(await dataSource.fetchText(url('/latest/download/SHA2-256SUMS')), 'abc  yt-dlp.exe\n');
+    expect(
+      await dataSource.fetchText(url('/latest/download/SHA2-256SUMS')),
+      'abc  yt-dlp.exe\n',
+    );
 
     /// GitHub needs the app name on its own requests; dart:io does not repeat
     /// it after the redirect, and the file storage does not need it
@@ -72,8 +79,18 @@ void main() {
     final path = p.join(root.path, 'Tools', 'deno.zip.download');
 
     await expectLater(
-      dataSource.downloadFile(url('/missing.zip'), path: path, onProgress: (_, _) {}),
-      throwsA(isA<DioException>().having((error) => error.response?.statusCode, 'status', 404)),
+      dataSource.downloadFile(
+        url('/missing.zip'),
+        path: path,
+        onProgress: (_, _) {},
+      ),
+      throwsA(
+        isA<DioException>().having(
+          (error) => error.response?.statusCode,
+          'status',
+          404,
+        ),
+      ),
     );
     expect(await File(path).exists(), isFalse);
   });

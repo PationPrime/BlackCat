@@ -1,11 +1,11 @@
 import 'dart:async';
 
-import 'package:youtube_downloader/src/app/errors/errors.dart';
-import 'package:youtube_downloader/src/app/failure/failure.dart';
-import 'package:youtube_downloader/src/app/models/models.dart';
-import 'package:youtube_downloader/src/app/operation_result/operation_result.dart';
-import 'package:youtube_downloader/src/app/repositories/repositories.dart';
-import 'package:youtube_downloader/src/app/tools/tools.dart';
+import 'package:black_cat/src/app/errors/errors.dart';
+import 'package:black_cat/src/app/failure/failure.dart';
+import 'package:black_cat/src/app/models/models.dart';
+import 'package:black_cat/src/app/operation_result/operation_result.dart';
+import 'package:black_cat/src/app/repositories/repositories.dart';
+import 'package:black_cat/src/app/tools/tools.dart';
 
 /// A download call controlled by the test: reports streams and progress,
 /// completes with success or an error. Stopping via `cancellation`
@@ -105,12 +105,22 @@ class FakeVideoRepository implements VideoRepositoryInterface {
 }
 
 /// yt-dlp stand-in: the same controllable downloads
-class FakeYtDlpVideoRepository extends FakeVideoRepository implements YtDlpVideoRepositoryInterface {
+class FakeYtDlpVideoRepository extends FakeVideoRepository
+    implements YtDlpVideoRepositoryInterface {
   FakeYtDlpVideoRepository({super.infoResults});
 }
 
-const testYtDlp = DependencyToolModel(name: 'yt-dlp', executable: 'yt-dlp', version: '2026.08.19');
-const testDeno = DependencyToolModel(name: 'deno', executable: r'C:\Tools\deno.exe', version: 'deno 2.9.6', isBundled: true);
+const testYtDlp = DependencyToolModel(
+  name: 'yt-dlp',
+  executable: 'yt-dlp',
+  version: '2026.08.19',
+);
+const testDeno = DependencyToolModel(
+  name: 'deno',
+  executable: r'C:\Tools\deno.exe',
+  version: 'deno 2.9.6',
+  isBundled: true,
+);
 const testReadySetup = YtDlpSetupModel(ytDlp: testYtDlp, jsRuntime: testDeno);
 
 /// Installation controlled by the test: reports steps and completes
@@ -124,7 +134,14 @@ class FakeInstallCall {
   FakeInstallCall({required this.onProgress, this.cancellation}) {
     cancellation?.whenCancelled.then((_) {
       if (!_completer.isCompleted) {
-        _completer.complete(fail(DependencyFailure(code: const DependencyErrorCodes().canceled, message: 'Установка отменена.')));
+        _completer.complete(
+          fail(
+            DependencyFailure(
+              code: const DependencyErrorCodes().canceled,
+              message: 'Установка отменена.',
+            ),
+          ),
+        );
       }
     });
   }
@@ -133,7 +150,8 @@ class FakeInstallCall {
 
   void report(DependencyInstallProgressModel progress) => onProgress(progress);
 
-  void succeed([YtDlpSetupModel setup = testReadySetup]) => _completer.complete(ok(setup));
+  void succeed([YtDlpSetupModel setup = testReadySetup]) =>
+      _completer.complete(ok(setup));
 
   void failWith(Failure failure) => _completer.complete(fail(failure));
 }
@@ -156,15 +174,19 @@ class FakeDependenciesRepository implements DependenciesRepositoryInterface {
   ErrorHandler get errorHandler => const DependencyErrorHandler();
 
   @override
-  Future<OperationResult<YtDlpSetupModel>> getSetup({bool refresh = false}) async =>
-      setupResults[(setupCalls++).clamp(0, setupResults.length - 1)];
+  Future<OperationResult<YtDlpSetupModel>> getSetup({
+    bool refresh = false,
+  }) async => setupResults[(setupCalls++).clamp(0, setupResults.length - 1)];
 
   @override
   Future<OperationResult<YtDlpSetupModel>> installMissing({
     required void Function(DependencyInstallProgressModel progress) onProgress,
     DownloadCancellation? cancellation,
   }) {
-    final call = FakeInstallCall(onProgress: onProgress, cancellation: cancellation);
+    final call = FakeInstallCall(
+      onProgress: onProgress,
+      cancellation: cancellation,
+    );
 
     installs.add(call);
 
@@ -182,7 +204,10 @@ class FakeDownloadQueueRepository implements DownloadQueueRepositoryInterface {
   final progressUpdates = <({String taskId, int downloadedBytes})>[];
 
   /// Thumbnail copy path returned for every download; `null`: the video has no thumbnail
-  OperationResult<String?> thumbnailResult = (failure: null, data: r'C:\Thumbnails\thumb.jpg');
+  OperationResult<String?> thumbnailResult = (
+    failure: null,
+    data: r'C:\Thumbnails\thumb.jpg',
+  );
   final thumbnailTaskIds = <String>[];
 
   FakeDownloadQueueRepository({
@@ -283,10 +308,13 @@ class FakeSettingsRepository implements SettingsRepositoryInterface {
   resetDownloadDirectory() async => resetResult;
 
   @override
-  Future<OperationResult<AppLanguageModel>> getLanguage() async => languageResult;
+  Future<OperationResult<AppLanguageModel>> getLanguage() async =>
+      languageResult;
 
   @override
-  Future<OperationResult<AppLanguageModel>> setLanguage(AppLanguageModel language) async {
+  Future<OperationResult<AppLanguageModel>> setLanguage(
+    AppLanguageModel language,
+  ) async {
     savedLanguages.add(language);
 
     return setLanguageResult ?? (failure: null, data: language);
@@ -315,7 +343,8 @@ class FakeAuthenticationRepository
   ErrorHandler get errorHandler => const AuthenticationErrorHandler();
 
   @override
-  Future<OperationResult<AccountSessionModel?>> restoreSession() async => restoreResult;
+  Future<OperationResult<AccountSessionModel?>> restoreSession() async =>
+      restoreResult;
 
   @override
   Future<OperationResult<bool>> signIn() async {
@@ -356,7 +385,11 @@ const testVideoInfo = VideoInfoModel(
       label: '1080p',
       resolution: 1080,
     ),
-    QualityModel(id: QualityModel.audioId, kind: QualityKind.audio, isAac: true),
+    QualityModel(
+      id: QualityModel.audioId,
+      kind: QualityKind.audio,
+      isAac: true,
+    ),
   ],
 );
 
@@ -426,7 +459,10 @@ class FakeVideoLibraryRepository implements VideoLibraryRepositoryInterface {
     if (missingFolders.contains(folder)) {
       return fail(
         errorHandler.handleError(
-          PlayerException(const PlayerErrorCodes().folderNotFound, path: folder),
+          PlayerException(
+            const PlayerErrorCodes().folderNotFound,
+            path: folder,
+          ),
         ),
       );
     }

@@ -10,14 +10,14 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path/path.dart' as p;
-import 'package:youtube_downloader/src/app/api/api.dart';
-import 'package:youtube_downloader/src/app/data_sources/data_sources.dart';
-import 'package:youtube_downloader/src/app/models/models.dart';
-import 'package:youtube_downloader/src/app/operation_result/operation_result.dart';
-import 'package:youtube_downloader/src/app/repositories/repositories.dart';
-import 'package:youtube_downloader/src/app/services/services.dart';
-import 'package:youtube_downloader/src/app/session/session_store.dart';
-import 'package:youtube_downloader/src/app/tools/tools.dart';
+import 'package:black_cat/src/app/api/api.dart';
+import 'package:black_cat/src/app/data_sources/data_sources.dart';
+import 'package:black_cat/src/app/models/models.dart';
+import 'package:black_cat/src/app/operation_result/operation_result.dart';
+import 'package:black_cat/src/app/repositories/repositories.dart';
+import 'package:black_cat/src/app/services/services.dart';
+import 'package:black_cat/src/app/session/session_store.dart';
+import 'package:black_cat/src/app/tools/tools.dart';
 
 import '../../support/node_js_engine_service.dart';
 import '../../support/test_localization.dart';
@@ -36,10 +36,11 @@ class _TestFileSystemService extends FileSystemServiceImpl {
   /// Real app sign-in cookies (path_provider is unavailable in tests)
   @override
   Future<String> supportFolder() async =>
-      p.join(Platform.environment['APPDATA']!, 'com.ytdownload', 'youtube_downloader');
+      p.join(Platform.environment['APPDATA']!, 'com.BlackCat', 'black_cat');
 
   @override
-  Future<String> defaultDownloadsFolder() async => p.join(root.path, 'Downloads');
+  Future<String> defaultDownloadsFolder() async =>
+      p.join(root.path, 'Downloads');
 }
 
 Future<Map<String, dynamic>?> _ffprobe(String path) async {
@@ -54,7 +55,9 @@ Future<Map<String, dynamic>?> _ffprobe(String path) async {
       path,
     ]);
 
-    return result.exitCode == 0 ? jsonDecode(result.stdout as String) as Map<String, dynamic> : null;
+    return result.exitCode == 0
+        ? jsonDecode(result.stdout as String) as Map<String, dynamic>
+        : null;
   } on ProcessException {
     return null;
   }
@@ -77,19 +80,26 @@ void main() {
     final fileSystemService = _TestFileSystemService(root);
     final apiProvider = ApiProvider();
     final sessionStore = SessionStore(
-      localAuthenticationDataSource: LocalAuthenticationDataSourceImpl(fileSystemService: fileSystemService),
+      localAuthenticationDataSource: LocalAuthenticationDataSourceImpl(
+        fileSystemService: fileSystemService,
+      ),
     );
 
     repository = YouTubeVideoRepository(
       remoteYouTubeDataSource: RemoteYouTubeDataSourceImpl(
         apiProvider: apiProvider,
         sessionStore: sessionStore,
-        localPlayerDataSource: LocalPlayerDataSourceImpl(fileSystemService: fileSystemService),
+        localPlayerDataSource: LocalPlayerDataSourceImpl(
+          fileSystemService: fileSystemService,
+        ),
       ),
-      remoteMediaStreamDataSource: RemoteMediaStreamDataSourceImpl(apiProvider: apiProvider),
+      remoteMediaStreamDataSource: RemoteMediaStreamDataSourceImpl(
+        apiProvider: apiProvider,
+      ),
       challengeSolverService: ChallengeSolverServiceImpl(
         jsEngineService: jsEngine,
-        loadScript: (name) => File(p.join('assets', 'ejs', name)).readAsString(),
+        loadScript: (name) =>
+            File(p.join('assets', 'ejs', name)).readAsString(),
       ),
       mediaMuxerService: const Mp4MediaMuxerServiceImpl(),
       fileSystemService: fileSystemService,
@@ -109,99 +119,140 @@ void main() {
 
     expect(result.failure, isNull, reason: result.failure?.message);
     expect(result.requireData.title, isNotEmpty);
-    expect(result.requireData.qualities.map((quality) => quality.id), containsAll(['1080', '360', 'audio']));
+    expect(
+      result.requireData.qualities.map((quality) => quality.id),
+      containsAll(['1080', '360', 'audio']),
+    );
   }, skip: enabled ? false : 'нужен YT_LIVE=1');
 
-  test('только звук: обычный M4A', () async {
-    final progress = <DownloadProgressModel>[];
-    final result = await repository.downloadVideo(
-      taskId: 'live-audio',
-      url: _video,
-      quality: 'audio',
-      onProgress: progress.add,
-    );
+  test(
+    'только звук: обычный M4A',
+    () async {
+      final progress = <DownloadProgressModel>[];
+      final result = await repository.downloadVideo(
+        taskId: 'live-audio',
+        url: _video,
+        quality: 'audio',
+        onProgress: progress.add,
+      );
 
-    expect(result.failure, isNull, reason: result.failure?.message);
-    expect(p.extension(result.requireData.path), '.m4a');
-    expect(result.requireData.sizeBytes, await File(result.requireData.path).length());
-    expect(progress.last.percent, 100);
+      expect(result.failure, isNull, reason: result.failure?.message);
+      expect(p.extension(result.requireData.path), '.m4a');
+      expect(
+        result.requireData.sizeBytes,
+        await File(result.requireData.path).length(),
+      );
+      expect(progress.last.percent, 100);
 
-    final probe = await _ffprobe(result.requireData.path);
+      final probe = await _ffprobe(result.requireData.path);
 
-    if (probe != null) {
-      expect((probe['streams'] as List).map((stream) => stream['codec_type']), ['audio']);
-      expect(double.parse(probe['format']['duration'] as String), closeTo(478, 3));
-    }
-  }, skip: enabled ? false : 'нужен YT_LIVE=1', timeout: const Timeout(Duration(minutes: 3)));
+      if (probe != null) {
+        expect(
+          (probe['streams'] as List).map((stream) => stream['codec_type']),
+          ['audio'],
+        );
+        expect(
+          double.parse(probe['format']['duration'] as String),
+          closeTo(478, 3),
+        );
+      }
+    },
+    skip: enabled ? false : 'нужен YT_LIVE=1',
+    timeout: const Timeout(Duration(minutes: 3)),
+  );
 
-  test('144p: видео и звук скачаны параллельно и собраны в MP4 на Dart', () async {
-    final stages = <DownloadStage>{};
-    final result = await repository.downloadVideo(
-      taskId: 'live-144',
-      url: _video,
-      quality: '144',
-      onProgress: (progress) => stages.add(progress.stage),
-    );
+  test(
+    '144p: видео и звук скачаны параллельно и собраны в MP4 на Dart',
+    () async {
+      final stages = <DownloadStage>{};
+      final result = await repository.downloadVideo(
+        taskId: 'live-144',
+        url: _video,
+        quality: '144',
+        onProgress: (progress) => stages.add(progress.stage),
+      );
 
-    expect(result.failure, isNull, reason: result.failure?.message);
-    expect(p.extension(result.requireData.path), '.mp4');
-    expect(stages, {DownloadStage.downloading, DownloadStage.processing});
+      expect(result.failure, isNull, reason: result.failure?.message);
+      expect(p.extension(result.requireData.path), '.mp4');
+      expect(stages, {DownloadStage.downloading, DownloadStage.processing});
 
-    final probe = await _ffprobe(result.requireData.path);
+      final probe = await _ffprobe(result.requireData.path);
 
-    if (probe != null) {
-      final streams = probe['streams'] as List;
+      if (probe != null) {
+        final streams = probe['streams'] as List;
 
-      expect(streams.map((stream) => '${stream['codec_type']}:${stream['codec_name']}'), ['video:h264', 'audio:aac']);
-      expect(streams.first['height'], 144);
-      expect(double.parse(probe['format']['duration'] as String), closeTo(478, 3));
-    }
-  }, skip: enabled ? false : 'нужен YT_LIVE=1', timeout: const Timeout(Duration(minutes: 3)));
+        expect(
+          streams.map(
+            (stream) => '${stream['codec_type']}:${stream['codec_name']}',
+          ),
+          ['video:h264', 'audio:aac'],
+        );
+        expect(streams.first['height'], 144);
+        expect(
+          double.parse(probe['format']['duration'] as String),
+          closeTo(478, 3),
+        );
+      }
+    },
+    skip: enabled ? false : 'нужен YT_LIVE=1',
+    timeout: const Timeout(Duration(minutes: 3)),
+  );
 
-  test('пауза и продолжение: докачивает с места остановки', () async {
-    const taskId = 'live-resume';
-    final cancellation = DownloadCancellation();
-    var streams = <DownloadStreamModel>[];
-    var pausedAt = 0;
+  test(
+    'пауза и продолжение: докачивает с места остановки',
+    () async {
+      const taskId = 'live-resume';
+      final cancellation = DownloadCancellation();
+      var streams = <DownloadStreamModel>[];
+      var pausedAt = 0;
 
-    final paused = await repository.downloadVideo(
-      taskId: taskId,
-      url: _video,
-      quality: '144',
-      cancellation: cancellation,
-      onStreamsSelected: (selected) => streams = selected,
-      onProgress: (progress) {
-        pausedAt = progress.downloadedBytes ?? 0;
+      final paused = await repository.downloadVideo(
+        taskId: taskId,
+        url: _video,
+        quality: '144',
+        cancellation: cancellation,
+        onStreamsSelected: (selected) => streams = selected,
+        onProgress: (progress) {
+          pausedAt = progress.downloadedBytes ?? 0;
 
-        if (pausedAt > 1024 * 1024) {
-          cancellation.cancel();
-        }
-      },
-    );
+          if (pausedAt > 1024 * 1024) {
+            cancellation.cancel();
+          }
+        },
+      );
 
-    expect(paused.isFailed, isTrue);
-    expect(streams, hasLength(2));
-    expect(pausedAt, greaterThan(1024 * 1024));
+      expect(paused.isFailed, isTrue);
+      expect(streams, hasLength(2));
+      expect(pausedAt, greaterThan(1024 * 1024));
 
-    final progress = <DownloadProgressModel>[];
-    final resumed = await repository.downloadVideo(
-      taskId: taskId,
-      url: _video,
-      quality: '144',
-      streams: streams,
-      onProgress: progress.add,
-    );
+      final progress = <DownloadProgressModel>[];
+      final resumed = await repository.downloadVideo(
+        taskId: taskId,
+        url: _video,
+        quality: '144',
+        streams: streams,
+        onProgress: progress.add,
+      );
 
-    expect(resumed.failure, isNull, reason: resumed.failure?.message);
+      expect(resumed.failure, isNull, reason: resumed.failure?.message);
 
-    /// The first report already counts what was downloaded before the pause
-    expect(progress.first.downloadedBytes, greaterThan(1024 * 1024));
-    expect(progress.first.totalBytes, streams.fold<int>(0, (sum, stream) => sum + stream.contentLength));
+      /// The first report already counts what was downloaded before the pause
+      expect(progress.first.downloadedBytes, greaterThan(1024 * 1024));
+      expect(
+        progress.first.totalBytes,
+        streams.fold<int>(0, (sum, stream) => sum + stream.contentLength),
+      );
 
-    final probe = await _ffprobe(resumed.requireData.path);
+      final probe = await _ffprobe(resumed.requireData.path);
 
-    if (probe != null) {
-      expect(double.parse(probe['format']['duration'] as String), closeTo(478, 3));
-    }
-  }, skip: enabled ? false : 'нужен YT_LIVE=1', timeout: const Timeout(Duration(minutes: 3)));
+      if (probe != null) {
+        expect(
+          double.parse(probe['format']['duration'] as String),
+          closeTo(478, 3),
+        );
+      }
+    },
+    skip: enabled ? false : 'нужен YT_LIVE=1',
+    timeout: const Timeout(Duration(minutes: 3)),
+  );
 }

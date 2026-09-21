@@ -1,9 +1,9 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:youtube_downloader/src/app/failure/failure.dart';
-import 'package:youtube_downloader/src/app/logger/app_logger.dart';
-import 'package:youtube_downloader/src/app/operation_result/operation_result.dart';
-import 'package:youtube_downloader/src/app/shared_controllers/shared_controllers.dart';
+import 'package:black_cat/src/app/failure/failure.dart';
+import 'package:black_cat/src/app/logger/app_logger.dart';
+import 'package:black_cat/src/app/operation_result/operation_result.dart';
+import 'package:black_cat/src/app/shared_controllers/shared_controllers.dart';
 
 part 'cookies_import_state.dart';
 

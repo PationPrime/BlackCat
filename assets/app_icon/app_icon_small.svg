@@ -1,0 +1,32 @@
+<!-- BlackCat app icon for 16-32 px: the same cat, bigger and without
+     the small details, so the head and the eyes still read -->
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <defs>
+    <clipPath id="tile">
+      <rect width="1024" height="1024" rx="230"/>
+    </clipPath>
+  </defs>
+
+  <!-- AppColors.green80EF80 -->
+  <rect width="1024" height="1024" rx="230" fill="#80EF80"/>
+
+  <g clip-path="url(#tile)">
+    <g transform="translate(700 700) rotate(-45) scale(1.5)">
+      <path fill="#0C0A09" d="M -292 70
+        C -304 -10 -296 -80 -270 -136
+        Q -262 -270 -240 -352 Q -228 -398 -190 -372
+        Q -140 -330 -92 -252 Q 0 -276 92 -252
+        Q 140 -330 190 -372 Q 228 -398 240 -352
+        Q 262 -270 270 -136
+        C 296 -80 304 -10 292 70
+        C 270 206 140 266 0 266
+        C -140 266 -270 206 -292 70 Z"/>
+
+      <!-- Eyes -->
+      <ellipse cx="-122" cy="-46" rx="86" ry="78" transform="rotate(-10 -122 -46)" fill="#80EF80"/>
+      <ellipse cx="122" cy="-46" rx="86" ry="78" transform="rotate(10 122 -46)" fill="#80EF80"/>
+      <ellipse cx="-114" cy="-38" rx="38" ry="44" fill="#0C0A09"/>
+      <ellipse cx="114" cy="-38" rx="38" ry="44" fill="#0C0A09"/>
+    </g>
+  </g>
+</svg>

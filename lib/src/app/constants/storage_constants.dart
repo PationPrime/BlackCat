@@ -1,6 +1,6 @@
 abstract final class StorageConstants {
   /// App folder in `%LOCALAPPDATA%`
-  static const localAppFolder = 'YT Download';
+  static const localAppFolder = 'BlackCat';
 
   /// WebView2 profile of the sign-in window: keeps the Google session between launches
   static const signInProfileFolder = 'WebView';
@@ -18,19 +18,19 @@ abstract final class StorageConstants {
   /// Missing when the cookies come from the sign-in window
   static const cookiesSourceFileName = 'youtube_cookies_source.json';
 
-  /// yt-dlp and Deno installed by the app in `%LOCALAPPDATA%\YT Download`
+  /// yt-dlp and Deno installed by the app in `%LOCALAPPDATA%\BlackCat`
   static const toolsFolder = 'Tools';
 
-  /// Unfinished download streams in `%LOCALAPPDATA%\YT Download`:
+  /// Unfinished download streams in `%LOCALAPPDATA%\BlackCat`:
   /// each download has its own subfolder so it can continue after a pause
   /// and after an app restart
   static const downloadWorkFolder = 'Unfinished downloads';
 
-  /// Local copies of downloaded video thumbnails in `%LOCALAPPDATA%\YT Download`:
+  /// Local copies of downloaded video thumbnails in `%LOCALAPPDATA%\BlackCat`:
   /// the downloaded list shows them without network access
   static const thumbnailsFolder = 'Thumbnails';
 
-  /// Thumbnails of the player library videos in `%LOCALAPPDATA%\YT Download`:
+  /// Thumbnails of the player library videos in `%LOCALAPPDATA%\BlackCat`:
   /// frames the system file manager shows or copies of the download thumbnails
   static const libraryThumbnailsFolder = 'Library thumbnails';
 

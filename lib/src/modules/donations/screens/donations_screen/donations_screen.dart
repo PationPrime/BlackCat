@@ -5,12 +5,12 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:youtube_downloader/src/app/constants/constants.dart';
-import 'package:youtube_downloader/src/app/design_system/design_system.dart';
-import 'package:youtube_downloader/src/app/localization/lang/locale_keys.g.dart';
-import 'package:youtube_downloader/src/app/models/models.dart';
-import 'package:youtube_downloader/src/app/services/services.dart';
-import 'package:youtube_downloader/src/app/widgets/widgets.dart';
+import 'package:black_cat/src/app/constants/constants.dart';
+import 'package:black_cat/src/app/design_system/design_system.dart';
+import 'package:black_cat/src/app/localization/lang/locale_keys.g.dart';
+import 'package:black_cat/src/app/models/models.dart';
+import 'package:black_cat/src/app/services/services.dart';
+import 'package:black_cat/src/app/widgets/widgets.dart';
 
 import '../../components/components.dart';
 
@@ -124,10 +124,7 @@ class _DonationsScreenState extends State<DonationsScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  AppPageHeader(
-                    title: LocaleKeys.app_donations_title.tr(),
-                    subtitle: LocaleKeys.app_donations_subtitle.tr(),
-                  ),
+                  AppPageHeader(title: LocaleKeys.app_donations_title.tr()),
                   const SizedBox(height: 24),
                   const DonationsHero(),
                   if (_failedUrl case final url?) ...[
@@ -152,25 +149,6 @@ class _DonationsScreenState extends State<DonationsScreen> {
                   const SizedBox(height: 12),
                   LayoutBuilder(
                     builder: (context, constraints) => _platforms(constraints),
-                  ),
-                  const SizedBox(height: 40),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.favorite_rounded,
-                        size: 20,
-                        color: context.color.accent,
-                      ),
-                      const SizedBox(width: 10),
-                      Flexible(
-                        child: Text(
-                          LocaleKeys.app_donations_thank_you.tr(),
-                          textAlign: TextAlign.center,
-                          style: context.text.header5Semibold,
-                        ),
-                      ),
-                    ],
                   ),
                 ],
               ),

@@ -1,7 +1,7 @@
 import 'dart:ffi' show Abi;
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:youtube_downloader/src/app/tools/tools.dart';
+import 'package:black_cat/src/app/tools/tools.dart';
 
 const _ytDlpChecksums =
     '1fa6733c37ea6fb51c99ad8fe785e7b7e5f3246c9b980230329d4fb72ed8d4d6  yt-dlp\n'
@@ -23,12 +23,24 @@ void main() {
     expect(DependencyAssets.ytDlpAsset(Abi.linuxArm64), 'yt-dlp_linux_aarch64');
     expect(DependencyAssets.ytDlpAsset(Abi.androidArm64), isNull);
 
-    expect(DependencyAssets.denoAsset(Abi.windowsX64), 'deno-x86_64-pc-windows-msvc.zip');
-    expect(DependencyAssets.denoAsset(Abi.macosX64), 'deno-x86_64-apple-darwin.zip');
-    expect(DependencyAssets.denoAsset(Abi.linuxX64), 'deno-x86_64-unknown-linux-gnu.zip');
+    expect(
+      DependencyAssets.denoAsset(Abi.windowsX64),
+      'deno-x86_64-pc-windows-msvc.zip',
+    );
+    expect(
+      DependencyAssets.denoAsset(Abi.macosX64),
+      'deno-x86_64-apple-darwin.zip',
+    );
+    expect(
+      DependencyAssets.denoAsset(Abi.linuxX64),
+      'deno-x86_64-unknown-linux-gnu.zip',
+    );
     expect(DependencyAssets.denoAsset(Abi.windowsIA32), isNull);
 
-    expect(DependencyAssets.executableName('deno', abi: Abi.windowsX64), 'deno.exe');
+    expect(
+      DependencyAssets.executableName('deno', abi: Abi.windowsX64),
+      'deno.exe',
+    );
     expect(DependencyAssets.executableName('deno', abi: Abi.linuxX64), 'deno');
   });
 
@@ -61,10 +73,19 @@ void main() {
 
   test('sha256Of: вывод Get-FileHash сверяется по имени файла', () {
     expect(
-      DependencyAssets.sha256Of(_denoWindowsChecksum, 'deno-x86_64-pc-windows-msvc.zip'),
+      DependencyAssets.sha256Of(
+        _denoWindowsChecksum,
+        'deno-x86_64-pc-windows-msvc.zip',
+      ),
       '15e5300b0ba3c3695a7621d90160a746ec9e710228cee639afa9d580f6e3cd11',
     );
-    expect(DependencyAssets.sha256Of(_denoWindowsChecksum, 'deno-aarch64-pc-windows-msvc.zip'), isNull);
+    expect(
+      DependencyAssets.sha256Of(
+        _denoWindowsChecksum,
+        'deno-aarch64-pc-windows-msvc.zip',
+      ),
+      isNull,
+    );
     expect(
       DependencyAssets.sha256Of(
         '394f07f4da2bebe6ce6f1e7ce0fa16429b29b08c35e3fac3fe25972676dff4b2  deno-x86_64-unknown-linux-gnu.zip\n',
@@ -75,7 +96,12 @@ void main() {
   });
 
   test('версии JavaScript-сред сравниваются с минимальными', () {
-    expect(DependencyAssets.parseVersion('deno 2.9.6 (stable, release, x86_64-pc-windows-msvc)'), [2, 9, 6]);
+    expect(
+      DependencyAssets.parseVersion(
+        'deno 2.9.6 (stable, release, x86_64-pc-windows-msvc)',
+      ),
+      [2, 9, 6],
+    );
     expect(DependencyAssets.parseVersion('v24.12.0'), [24, 12, 0]);
     expect(DependencyAssets.parseVersion('2026.08.19'), [2026, 8, 19]);
     expect(DependencyAssets.parseVersion('1.2'), [1, 2, 0]);

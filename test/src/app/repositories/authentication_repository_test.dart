@@ -2,12 +2,12 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path/path.dart' as p;
-import 'package:youtube_downloader/src/app/data_sources/data_sources.dart';
-import 'package:youtube_downloader/src/app/errors/errors.dart';
-import 'package:youtube_downloader/src/app/models/models.dart';
-import 'package:youtube_downloader/src/app/repositories/repositories.dart';
-import 'package:youtube_downloader/src/app/services/services.dart';
-import 'package:youtube_downloader/src/app/tools/tools.dart';
+import 'package:black_cat/src/app/data_sources/data_sources.dart';
+import 'package:black_cat/src/app/errors/errors.dart';
+import 'package:black_cat/src/app/models/models.dart';
+import 'package:black_cat/src/app/repositories/repositories.dart';
+import 'package:black_cat/src/app/services/services.dart';
+import 'package:black_cat/src/app/tools/tools.dart';
 
 import '../../support/test_localization.dart';
 
@@ -20,7 +20,8 @@ class _TestFileSystemService extends FileSystemServiceImpl {
   _TestFileSystemService(this.root);
 
   @override
-  Future<String> localAppFolder(String name) async => p.join(root.path, 'local', name);
+  Future<String> localAppFolder(String name) async =>
+      p.join(root.path, 'local', name);
 
   @override
   Future<String> supportFolder() async => p.join(root.path, 'support');
@@ -32,7 +33,10 @@ final class _FakeFileSelector implements FileSelectorService {
   final requests = <({List<String> extensions, String? initialDirectory})>[];
 
   @override
-  Future<String?> pickDirectory({String? initialDirectory, String? confirmButtonText}) async => null;
+  Future<String?> pickDirectory({
+    String? initialDirectory,
+    String? confirmButtonText,
+  }) async => null;
 
   @override
   Future<String?> pickFile({
@@ -62,8 +66,24 @@ final class _FakeWebDataSource implements WebAuthenticationDataSource {
 
 String _cookiesTxt(String sessionValue) => [
   '# Netscape HTTP Cookie File',
-  ['#HttpOnly_.youtube.com', 'TRUE', '/', 'TRUE', '$_future', 'LOGIN_INFO', sessionValue].join('\t'),
-  ['.youtube.com', 'TRUE', '/', 'TRUE', '$_future', 'SAPISID', 'sapisid'].join('\t'),
+  [
+    '#HttpOnly_.youtube.com',
+    'TRUE',
+    '/',
+    'TRUE',
+    '$_future',
+    'LOGIN_INFO',
+    sessionValue,
+  ].join('\t'),
+  [
+    '.youtube.com',
+    'TRUE',
+    '/',
+    'TRUE',
+    '$_future',
+    'SAPISID',
+    'sapisid',
+  ].join('\t'),
   ['.example.com', 'TRUE', '/', 'FALSE', '$_future', 'tracker', 'x'].join('\t'),
 ].join('\n');
 
@@ -78,7 +98,9 @@ void main() {
 
   setUp(() async {
     root = await Directory.systemTemp.createTemp('authentication-repository');
-    localDataSource = LocalAuthenticationDataSourceImpl(fileSystemService: _TestFileSystemService(root));
+    localDataSource = LocalAuthenticationDataSourceImpl(
+      fileSystemService: _TestFileSystemService(root),
+    );
     fileSelector = _FakeFileSelector();
     webDataSource = _FakeWebDataSource();
     repository = AuthenticationRepository(
@@ -99,84 +121,127 @@ void main() {
     return file.path;
   }
 
-  test('importCookies: проверенные cookies становятся сессией и переживают перезапуск', () async {
-    final path = await writeFile('cookies.txt', _cookiesTxt('imported'));
+  test(
+    'importCookies: проверенные cookies становятся сессией и переживают перезапуск',
+    () async {
+      final path = await writeFile('cookies.txt', _cookiesTxt('imported'));
 
-    fileSelector.pickedFile = path;
+      fileSelector.pickedFile = path;
 
-    final result = await repository.importCookies();
+      final result = await repository.importCookies();
 
-    expect(result.failure, isNull, reason: result.failure?.message);
-    expect(result.data?.isImported, isTrue);
-    expect(result.data?.cookiesFilePath, path);
-    expect(fileSelector.requests.single.extensions, ['txt']);
+      expect(result.failure, isNull, reason: result.failure?.message);
+      expect(result.data?.isImported, isTrue);
+      expect(result.data?.cookiesFilePath, path);
+      expect(fileSelector.requests.single.extensions, ['txt']);
 
-    final saved = await localDataSource.readCookies();
+      final saved = await localDataSource.readCookies();
 
-    expect([for (final cookie in saved!) cookie.name], ['LOGIN_INFO', 'SAPISID']);
-    expect(saved.first.value, 'imported');
+      expect(
+        [for (final cookie in saved!) cookie.name],
+        ['LOGIN_INFO', 'SAPISID'],
+      );
+      expect(saved.first.value, 'imported');
 
-    /// The user's file stays as it was
-    expect(await File(path).readAsString(), _cookiesTxt('imported'));
+      /// The user's file stays as it was
+      expect(await File(path).readAsString(), _cookiesTxt('imported'));
 
-    final restored = await repository.restoreSession();
+      final restored = await repository.restoreSession();
 
-    expect(restored.data, result.data);
+      expect(restored.data, result.data);
 
-    /// The next picker opens next to the previous file
-    fileSelector.pickedFile = null;
+      /// The next picker opens next to the previous file
+      fileSelector.pickedFile = null;
 
-    expect((await repository.importCookies()).data, isNull);
-    expect(fileSelector.requests.last.initialDirectory, p.dirname(path));
-  });
+      expect((await repository.importCookies()).data, isNull);
+      expect(fileSelector.requests.last.initialDirectory, p.dirname(path));
+    },
+  );
 
-  test('importCookies: ошибки файла сообщаются, прежняя сессия не трогается', () async {
-    webDataSource.signInCookies = NetscapeCookies.decode(_cookiesTxt('window'));
+  test(
+    'importCookies: ошибки файла сообщаются, прежняя сессия не трогается',
+    () async {
+      webDataSource.signInCookies = NetscapeCookies.decode(
+        _cookiesTxt('window'),
+      );
 
-    expect((await repository.signIn()).data, isTrue);
+      expect((await repository.signIn()).data, isTrue);
 
-    fileSelector.pickedFile = await writeFile('notes.txt', 'просто текст');
+      fileSelector.pickedFile = await writeFile('notes.txt', 'просто текст');
 
-    final formatResult = await repository.importCookies();
+      final formatResult = await repository.importCookies();
 
-    expect(formatResult.failure?.code, const AuthenticationErrorCodes().cookiesFormat);
-    expect(formatResult.failure?.message, contains('Netscape'));
+      expect(
+        formatResult.failure?.code,
+        const AuthenticationErrorCodes().cookiesFormat,
+      );
+      expect(formatResult.failure?.message, contains('Netscape'));
 
-    fileSelector.pickedFile = await writeFile('cookies.json', _cookiesTxt('json'));
+      fileSelector.pickedFile = await writeFile(
+        'cookies.json',
+        _cookiesTxt('json'),
+      );
 
-    expect((await repository.importCookies()).failure?.code, const AuthenticationErrorCodes().cookiesNotText);
+      expect(
+        (await repository.importCookies()).failure?.code,
+        const AuthenticationErrorCodes().cookiesNotText,
+      );
 
-    fileSelector.pickedFile = p.join(root.path, 'missing.txt');
+      fileSelector.pickedFile = p.join(root.path, 'missing.txt');
 
-    final readResult = await repository.importCookies();
+      final readResult = await repository.importCookies();
 
-    expect(readResult.failure?.code, const AuthenticationErrorCodes().cookiesRead);
-    expect(readResult.failure?.message, startsWith('Не удалось прочитать файл cookies'));
+      expect(
+        readResult.failure?.code,
+        const AuthenticationErrorCodes().cookiesRead,
+      );
+      expect(
+        readResult.failure?.message,
+        startsWith('Не удалось прочитать файл cookies'),
+      );
 
-    fileSelector.error = StateError('no dialog');
+      fileSelector.error = StateError('no dialog');
 
-    expect((await repository.importCookies()).failure?.code, const AuthenticationErrorCodes().cookiesPicker);
+      expect(
+        (await repository.importCookies()).failure?.code,
+        const AuthenticationErrorCodes().cookiesPicker,
+      );
 
-    expect((await localDataSource.readCookies())!.first.value, 'window');
-    expect(await repository.restoreSession(), (failure: null, data: const AccountSessionModel.signInWindow()));
-  });
+      expect((await localDataSource.readCookies())!.first.value, 'window');
+      expect(await repository.restoreSession(), (
+        failure: null,
+        data: const AccountSessionModel.signInWindow(),
+      ));
+    },
+  );
 
-  test('вход через окно заменяет импорт, выход удаляет cookies вместе с отметкой об импорте', () async {
-    fileSelector.pickedFile = await writeFile('cookies.txt', _cookiesTxt('imported'));
+  test(
+    'вход через окно заменяет импорт, выход удаляет cookies вместе с отметкой об импорте',
+    () async {
+      fileSelector.pickedFile = await writeFile(
+        'cookies.txt',
+        _cookiesTxt('imported'),
+      );
 
-    expect((await repository.importCookies()).data?.isImported, isTrue);
+      expect((await repository.importCookies()).data?.isImported, isTrue);
 
-    webDataSource.signInCookies = NetscapeCookies.decode(_cookiesTxt('window'));
+      webDataSource.signInCookies = NetscapeCookies.decode(
+        _cookiesTxt('window'),
+      );
 
-    await repository.signIn();
+      await repository.signIn();
 
-    expect((await repository.restoreSession()).data, const AccountSessionModel.signInWindow());
+      expect(
+        (await repository.restoreSession()).data,
+        const AccountSessionModel.signInWindow(),
+      );
 
-    await repository.importCookies();
-    await repository.signOut();
+      await repository.importCookies();
+      await repository.signOut();
 
-    expect(await localDataSource.readCookies(), isNull);
-    expect(await localDataSource.readCookiesSource(), isNull);
-    expect((await repository.restoreSession()).data, isNull);
-  });
+      expect(await localDataSource.readCookies(), isNull);
+      expect(await localDataSource.readCookiesSource(), isNull);
+      expect((await repository.restoreSession()).data, isNull);
+    },
+  );
 }

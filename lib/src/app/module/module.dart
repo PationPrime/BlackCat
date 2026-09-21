@@ -100,6 +100,8 @@ final class AppModule {
           localAuthenticationDataSource: localAuthenticationDataSource,
         );
 
+        const localDownloadStateDataSource = LocalDownloadStateDataSourceImpl();
+
         _videoRepository = YouTubeVideoRepository(
           remoteYouTubeDataSource: RemoteYouTubeDataSourceImpl(
             apiProvider: _apiProvider,
@@ -132,6 +134,7 @@ final class AppModule {
           fileSystemService: _fileSystemService,
           sessionStore: sessionStore,
           localAuthenticationDataSource: localAuthenticationDataSource,
+          localDownloadStateDataSource: localDownloadStateDataSource,
         );
 
         _dependenciesRepository = DependenciesRepository(
@@ -153,6 +156,7 @@ final class AppModule {
           remoteThumbnailDataSource: RemoteThumbnailDataSourceImpl(
             apiProvider: _apiProvider,
           ),
+          localDownloadStateDataSource: localDownloadStateDataSource,
           fileSystemService: _fileSystemService,
         );
 
@@ -202,7 +206,7 @@ final class AppModule {
         _appRouter = AppRouter();
 
         runApp(
-          RunnerApp(
+          BlackCataRunnerApp(
             appThemeType: const AppDarkTheme(),
             appRouter: _appRouter,
             fileSystemService: _fileSystemService,
@@ -226,7 +230,7 @@ final class AppModule {
       },
       (error, stackTrace) {
         _appLogger.logError(
-          'Internal YT Download error: $error',
+          'Internal BlackCat error: $error',
           stackTrace: stackTrace,
         );
       },

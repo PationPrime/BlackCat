@@ -1,11 +1,11 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:youtube_downloader/src/app/constants/constants.dart';
-import 'package:youtube_downloader/src/app/design_system/design_system.dart';
-import 'package:youtube_downloader/src/app/localization/lang/locale_keys.g.dart';
-import 'package:youtube_downloader/src/app/models/models.dart';
-import 'package:youtube_downloader/src/app/tools/tools.dart';
-import 'package:youtube_downloader/src/app/widgets/widgets.dart';
+import 'package:black_cat/src/app/constants/constants.dart';
+import 'package:black_cat/src/app/design_system/design_system.dart';
+import 'package:black_cat/src/app/localization/lang/locale_keys.g.dart';
+import 'package:black_cat/src/app/models/models.dart';
+import 'package:black_cat/src/app/tools/tools.dart';
+import 'package:black_cat/src/app/widgets/widgets.dart';
 
 /// Current download along the bottom of the window, like in Steam: the video,
 /// its progress and a pause. The whole bar opens the downloads page

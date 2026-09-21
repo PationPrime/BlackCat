@@ -1,15 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:youtube_downloader/src/app/errors/errors.dart';
-import 'package:youtube_downloader/src/app/models/models.dart';
-import 'package:youtube_downloader/src/app/widgets/widgets.dart';
-import 'package:youtube_downloader/src/modules/dependencies/module.dart';
-import 'package:youtube_downloader/src/modules/home/module.dart';
+import 'package:black_cat/src/app/errors/errors.dart';
+import 'package:black_cat/src/app/models/models.dart';
+import 'package:black_cat/src/app/widgets/widgets.dart';
+import 'package:black_cat/src/modules/dependencies/module.dart';
+import 'package:black_cat/src/modules/home/module.dart';
 
 import '../../support/fake_repositories.dart';
 import '../../support/test_app.dart';
 import '../../support/test_localization.dart';
+
+/// The page has a second link field, for downloading any file: the search
+/// is the one in the search form
+final _searchField = find.descendant(
+  of: find.byType(UrlSearchForm),
+  matching: find.byType(TextField),
+);
 
 const _url = 'https://youtu.be/kgA8JPY2lIA';
 const _otherUrl = 'https://youtu.be/otherVideo1';
@@ -23,10 +30,15 @@ const _signInFailure = VideoFailure(
 void main() {
   setUpAll(loadTestTranslations);
 
-  testWidgets('поиск по Enter в поле ссылки: обычный и цифровой Enter', (tester) async {
+  testWidgets('поиск по Enter в поле ссылки: обычный и цифровой Enter', (
+    tester,
+  ) async {
     final app = TestApp(
       ytDlpVideoRepository: FakeYtDlpVideoRepository(
-        infoResults: [(failure: null, data: testVideoInfo), (failure: null, data: testVideoInfo)],
+        infoResults: [
+          (failure: null, data: testVideoInfo),
+          (failure: null, data: testVideoInfo),
+        ],
       ),
     );
 
@@ -35,14 +47,14 @@ void main() {
 
     expect(find.text('Главная'), findsOneWidget);
 
-    await tester.enterText(find.byType(TextField), _url);
+    await tester.enterText(_searchField, _url);
     await tester.sendKeyEvent(LogicalKeyboardKey.enter);
     await app.settle(tester);
 
     expect(app.ytDlpVideoRepository.requestedUrls, [_url]);
     expect(find.byType(VideoCard), findsOneWidget);
 
-    await tester.enterText(find.byType(TextField), _otherUrl);
+    await tester.enterText(_searchField, _otherUrl);
     await tester.sendKeyEvent(LogicalKeyboardKey.numpadEnter);
     await app.settle(tester);
 
@@ -55,7 +67,7 @@ void main() {
     final app = TestApp();
 
     await app.pumpPage(tester, const HomeScreen());
-    await tester.enterText(find.byType(TextField), '   ');
+    await tester.enterText(_searchField, '   ');
     await tester.sendKeyEvent(LogicalKeyboardKey.enter);
     await app.settle(tester);
 
@@ -65,171 +77,237 @@ void main() {
     await app.close();
   });
 
-  testWidgets('найденное видео добавляется в загрузки: форма очищается, видно подтверждение', (tester) async {
-    final app = TestApp(
-      ytDlpVideoRepository: FakeYtDlpVideoRepository(
-        infoResults: List.filled(3, (failure: null, data: testVideoInfo)),
-      ),
-    );
+  testWidgets(
+    'найденное видео добавляется в загрузки: форма очищается, видно подтверждение',
+    (tester) async {
+      final app = TestApp(
+        ytDlpVideoRepository: FakeYtDlpVideoRepository(
+          infoResults: List.filled(3, (failure: null, data: testVideoInfo)),
+        ),
+      );
 
-    await app.pumpPage(tester, const HomeScreen());
-    await app.dependenciesController.check();
-    await tester.enterText(find.byType(TextField), _url);
-    await tester.tap(find.text('Найти'));
-    await app.settle(tester);
+      await app.pumpPage(tester, const HomeScreen());
+      await app.dependenciesController.check();
+      await tester.enterText(_searchField, _url);
+      await tester.tap(find.text('Найти'));
+      await app.settle(tester);
 
-    expect(find.text('Обзор'), findsOneWidget);
-    expect(find.text('Скачать'), findsOneWidget);
+      expect(find.text('Обзор'), findsOneWidget);
+      expect(find.text('Скачать'), findsOneWidget);
 
-    await tester.tap(find.text('Скачать'));
-    await app.settle(tester);
+      await tester.tap(find.text('Скачать'));
+      await app.settle(tester);
 
-    expect(app.queueController.state.activeTask?.video.title, 'Обзор');
-    expect(app.queueController.state.activeTask?.quality.id, '1080');
-    expect(app.queueController.state.activeTask?.engine, DownloadEngineModel.ytDlp);
-    expect(find.byType(VideoCard), findsNothing);
-    expect(tester.widget<TextField>(find.byType(TextField)).controller?.text, isEmpty);
-    expect(find.text('«Обзор» добавлено в загрузки.'), findsOneWidget);
+      expect(app.queueController.state.activeTask?.video.title, 'Обзор');
+      expect(app.queueController.state.activeTask?.quality.id, '1080');
+      expect(
+        app.queueController.state.activeTask?.engine,
+        DownloadEngineModel.ytDlp,
+      );
+      expect(find.byType(VideoCard), findsNothing);
+      expect(tester.widget<TextField>(_searchField).controller?.text, isEmpty);
+      expect(find.text('«Обзор» добавлено в загрузки.'), findsOneWidget);
 
-    /// The next video goes to the queue
-    await tester.enterText(find.byType(TextField), _url);
-    await tester.sendKeyEvent(LogicalKeyboardKey.enter);
-    await app.settle(tester);
+      /// The next video goes to the queue
+      await tester.enterText(_searchField, _url);
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      await app.settle(tester);
 
-    expect(find.text('«Обзор» добавлено в загрузки.'), findsNothing);
-    expect(find.text('Добавить в очередь'), findsOneWidget);
+      expect(find.text('«Обзор» добавлено в загрузки.'), findsNothing);
+      expect(find.text('Добавить в очередь'), findsOneWidget);
 
-    await tester.tap(find.text('Очистить'));
-    await app.settle(tester);
+      await tester.tap(find.text('Очистить'));
+      await app.settle(tester);
 
-    expect(find.byType(VideoCard), findsNothing);
+      expect(find.byType(VideoCard), findsNothing);
 
-    await tester.enterText(find.byType(TextField), _url);
-    await tester.sendKeyEvent(LogicalKeyboardKey.enter);
-    await app.settle(tester);
-    await tester.tap(find.text('Добавить в очередь'));
-    await app.settle(tester);
+      await tester.enterText(_searchField, _url);
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      await app.settle(tester);
+      await tester.tap(find.text('Добавить в очередь'));
+      await app.settle(tester);
 
-    expect(app.queueController.state.queue, hasLength(1));
+      expect(app.queueController.state.queue, hasLength(1));
 
-    await tester.tap(find.text('Открыть загрузки'));
-    await app.settle(tester);
+      await tester.tap(find.text('Открыть загрузки'));
+      await app.settle(tester);
 
-    expect(app.navigationController.state.tab, AppTabModel.downloads);
+      expect(app.navigationController.state.tab, AppTabModel.downloads);
 
-    await app.close();
-  });
+      await app.close();
+    },
+  );
 
-  testWidgets('без yt-dlp ищет встроенный загрузчик, «Установить» открывает установку', (tester) async {
-    final app = TestApp(setup: const YtDlpSetupModel());
+  testWidgets(
+    'без yt-dlp ищет встроенный загрузчик, «Установить» открывает установку',
+    (tester) async {
+      final app = TestApp(setup: const YtDlpSetupModel());
 
-    await app.pumpPage(tester, const HomeScreen());
-    await app.dependenciesController.check();
-    await app.settle(tester);
+      await app.pumpPage(tester, const HomeScreen());
+      await app.dependenciesController.check();
+      await app.settle(tester);
 
-    expect(find.text('yt-dlp не установлен: видео скачается встроенным загрузчиком.'), findsOneWidget);
+      expect(
+        find.text(
+          'yt-dlp не установлен: видео скачается встроенным загрузчиком.',
+        ),
+        findsOneWidget,
+      );
 
-    await tester.enterText(find.byType(TextField), _url);
-    await tester.sendKeyEvent(LogicalKeyboardKey.enter);
-    await app.settle(tester);
+      await tester.enterText(_searchField, _url);
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      await app.settle(tester);
 
-    expect(app.videoRepository.requestedUrls, [_url]);
-    expect(app.ytDlpVideoRepository.requestedUrls, isEmpty);
+      expect(app.videoRepository.requestedUrls, [_url]);
+      expect(app.ytDlpVideoRepository.requestedUrls, isEmpty);
 
-    await tester.tap(find.text('Установить'));
-    await app.settle(tester);
+      await tester.tap(find.text('Установить'));
+      await app.settle(tester);
 
-    expect(find.byType(DependenciesInstallDialog), findsOneWidget);
-    expect(app.dependenciesRepository.installs, hasLength(1));
+      expect(find.byType(DependenciesInstallDialog), findsOneWidget);
+      expect(app.dependenciesRepository.installs, hasLength(1));
 
-    app.dependenciesRepository.installs.single.succeed();
-    await app.settle(tester);
-    await tester.tap(find.text('Готово'));
-    await app.settle(tester);
+      app.dependenciesRepository.installs.single.succeed();
+      await app.settle(tester);
+      await tester.tap(find.text('Готово'));
+      await app.settle(tester);
 
-    expect(find.text('Поиск через yt-dlp занимает несколько секунд.'), findsOneWidget);
+      expect(
+        find.text('Поиск может занимать несколько секунд.'),
+        findsOneWidget,
+      );
 
-    await app.close();
-  });
+      await app.close();
+    },
+  );
 
-  testWidgets('ошибка входа: «Войти» и «Импортировать cookies.txt», новые cookies повторяют поиск', (tester) async {
-    final app = TestApp(
-      videoRepository: FakeVideoRepository(
-        infoResults: [
-          (failure: _signInFailure, data: null),
-          (failure: _signInFailure, data: null),
-          (failure: null, data: testVideoInfo),
-        ],
-      ),
-      setup: const YtDlpSetupModel(),
-    );
+  testWidgets(
+    'ошибка входа: «Войти» и «Импортировать cookies.txt», новые cookies повторяют поиск',
+    (tester) async {
+      final app = TestApp(
+        videoRepository: FakeVideoRepository(
+          infoResults: [
+            (failure: _signInFailure, data: null),
+            (failure: _signInFailure, data: null),
+            (failure: null, data: testVideoInfo),
+          ],
+        ),
+        setup: const YtDlpSetupModel(),
+      );
 
-    await app.pumpPage(tester, const HomeScreen());
-    await tester.enterText(find.byType(TextField), _url);
-    await tester.sendKeyEvent(LogicalKeyboardKey.enter);
-    await app.settle(tester);
+      await app.pumpPage(tester, const HomeScreen());
+      await tester.enterText(_searchField, _url);
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      await app.settle(tester);
 
-    final banner = find.byType(AppFailureBanner);
+      final banner = find.byType(AppFailureBanner);
 
-    expect(find.descendant(of: banner, matching: find.text('YouTube просит подтвердить, что вы не бот.')), findsOneWidget);
-    expect(find.descendant(of: banner, matching: find.text('Войти')), findsOneWidget);
+      expect(
+        find.descendant(
+          of: banner,
+          matching: find.text('YouTube просит подтвердить, что вы не бот.'),
+        ),
+        findsOneWidget,
+      );
+      expect(
+        find.descendant(of: banner, matching: find.text('Войти')),
+        findsOneWidget,
+      );
 
-    /// Signing in through the window repeats the search right away
-    await tester.tap(find.descendant(of: banner, matching: find.text('Войти')));
-    await app.settle(tester);
+      /// Signing in through the window repeats the search right away
+      await tester.tap(
+        find.descendant(of: banner, matching: find.text('Войти')),
+      );
+      await app.settle(tester);
 
-    expect(app.authenticationRepository.signInCalls, 1);
-    expect(app.videoRepository.requestedUrls, [_url, _url]);
-    expect(find.descendant(of: banner, matching: find.text('Обновить вход')), findsOneWidget);
+      expect(app.authenticationRepository.signInCalls, 1);
+      expect(app.videoRepository.requestedUrls, [_url, _url]);
+      expect(
+        find.descendant(of: banner, matching: find.text('Обновить вход')),
+        findsOneWidget,
+      );
 
-    await tester.tap(find.descendant(of: banner, matching: find.text('Импортировать cookies.txt')));
-    await app.settle(tester);
+      await tester.tap(
+        find.descendant(
+          of: banner,
+          matching: find.text('Импортировать cookies.txt'),
+        ),
+      );
+      await app.settle(tester);
 
-    expect(app.navigationController.state.tab, AppTabModel.settings);
-    expect(app.navigationController.state.cookiesImport?.returnTab, AppTabModel.home);
+      expect(app.navigationController.state.tab, AppTabModel.settings);
+      expect(
+        app.navigationController.state.cookiesImport?.returnTab,
+        AppTabModel.home,
+      );
 
-    app.authenticationRepository.importResult = (
-      failure: null,
-      data: AccountSessionModel.cookiesFile(cookiesFilePath: r'C:\cookies.txt', importedAt: DateTime(2026, 9, 16)),
-    );
-    await app.authorizationController.importCookies();
-    await app.settle(tester);
+      app.authenticationRepository.importResult = (
+        failure: null,
+        data: AccountSessionModel.cookiesFile(
+          cookiesFilePath: r'C:\cookies.txt',
+          importedAt: DateTime(2026, 9, 16),
+        ),
+      );
+      await app.authorizationController.importCookies();
+      await app.settle(tester);
 
-    expect(app.videoRepository.requestedUrls, [_url, _url, _url]);
-    expect(find.byType(AppFailureBanner), findsNothing);
-    expect(find.text('Обзор'), findsOneWidget);
+      expect(app.videoRepository.requestedUrls, [_url, _url, _url]);
+      expect(find.byType(AppFailureBanner), findsNothing);
+      expect(find.text('Обзор'), findsOneWidget);
 
-    await app.close();
-  });
+      await app.close();
+    },
+  );
 
-  testWidgets('вход и выход из YouTube в заголовке главной; выход недоступен во время загрузки', (tester) async {
-    final app = TestApp();
+  testWidgets(
+    'вход и выход из YouTube в заголовке главной; выход недоступен во время загрузки',
+    (tester) async {
+      final app = TestApp();
 
-    await app.pumpPage(tester, const HomeScreen());
+      await app.pumpPage(tester, const HomeScreen());
 
-    final header = find.byType(AppPageHeader);
+      final header = find.byType(AppPageHeader);
 
-    expect(find.descendant(of: header, matching: find.text('Войти в YouTube')), findsOneWidget);
+      expect(
+        find.descendant(of: header, matching: find.text('Войти в YouTube')),
+        findsOneWidget,
+      );
 
-    await tester.tap(find.descendant(of: header, matching: find.text('Войти в YouTube')));
-    await app.settle(tester);
+      await tester.tap(
+        find.descendant(of: header, matching: find.text('Войти в YouTube')),
+      );
+      await app.settle(tester);
 
-    expect(app.authenticationRepository.signInCalls, 1);
-    expect(find.descendant(of: header, matching: find.text('Аккаунт подключён')), findsOneWidget);
+      expect(app.authenticationRepository.signInCalls, 1);
+      expect(
+        find.descendant(of: header, matching: find.text('Аккаунт подключён')),
+        findsOneWidget,
+      );
 
-    await app.addTask(tester, 'a');
+      await app.addTask(tester, 'a');
 
-    expect(tester.widget<AppLinkButton>(find.widgetWithText(AppLinkButton, 'Выйти')).onPressed, isNull);
+      expect(
+        tester
+            .widget<AppLinkButton>(find.widgetWithText(AppLinkButton, 'Выйти'))
+            .onPressed,
+        isNull,
+      );
 
-    app.videoRepository.downloads.single.succeed(r'C:\Downloads\a.mp4');
-    await app.settle(tester);
+      app.videoRepository.downloads.single.succeed(r'C:\Downloads\a.mp4');
+      await app.settle(tester);
 
-    await tester.tap(find.descendant(of: header, matching: find.text('Выйти')));
-    await app.settle(tester);
+      await tester.tap(
+        find.descendant(of: header, matching: find.text('Выйти')),
+      );
+      await app.settle(tester);
 
-    expect(app.authenticationRepository.signOutCalls, 1);
-    expect(find.descendant(of: header, matching: find.text('Войти в YouTube')), findsOneWidget);
+      expect(app.authenticationRepository.signOutCalls, 1);
+      expect(
+        find.descendant(of: header, matching: find.text('Войти в YouTube')),
+        findsOneWidget,
+      );
 
-    await app.close();
-  });
+      await app.close();
+    },
+  );
 }

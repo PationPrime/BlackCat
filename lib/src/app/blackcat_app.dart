@@ -3,14 +3,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../modules/modules.dart';
 import 'design_system/design_system.dart';
-import 'downloader_app_view.dart';
+import 'backcat_app_view.dart';
 import 'models/models.dart';
 import 'repositories/repositories.dart';
 import 'router/app_router.dart';
 import 'services/services.dart';
 import 'shared_controllers/shared_controllers.dart';
 
-class DownloaderApp extends StatelessWidget {
+class BlackCatApp extends StatelessWidget {
   final AppThemeType appThemeType;
   final AppRouter appRouter;
   final FileSystemService fileSystemService;
@@ -32,7 +32,7 @@ class DownloaderApp extends StatelessWidget {
   /// Language of the first frame: the one saved in the settings
   final AppLanguageModel initialLanguage;
 
-  const DownloaderApp({
+  const BlackCatApp({
     super.key,
     required this.appThemeType,
     required this.appRouter,
@@ -87,16 +87,12 @@ class DownloaderApp extends StatelessWidget {
         BlocProvider<AuthorizationController>.value(
           value: authorizationController,
         ),
-        BlocProvider<SettingsController>.value(
-          value: settingsController,
-        ),
+        BlocProvider<SettingsController>.value(value: settingsController),
         BlocProvider<AppWindowController>.value(value: appWindowController),
         BlocProvider<DependenciesController>.value(
           value: dependenciesController,
         ),
-        BlocProvider<SystemTrayController>.value(
-          value: systemTrayController,
-        ),
+        BlocProvider<SystemTrayController>.value(value: systemTrayController),
         BlocProvider<AppThemeController>(
           create: (context) =>
               AppThemeController(initialThemeType: appThemeType),
@@ -110,14 +106,13 @@ class DownloaderApp extends StatelessWidget {
             downloadQueueRepository: context
                 .read<DownloadQueueRepositoryInterface>(),
             videoRepository: context.read<VideoRepositoryInterface>(),
-            ytDlpVideoRepository: context
-                .read<YtDlpVideoRepositoryInterface>(),
+            ytDlpVideoRepository: context.read<YtDlpVideoRepositoryInterface>(),
             settingsRepository: context.read<SettingsRepositoryInterface>(),
             authorizationController: context.read<AuthorizationController>(),
           )..restoreQueue(),
         ),
       ],
-      child: DownloaderAppView(
+      child: BlackCatAppView(
         appRouter: appRouter,
         initialLanguage: initialLanguage,
       ),

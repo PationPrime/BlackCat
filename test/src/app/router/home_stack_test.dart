@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:youtube_downloader/src/app/errors/errors.dart';
-import 'package:youtube_downloader/src/app/models/models.dart';
-import 'package:youtube_downloader/src/app/widgets/widgets.dart';
-import 'package:youtube_downloader/src/modules/modules.dart';
+import 'package:black_cat/src/app/errors/errors.dart';
+import 'package:black_cat/src/app/models/models.dart';
+import 'package:black_cat/src/app/widgets/widgets.dart';
+import 'package:black_cat/src/modules/modules.dart';
 
 import '../../support/fake_repositories.dart';
 import '../../support/test_app.dart';
@@ -18,61 +18,81 @@ const _signInFailure = VideoFailure(
   needsSignIn: true,
 );
 
+/// The page has a second link field, for downloading any file: the search
+/// is the one in the search form
+final _searchField = find.descendant(
+  of: find.byType(UrlSearchForm),
+  matching: find.byType(TextField),
+);
+
 final _navigationBar = find.byType(AppNavigationBar);
 final _footer = find.byType(DownloadFooter);
 
-Finder _inNavigationBar(String text) => find.descendant(of: _navigationBar, matching: find.text(text));
+Finder _inNavigationBar(String text) =>
+    find.descendant(of: _navigationBar, matching: find.text(text));
 
-Finder _inFooter(Finder finder) => find.descendant(of: _footer, matching: finder);
+Finder _inFooter(Finder finder) =>
+    find.descendant(of: _footer, matching: finder);
 
 void main() {
   setUpAll(loadTestTranslations);
 
-  testWidgets('навигационный бар слева переключает главную, загрузки и настройки', (tester) async {
+  testWidgets(
+    'навигационный бар слева переключает главную, загрузки и настройки',
+    (tester) async {
+      final app = TestApp();
+
+      await app.pumpApp(tester);
+
+      expect(tester.getTopLeft(_navigationBar), Offset.zero);
+      expect(
+        tester.getSize(_navigationBar).width,
+        AppNavigationBar.expandedWidth,
+      );
+      expect(_inNavigationBar('BlackCat'), findsOneWidget);
+      expect(_inNavigationBar('Главная'), findsOneWidget);
+      expect(_inNavigationBar('Загрузки'), findsOneWidget);
+      expect(_inNavigationBar('Настройки'), findsOneWidget);
+      expect(find.byType(HomeScreen), findsOneWidget);
+      expect(find.byType(DownloadsScreen), findsNothing);
+
+      await tester.enterText(_searchField, _url);
+      await tester.tap(_inNavigationBar('Загрузки'));
+      await app.settle(tester);
+
+      expect(app.navigationController.state.tab, AppTabModel.downloads);
+      expect(find.byType(DownloadsScreen), findsOneWidget);
+      expect(find.byType(HomeScreen), findsNothing);
+      expect(find.text('АКТИВНАЯ ЗАГРУЗКА'), findsOneWidget);
+
+      await tester.tap(_inNavigationBar('Настройки'));
+      await app.settle(tester);
+
+      expect(find.byType(SettingsScreen), findsOneWidget);
+      expect(find.byType(CookiesCard), findsOneWidget);
+
+      /// A page keeps its state between visits
+      await tester.tap(_inNavigationBar('Главная'));
+      await app.settle(tester);
+
+      expect(find.byType(HomeScreen), findsOneWidget);
+      expect(find.widgetWithText(TextField, _url), findsOneWidget);
+
+      await app.close();
+    },
+  );
+
+  testWidgets('вход в YouTube — в заголовке главной, а не в навбаре', (
+    tester,
+  ) async {
     final app = TestApp();
 
     await app.pumpApp(tester);
 
-    expect(tester.getTopLeft(_navigationBar), Offset.zero);
-    expect(tester.getSize(_navigationBar).width, AppNavigationBar.expandedWidth);
-    expect(_inNavigationBar('YT Download'), findsOneWidget);
-    expect(_inNavigationBar('Главная'), findsOneWidget);
-    expect(_inNavigationBar('Загрузки'), findsOneWidget);
-    expect(_inNavigationBar('Настройки'), findsOneWidget);
-    expect(find.byType(HomeScreen), findsOneWidget);
-    expect(find.byType(DownloadsScreen), findsNothing);
-
-    await tester.enterText(find.byType(TextField), _url);
-    await tester.tap(_inNavigationBar('Загрузки'));
-    await app.settle(tester);
-
-    expect(app.navigationController.state.tab, AppTabModel.downloads);
-    expect(find.byType(DownloadsScreen), findsOneWidget);
-    expect(find.byType(HomeScreen), findsNothing);
-    expect(find.text('АКТИВНАЯ ЗАГРУЗКА'), findsOneWidget);
-
-    await tester.tap(_inNavigationBar('Настройки'));
-    await app.settle(tester);
-
-    expect(find.byType(SettingsScreen), findsOneWidget);
-    expect(find.byType(CookiesCard), findsOneWidget);
-
-    /// A page keeps its state between visits
-    await tester.tap(_inNavigationBar('Главная'));
-    await app.settle(tester);
-
-    expect(find.byType(HomeScreen), findsOneWidget);
-    expect(find.widgetWithText(TextField, _url), findsOneWidget);
-
-    await app.close();
-  });
-
-  testWidgets('вход в YouTube — в заголовке главной, а не в навбаре', (tester) async {
-    final app = TestApp();
-
-    await app.pumpApp(tester);
-
-    final signIn = find.descendant(of: find.byType(HomeScreen), matching: find.text('Войти в YouTube'));
+    final signIn = find.descendant(
+      of: find.byType(HomeScreen),
+      matching: find.text('Войти в YouTube'),
+    );
 
     expect(signIn, findsOneWidget);
     expect(_inNavigationBar('Войти в YouTube'), findsNothing);
@@ -81,67 +101,99 @@ void main() {
     await app.settle(tester);
 
     expect(app.authenticationRepository.signInCalls, 1);
-    expect(find.descendant(of: find.byType(HomeScreen), matching: find.text('Аккаунт подключён')), findsOneWidget);
-
-    await app.close();
-  });
-
-  testWidgets('нижняя панель: текущая загрузка поверх низа всех страниц, навбар не перекрывает', (tester) async {
-    final app = TestApp();
-
-    await app.pumpApp(tester);
-
-    final navigationBarRect = tester.getRect(_navigationBar);
-
-    expect(navigationBarRect, const Rect.fromLTRB(0, 0, AppNavigationBar.expandedWidth, 900));
     expect(
-      tester.getRect(_footer),
-      const Rect.fromLTRB(AppNavigationBar.expandedWidth, 900 - DownloadFooter.height, 1200, 900),
+      find.descendant(
+        of: find.byType(HomeScreen),
+        matching: find.text('Аккаунт подключён'),
+      ),
+      findsOneWidget,
     );
-    expect(_inFooter(find.text('Нет активных загрузок')), findsOneWidget);
-
-    await app.addTask(tester, 'a');
-    await app.addTask(tester, 'b');
-
-    app.videoRepository.downloads.single.reportProgress(
-      const DownloadProgressModel(DownloadStage.downloading, 50, speed: 1024, eta: 4, downloadedBytes: 500, totalBytes: 1000),
-    );
-    await app.settle(tester);
-
-    expect(_inFooter(find.text('Видео a')), findsOneWidget);
-    expect(_inFooter(find.text('50%')), findsOneWidget);
-    expect(_inFooter(find.textContaining('Скачивание 50%')), findsOneWidget);
-    expect(_inFooter(find.textContaining('В очереди: 1')), findsOneWidget);
-    expect(_inFooter(find.byType(AppProgressBar)), findsOneWidget);
-    expect(_inNavigationBar('2'), findsOneWidget);
-
-    await tester.tap(_inNavigationBar('Настройки'));
-    await app.settle(tester);
-
-    expect(_inFooter(find.text('Видео a')), findsOneWidget);
-
-    await tester.tap(_inFooter(find.byTooltip('Пауза')));
-    await app.settle(tester);
-
-    expect(app.queueController.state.activeTask?.status, DownloadTaskStatus.paused);
-    expect(_inFooter(find.textContaining('На паузе · 50%')), findsOneWidget);
-
-    await tester.tap(_inFooter(find.byTooltip('Продолжить')));
-    await app.settle(tester);
-
-    expect(app.queueController.state.activeTask?.status, DownloadTaskStatus.downloading);
-    expect(app.navigationController.state.tab, AppTabModel.settings);
-
-    await tester.tap(_inFooter(find.text('Видео a')));
-    await app.settle(tester);
-
-    expect(app.navigationController.state.tab, AppTabModel.downloads);
-    expect(find.byType(DownloadsScreen), findsOneWidget);
 
     await app.close();
   });
 
-  testWidgets('низ страницы прокручивается из-под нижней панели', (tester) async {
+  testWidgets(
+    'нижняя панель: текущая загрузка поверх низа всех страниц, навбар не перекрывает',
+    (tester) async {
+      final app = TestApp();
+
+      await app.pumpApp(tester);
+
+      final navigationBarRect = tester.getRect(_navigationBar);
+
+      expect(
+        navigationBarRect,
+        const Rect.fromLTRB(0, 0, AppNavigationBar.expandedWidth, 900),
+      );
+      expect(
+        tester.getRect(_footer),
+        const Rect.fromLTRB(
+          AppNavigationBar.expandedWidth,
+          900 - DownloadFooter.height,
+          1200,
+          900,
+        ),
+      );
+      expect(_inFooter(find.text('Нет активных загрузок')), findsOneWidget);
+
+      await app.addTask(tester, 'a');
+      await app.addTask(tester, 'b');
+
+      app.videoRepository.downloads.single.reportProgress(
+        const DownloadProgressModel(
+          DownloadStage.downloading,
+          50,
+          speed: 1024,
+          eta: 4,
+          downloadedBytes: 500,
+          totalBytes: 1000,
+        ),
+      );
+      await app.settle(tester);
+
+      expect(_inFooter(find.text('Видео a')), findsOneWidget);
+      expect(_inFooter(find.text('50%')), findsOneWidget);
+      expect(_inFooter(find.textContaining('Скачивание 50%')), findsOneWidget);
+      expect(_inFooter(find.textContaining('В очереди: 1')), findsOneWidget);
+      expect(_inFooter(find.byType(AppProgressBar)), findsOneWidget);
+      expect(_inNavigationBar('2'), findsOneWidget);
+
+      await tester.tap(_inNavigationBar('Настройки'));
+      await app.settle(tester);
+
+      expect(_inFooter(find.text('Видео a')), findsOneWidget);
+
+      await tester.tap(_inFooter(find.byTooltip('Пауза')));
+      await app.settle(tester);
+
+      expect(
+        app.queueController.state.activeTask?.status,
+        DownloadTaskStatus.paused,
+      );
+      expect(_inFooter(find.textContaining('На паузе · 50%')), findsOneWidget);
+
+      await tester.tap(_inFooter(find.byTooltip('Продолжить')));
+      await app.settle(tester);
+
+      expect(
+        app.queueController.state.activeTask?.status,
+        DownloadTaskStatus.downloading,
+      );
+      expect(app.navigationController.state.tab, AppTabModel.settings);
+
+      await tester.tap(_inFooter(find.text('Видео a')));
+      await app.settle(tester);
+
+      expect(app.navigationController.state.tab, AppTabModel.downloads);
+      expect(find.byType(DownloadsScreen), findsOneWidget);
+
+      await app.close();
+    },
+  );
+
+  testWidgets('низ страницы прокручивается из-под нижней панели', (
+    tester,
+  ) async {
     final app = TestApp();
 
     await app.pumpApp(tester, size: const Size(1200, 520));
@@ -157,12 +209,17 @@ void main() {
       matching: find.byType(DownloadsEmptyPlaceholder),
     );
 
-    expect(tester.getRect(placeholder).bottom, lessThanOrEqualTo(tester.getRect(_footer).top));
+    expect(
+      tester.getRect(placeholder).bottom,
+      lessThanOrEqualTo(tester.getRect(_footer).top),
+    );
 
     await app.close();
   });
 
-  testWidgets('«Поддержать» в навбаре открывает страницу поддержки', (tester) async {
+  testWidgets('«Поддержать» в навбаре открывает страницу поддержки', (
+    tester,
+  ) async {
     final app = TestApp();
 
     await app.pumpApp(tester);
@@ -176,7 +233,9 @@ void main() {
     await app.close();
   });
 
-  testWidgets('в узком окне навбар из одних значков, названия — в подсказках', (tester) async {
+  testWidgets('в узком окне навбар из одних значков, названия — в подсказках', (
+    tester,
+  ) async {
     final app = TestApp();
 
     await app.pumpApp(tester, size: const Size(700, 800));
@@ -195,166 +254,238 @@ void main() {
     await app.close();
   });
 
-  testWidgets('yt-dlp не найден: установка поверх страниц, после ошибки импорт cookies ведёт в настройки', (tester) async {
-    final app = TestApp(setup: const YtDlpSetupModel());
+  testWidgets(
+    'yt-dlp не найден: установка поверх страниц, после ошибки импорт cookies ведёт в настройки',
+    (tester) async {
+      final app = TestApp(setup: const YtDlpSetupModel());
 
-    await app.pumpApp(tester);
-    await app.dependenciesController.check();
-    await app.settle(tester);
+      await app.pumpApp(tester);
+      await app.dependenciesController.check();
+      await app.settle(tester);
 
-    expect(find.byType(DependenciesInstallDialog), findsOneWidget);
+      expect(find.byType(DependenciesInstallDialog), findsOneWidget);
 
-    app.dependenciesRepository.installs.single.failWith(
-      const DependencyFailure(code: 'download', message: 'Не удалось скачать yt-dlp: нет соединения с GitHub.'),
-    );
-    await app.settle(tester);
-    await tester.tap(find.text('Закрыть'));
-    await app.settle(tester);
+      app.dependenciesRepository.installs.single.failWith(
+        const DependencyFailure(
+          code: 'download',
+          message: 'Не удалось скачать yt-dlp: нет соединения с GitHub.',
+        ),
+      );
+      await app.settle(tester);
+      await tester.tap(find.text('Закрыть'));
+      await app.settle(tester);
 
-    expect(find.byType(DependenciesFallbackDialog), findsOneWidget);
-    expect(find.textContaining('YouTube обычно требует входа'), findsOneWidget);
+      expect(find.byType(DependenciesFallbackDialog), findsOneWidget);
+      expect(
+        find.textContaining('YouTube обычно требует входа'),
+        findsOneWidget,
+      );
 
-    await tester.tap(find.descendant(of: find.byType(DependenciesFallbackDialog), matching: find.text('Импортировать cookies.txt')));
-    await app.settle(tester);
+      await tester.tap(
+        find.descendant(
+          of: find.byType(DependenciesFallbackDialog),
+          matching: find.text('Импортировать cookies.txt'),
+        ),
+      );
+      await app.settle(tester);
 
-    expect(find.byType(DependenciesFallbackDialog), findsNothing);
-    expect(app.navigationController.state.tab, AppTabModel.settings);
-    expect(tester.widget<CookiesCard>(find.byType(CookiesCard)).highlighted, isTrue);
-    expect(find.text('Как получить cookies.txt').hitTestable(), findsOneWidget);
+      expect(find.byType(DependenciesFallbackDialog), findsNothing);
+      expect(app.navigationController.state.tab, AppTabModel.settings);
+      expect(
+        tester.widget<CookiesCard>(find.byType(CookiesCard)).highlighted,
+        isTrue,
+      );
+      expect(
+        find.text('Как получить cookies.txt').hitTestable(),
+        findsOneWidget,
+      );
 
-    await app.close();
-  });
+      await app.close();
+    },
+  );
 
-  testWidgets('установка не удалась, но вход выполнен: «Добавить видео» открывает главную', (tester) async {
-    final app = TestApp(setup: const YtDlpSetupModel());
+  testWidgets(
+    'установка не удалась, но вход выполнен: «Добавить видео» открывает главную',
+    (tester) async {
+      final app = TestApp(setup: const YtDlpSetupModel());
 
-    app.authenticationRepository.restoreResult = (failure: null, data: const AccountSessionModel.signInWindow());
-    app.navigationController.selectTab(AppTabModel.downloads);
+      app.authenticationRepository.restoreResult = (
+        failure: null,
+        data: const AccountSessionModel.signInWindow(),
+      );
+      app.navigationController.selectTab(AppTabModel.downloads);
 
-    await app.pumpApp(tester);
-    await app.dependenciesController.check();
-    await app.settle(tester);
+      await app.pumpApp(tester);
+      await app.dependenciesController.check();
+      await app.settle(tester);
 
-    app.dependenciesRepository.installs.single.failWith(
-      const DependencyFailure(code: 'checksum_mismatch', message: 'Контрольная сумма не совпала.'),
-    );
-    await app.settle(tester);
-    await tester.tap(find.text('Закрыть'));
-    await app.settle(tester);
+      app.dependenciesRepository.installs.single.failWith(
+        const DependencyFailure(
+          code: 'checksum_mismatch',
+          message: 'Контрольная сумма не совпала.',
+        ),
+      );
+      await app.settle(tester);
+      await tester.tap(find.text('Закрыть'));
+      await app.settle(tester);
 
-    expect(find.textContaining('вы всё равно можете попробовать скачать видео'), findsOneWidget);
+      expect(
+        find.textContaining('вы всё равно можете попробовать скачать видео'),
+        findsOneWidget,
+      );
 
-    await tester.tap(find.descendant(of: find.byType(DependenciesFallbackDialog), matching: find.text('Добавить видео')));
-    await app.settle(tester);
+      await tester.tap(
+        find.descendant(
+          of: find.byType(DependenciesFallbackDialog),
+          matching: find.text('Добавить видео'),
+        ),
+      );
+      await app.settle(tester);
 
-    expect(app.navigationController.state.tab, AppTabModel.home);
-    expect(find.byType(HomeScreen), findsOneWidget);
+      expect(app.navigationController.state.tab, AppTabModel.home);
+      expect(find.byType(HomeScreen), findsOneWidget);
 
-    await app.close();
-  });
+      await app.close();
+    },
+  );
 
-  testWidgets('импорт cookies из поиска: подсвеченная карточка, после импорта — главная и повторный поиск', (tester) async {
-    final app = TestApp(
-      videoRepository: FakeVideoRepository(
-        infoResults: [(failure: _signInFailure, data: null), (failure: null, data: testVideoInfo)],
-      ),
-      setup: const YtDlpSetupModel(),
-    );
+  testWidgets(
+    'импорт cookies из поиска: подсвеченная карточка, после импорта — главная и повторный поиск',
+    (tester) async {
+      final app = TestApp(
+        videoRepository: FakeVideoRepository(
+          infoResults: [
+            (failure: _signInFailure, data: null),
+            (failure: null, data: testVideoInfo),
+          ],
+        ),
+        setup: const YtDlpSetupModel(),
+      );
 
-    await app.pumpApp(tester);
-    await tester.enterText(find.byType(TextField), _url);
-    await tester.sendKeyEvent(LogicalKeyboardKey.enter);
-    await app.settle(tester);
-    await tester.tap(find.descendant(of: find.byType(AppFailureBanner), matching: find.text('Импортировать cookies.txt')));
-    await app.settle(tester);
+      await app.pumpApp(tester);
+      await tester.enterText(_searchField, _url);
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      await app.settle(tester);
+      await tester.tap(
+        find.descendant(
+          of: find.byType(AppFailureBanner),
+          matching: find.text('Импортировать cookies.txt'),
+        ),
+      );
+      await app.settle(tester);
 
-    expect(find.byType(SettingsScreen), findsOneWidget);
-    expect(tester.widget<CookiesCard>(find.byType(CookiesCard)).highlighted, isTrue);
-    expect(find.text('Файл не выбран').hitTestable(), findsOneWidget);
-    expect(tester.widget<AppNavigationBar>(_navigationBar).selectedIndex, AppTabModel.settings.index);
+      expect(find.byType(SettingsScreen), findsOneWidget);
+      expect(
+        tester.widget<CookiesCard>(find.byType(CookiesCard)).highlighted,
+        isTrue,
+      );
+      expect(find.text('Файл не выбран').hitTestable(), findsOneWidget);
+      expect(
+        tester.widget<AppNavigationBar>(_navigationBar).selectedIndex,
+        AppTabModel.settings.index,
+      );
 
-    await tester.tap(find.text('Подробная инструкция в FAQ yt-dlp'));
-    await app.settle(tester);
+      await tester.tap(find.text('Подробная инструкция в FAQ yt-dlp'));
+      await app.settle(tester);
 
-    expect(app.urlLauncher.opened, ['https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp']);
+      expect(app.urlLauncher.opened, [
+        'https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp',
+      ]);
 
-    app.authenticationRepository.importResult = (
-      failure: null,
-      data: AccountSessionModel.cookiesFile(
-        cookiesFilePath: r'C:\Users\user\Downloads\cookies.txt',
-        importedAt: DateTime(2026, 9, 16, 14, 30),
-      ),
-    );
+      app.authenticationRepository.importResult = (
+        failure: null,
+        data: AccountSessionModel.cookiesFile(
+          cookiesFilePath: r'C:\Users\user\Downloads\cookies.txt',
+          importedAt: DateTime(2026, 9, 16, 14, 30),
+        ),
+      );
 
-    await tester.tap(find.text('Выбрать cookies.txt…'));
-    await app.settle(tester);
+      await tester.tap(find.text('Выбрать cookies.txt…'));
+      await app.settle(tester);
 
-    /// Back on the home page the search has repeated with the new cookies
-    expect(app.navigationController.state.tab, AppTabModel.home);
-    expect(find.byType(HomeScreen), findsOneWidget);
-    expect(app.videoRepository.requestedUrls, [_url, _url]);
-    expect(find.text('Обзор'), findsOneWidget);
-    expect(find.byType(AppFailureBanner), findsNothing);
-    expect(find.descendant(of: find.byType(HomeScreen), matching: find.text('Аккаунт подключён')), findsOneWidget);
+      /// Back on the home page the search has repeated with the new cookies
+      expect(app.navigationController.state.tab, AppTabModel.home);
+      expect(find.byType(HomeScreen), findsOneWidget);
+      expect(app.videoRepository.requestedUrls, [_url, _url]);
+      expect(find.text('Обзор'), findsOneWidget);
+      expect(find.byType(AppFailureBanner), findsNothing);
+      expect(
+        find.descendant(
+          of: find.byType(HomeScreen),
+          matching: find.text('Аккаунт подключён'),
+        ),
+        findsOneWidget,
+      );
 
-    await tester.tap(_inNavigationBar('Настройки'));
-    await app.settle(tester);
+      await tester.tap(_inNavigationBar('Настройки'));
+      await app.settle(tester);
 
-    expect(tester.widget<CookiesCard>(find.byType(CookiesCard)).highlighted, isFalse);
-    expect(find.text(r'C:\Users\user\Downloads\cookies.txt'), findsOneWidget);
-    expect(find.text('Используется'), findsOneWidget);
+      expect(
+        tester.widget<CookiesCard>(find.byType(CookiesCard)).highlighted,
+        isFalse,
+      );
+      expect(find.text(r'C:\Users\user\Downloads\cookies.txt'), findsOneWidget);
+      expect(find.text('Используется'), findsOneWidget);
 
-    await app.close();
-  });
+      await app.close();
+    },
+  );
 
-  testWidgets('«Плеер» в навбаре после загрузок открывает видео папки и перечитывает её при возвращении', (tester) async {
-    final app = TestApp();
+  testWidgets(
+    '«Плеер» в навбаре после загрузок открывает видео папки и перечитывает её при возвращении',
+    (tester) async {
+      final app = TestApp();
 
-    await app.pumpApp(tester);
+      await app.pumpApp(tester);
 
-    expect(
-      tester.getCenter(_inNavigationBar('Плеер')).dy,
-      greaterThan(tester.getCenter(_inNavigationBar('Загрузки')).dy),
-    );
-    expect(
-      tester.getCenter(_inNavigationBar('Плеер')).dy,
-      lessThan(tester.getCenter(_inNavigationBar('Настройки')).dy),
-    );
+      expect(
+        tester.getCenter(_inNavigationBar('Плеер')).dy,
+        greaterThan(tester.getCenter(_inNavigationBar('Загрузки')).dy),
+      );
+      expect(
+        tester.getCenter(_inNavigationBar('Плеер')).dy,
+        lessThan(tester.getCenter(_inNavigationBar('Настройки')).dy),
+      );
 
-    await tester.tap(_inNavigationBar('Плеер'));
-    await app.settle(tester);
+      await tester.tap(_inNavigationBar('Плеер'));
+      await app.settle(tester);
 
-    expect(app.navigationController.state.tab, AppTabModel.player);
-    expect(find.byType(PlayerScreen), findsOneWidget);
-    expect(find.byType(LibraryVideoCard), findsNWidgets(2));
-    expect(app.videoLibraryRepository.syncedFolders, hasLength(1));
+      expect(app.navigationController.state.tab, AppTabModel.player);
+      expect(find.byType(PlayerScreen), findsOneWidget);
+      expect(find.byType(LibraryVideoCard), findsNWidgets(2));
+      expect(app.videoLibraryRepository.syncedFolders, hasLength(1));
 
-    app.videoLibraryRepository.folders[r'C:\Users\user\Downloads']!.add(testLibraryVideo('c'));
+      app.videoLibraryRepository.folders[r'C:\Users\user\Downloads']!.add(
+        testLibraryVideo('c'),
+      );
 
-    await tester.tap(_inNavigationBar('Главная'));
-    await app.settle(tester);
-    await tester.tap(_inNavigationBar('Плеер'));
-    await app.settle(tester);
+      await tester.tap(_inNavigationBar('Главная'));
+      await app.settle(tester);
+      await tester.tap(_inNavigationBar('Плеер'));
+      await app.settle(tester);
 
-    expect(find.byType(LibraryVideoCard), findsNWidgets(3));
+      expect(find.byType(LibraryVideoCard), findsNWidgets(3));
 
-    /// The player is centered in the whole window, over the navigation bar and the footer
-    await tester.tap(find.byTooltip('Смотреть').first);
-    await app.settle(tester);
+      /// The player is centered in the whole window, over the navigation bar and the footer
+      await tester.tap(find.byTooltip('Смотреть').first);
+      await app.settle(tester);
 
-    final dialog = find.byKey(const ValueKey('fake-video-view'));
+      final dialog = find.byKey(const ValueKey('fake-video-view'));
 
-    expect(dialog, findsOneWidget);
-    final box = find.ancestor(of: dialog, matching: find.byType(AnimatedContainer)).last;
+      expect(dialog, findsOneWidget);
+      final box = find
+          .ancestor(of: dialog, matching: find.byType(AnimatedContainer))
+          .last;
 
-    expect(tester.getCenter(box), const Offset(600, 450));
-    expect(tester.getSize(box), const Size(960, 720));
+      expect(tester.getCenter(box), const Offset(600, 450));
+      expect(tester.getSize(box), const Size(960, 720));
 
-    await tester.sendKeyEvent(LogicalKeyboardKey.escape);
-    await app.settle(tester);
+      await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+      await app.settle(tester);
 
-    expect(dialog, findsNothing);
+      expect(dialog, findsNothing);
 
-    await app.close();
-  });
+      await app.close();
+    },
+  );
 }

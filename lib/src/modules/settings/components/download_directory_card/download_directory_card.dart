@@ -1,9 +1,9 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:youtube_downloader/src/app/design_system/design_system.dart';
-import 'package:youtube_downloader/src/app/localization/lang/locale_keys.g.dart';
-import 'package:youtube_downloader/src/app/models/models.dart';
-import 'package:youtube_downloader/src/app/widgets/widgets.dart';
+import 'package:black_cat/src/app/design_system/design_system.dart';
+import 'package:black_cat/src/app/localization/lang/locale_keys.g.dart';
+import 'package:black_cat/src/app/models/models.dart';
+import 'package:black_cat/src/app/widgets/widgets.dart';
 
 /// Download folder: path, choosing another folder, returning to Downloads
 class DownloadDirectoryCard extends StatelessWidget {
@@ -103,7 +103,8 @@ class DownloadDirectoryCard extends StatelessWidget {
               title: LocaleKeys.app_settings_download_directory_open.tr(),
               onPressed: downloadDirectory == null ? null : onOpenPressed,
             ),
-            if (downloadDirectory case final directory? when !directory.isDefault)
+            if (downloadDirectory case final directory?
+                when !directory.isDefault)
               AppLinkButton(
                 title: LocaleKeys.app_settings_download_directory_reset.tr(),
                 titleColor: context.color.textSecondary,
