@@ -173,7 +173,7 @@ void main() {
       await app.settle(tester);
 
       expect(
-        find.text('Поиск через yt-dlp занимает несколько секунд.'),
+        find.text('Поиск может занимать несколько секунд.'),
         findsOneWidget,
       );
 

@@ -105,7 +105,7 @@ class CodegenLoader extends AssetLoader {
           "add_to_queue": "Add to queue",
           "download_now": "Download",
           "cancel": "Cancel",
-          "ytdlp_hint": "Searching with yt-dlp takes a few seconds.",
+          "ytdlp_hint": "Searching may take a few seconds.",
         },
         "remove_dialog": {
           "title": "Remove the video?",
@@ -177,8 +177,7 @@ class CodegenLoader extends AssetLoader {
       },
       "donations": {
         "title": "Support the project",
-        "subtitle":
-            "BlackCat is free and has no ads. If the app helps you, you can support its development.",
+        "subtitle": "If the app helps you, you can support its development.",
         "hero_title": "Thank you for using BlackCat!",
         "hero_description":
             "Your support helps update the app faster when YouTube changes something and add new features.",
@@ -502,7 +501,7 @@ class CodegenLoader extends AssetLoader {
           "add_to_queue": "Добавить в очередь",
           "download_now": "Скачать",
           "cancel": "Отмена",
-          "ytdlp_hint": "Поиск через yt-dlp занимает несколько секунд.",
+          "ytdlp_hint": "Поиск может занимать несколько секунд.",
         },
         "remove_dialog": {
           "title": "Убрать видео?",
@@ -575,7 +574,7 @@ class CodegenLoader extends AssetLoader {
       "donations": {
         "title": "Поддержать проект",
         "subtitle":
-            "BlackCat бесплатный и без рекламы. Если приложение вам помогает, вы можете поддержать его развитие.",
+            "Если приложение вам помогает, вы можете поддержать его развитие.",
         "hero_title": "Спасибо, что пользуетесь BlackCat!",
         "hero_description":
             "Поддержка помогает быстрее обновлять приложение, когда YouTube что-то меняет, и добавлять новые возможности.",

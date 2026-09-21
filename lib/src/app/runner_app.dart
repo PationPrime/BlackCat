@@ -1,14 +1,14 @@
 import 'package:flutter/widgets.dart';
 
 import 'design_system/design_system.dart';
-import 'downloader_app.dart';
+import 'blackcat_app.dart';
 import 'models/models.dart';
 import 'repositories/repositories.dart';
 import 'router/app_router.dart';
 import 'services/services.dart';
 import 'shared_controllers/shared_controllers.dart';
 
-class RunnerApp extends StatelessWidget {
+class BlackCataRunnerApp extends StatelessWidget {
   final AppThemeType appThemeType;
   final AppRouter appRouter;
   final FileSystemService fileSystemService;
@@ -30,7 +30,7 @@ class RunnerApp extends StatelessWidget {
   /// Language of the first frame: the one saved in the settings
   final AppLanguageModel initialLanguage;
 
-  const RunnerApp({
+  const BlackCataRunnerApp({
     super.key,
     required this.appThemeType,
     required this.appRouter,
@@ -53,7 +53,7 @@ class RunnerApp extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) => DownloaderApp(
+  Widget build(BuildContext context) => BlackCatApp(
     appThemeType: appThemeType,
     appRouter: appRouter,
     fileSystemService: fileSystemService,

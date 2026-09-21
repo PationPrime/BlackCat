@@ -115,13 +115,13 @@ class _HomeViewState extends State<_HomeView> {
     _urlFocusNode.requestFocus();
   }
 
-  void _showDirectFileInFolder(DirectDownloadState directState) {
-    final savePath = directState.savePath;
+  // void _showDirectFileInFolder(DirectDownloadState directState) {
+  //   final savePath = directState.savePath;
 
-    if (savePath == null) return;
+  //   if (savePath == null) return;
 
-    context.read<FileSystemService>().revealInExplorer(savePath);
-  }
+  //   context.read<FileSystemService>().revealInExplorer(savePath);
+  // }
 
   /// The search repeats on its own once cookies are imported
   void _importCookies() => context
@@ -314,31 +314,31 @@ class _HomeViewState extends State<_HomeView> {
                                     ],
                                   ),
                                 ],
-                                const SizedBox(height: 32),
-                                BlocBuilder<
-                                  DirectDownloadController,
-                                  DirectDownloadState
-                                >(
-                                  builder: (context, directState) {
-                                    final directDownloadController = context
-                                        .read<DirectDownloadController>();
+                                // const SizedBox(height: 32),
+                                // BlocBuilder<
+                                //   DirectDownloadController,
+                                //   DirectDownloadState
+                                // >(
+                                //   builder: (context, directState) {
+                                //     final directDownloadController = context
+                                //         .read<DirectDownloadController>();
 
-                                    return DirectDownloadSection(
-                                      state: directState,
-                                      controller: _directUrlController,
-                                      onStartPressed:
-                                          directDownloadController.start,
-                                      onPausePressed:
-                                          directDownloadController.pause,
-                                      onResumePressed:
-                                          directDownloadController.resume,
-                                      onCancelPressed:
-                                          directDownloadController.cancel,
-                                      onShowInFolderPressed: () =>
-                                          _showDirectFileInFolder(directState),
-                                    );
-                                  },
-                                ),
+                                //     return DirectDownloadSection(
+                                //       state: directState,
+                                //       controller: _directUrlController,
+                                //       onStartPressed:
+                                //           directDownloadController.start,
+                                //       onPausePressed:
+                                //           directDownloadController.pause,
+                                //       onResumePressed:
+                                //           directDownloadController.resume,
+                                //       onCancelPressed:
+                                //           directDownloadController.cancel,
+                                //       onShowInFolderPressed: () =>
+                                //           _showDirectFileInFolder(directState),
+                                //     );
+                                //   },
+                                // ),
                               ],
                             ),
                           ),

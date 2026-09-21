@@ -206,7 +206,7 @@ final class AppModule {
         _appRouter = AppRouter();
 
         runApp(
-          RunnerApp(
+          BlackCataRunnerApp(
             appThemeType: const AppDarkTheme(),
             appRouter: _appRouter,
             fileSystemService: _fileSystemService,

@@ -124,10 +124,7 @@ class _DonationsScreenState extends State<DonationsScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  AppPageHeader(
-                    title: LocaleKeys.app_donations_title.tr(),
-                    subtitle: LocaleKeys.app_donations_subtitle.tr(),
-                  ),
+                  AppPageHeader(title: LocaleKeys.app_donations_title.tr()),
                   const SizedBox(height: 24),
                   const DonationsHero(),
                   if (_failedUrl case final url?) ...[
@@ -152,25 +149,6 @@ class _DonationsScreenState extends State<DonationsScreen> {
                   const SizedBox(height: 12),
                   LayoutBuilder(
                     builder: (context, constraints) => _platforms(constraints),
-                  ),
-                  const SizedBox(height: 40),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.favorite_rounded,
-                        size: 20,
-                        color: context.color.accent,
-                      ),
-                      const SizedBox(width: 10),
-                      Flexible(
-                        child: Text(
-                          LocaleKeys.app_donations_thank_you.tr(),
-                          textAlign: TextAlign.center,
-                          style: context.text.header5Semibold,
-                        ),
-                      ),
-                    ],
                   ),
                 ],
               ),
