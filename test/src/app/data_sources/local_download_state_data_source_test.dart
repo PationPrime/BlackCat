@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:files_downloader/files_downloader.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path/path.dart' as p;
-import 'package:black_cat/src/app/data_sources/data_sources.dart';
+import 'package:peeky_cat/src/app/data_sources/data_sources.dart';
 
 import '../../support/slice_state.dart';
 

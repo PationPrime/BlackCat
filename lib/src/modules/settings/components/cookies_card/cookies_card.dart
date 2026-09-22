@@ -1,10 +1,12 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:black_cat/src/app/design_system/design_system.dart';
-import 'package:black_cat/src/app/localization/lang/locale_keys.g.dart';
-import 'package:black_cat/src/app/models/models.dart';
-import 'package:black_cat/src/app/tools/tools.dart';
-import 'package:black_cat/src/app/widgets/widgets.dart';
+import 'package:peeky_cat/src/app/design_system/design_system.dart';
+import 'package:peeky_cat/src/app/localization/lang/locale_keys.g.dart';
+import 'package:peeky_cat/src/app/models/models.dart';
+import 'package:peeky_cat/src/app/tools/tools.dart';
+import 'package:peeky_cat/src/app/widgets/widgets.dart';
+
+import '../../../../generated/assets/assets.gen.dart';
 
 /// YouTube cookies.txt, the recommended way to sign in: how to export it
 /// from a browser and when to update it, the imported file and its
@@ -123,10 +125,13 @@ class CookiesCard extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 4),
-            Icon(
-              Icons.open_in_new_rounded,
-              size: 14,
-              color: context.color.accent,
+            Padding(
+              padding: const EdgeInsets.only(top: 2),
+              child: Assets.icons.iconLink.svg(
+                color: context.color.accent,
+                height: 14,
+                width: 14,
+              ),
             ),
           ],
         ),
@@ -193,13 +198,17 @@ class CookiesCard extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Icon(
-            hasImportedFile ? Icons.task_outlined : Icons.description_outlined,
-            size: 18,
-            color: hasImportedFile
-                ? context.color.accent
-                : context.color.iconPrimary,
-          ),
+          hasImportedFile
+              ? Assets.icons.iconFileDownload.svg(
+                  color: context.color.accent,
+                  width: 22,
+                  height: 22,
+                )
+              : Assets.icons.iconFile.svg(
+                  color: context.color.iconPrimary,
+                  width: 22,
+                  height: 22,
+                ),
           const SizedBox(width: 10),
           Expanded(
             child: Column(
@@ -207,7 +216,7 @@ class CookiesCard extends StatelessWidget {
               children: [
                 SelectableText(
                   title,
-                  maxLines: 3,
+                  maxLines: 1,
                   style: context.text.captionRegular.copyWith(
                     color: hasImportedFile
                         ? context.color.textPrimary
@@ -276,15 +285,12 @@ class CookiesCard extends StatelessWidget {
         _instructions(context),
         const SizedBox(height: 12),
         Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Padding(
-              padding: const EdgeInsets.only(top: 1),
-              child: Icon(
-                Icons.lock_outline_rounded,
-                size: 14,
-                color: context.color.textTertiary,
-              ),
+            Assets.icons.iconShieldWarning.svg(
+              color: context.color.textTertiary,
+              height: 22,
+              width: 22,
             ),
             const SizedBox(width: 6),
             Expanded(

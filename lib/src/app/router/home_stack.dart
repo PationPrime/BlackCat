@@ -3,6 +3,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../generated/assets/assets.gen.dart';
 import '../../modules/modules.dart';
 import '../design_system/design_system.dart';
 import '../localization/lang/locale_keys.g.dart';
@@ -89,8 +90,15 @@ class _HomeStackPages extends StatelessWidget {
   Widget build(BuildContext context) {
     final mediaQuery = MediaQuery.of(context);
 
+    /// A full-screen video covers the whole window
+    final fullScreen = context.select(
+      (AppWindowController controller) => controller.state.isFullScreen,
+    );
+
     return Stack(
       children: [
+        /// One background for every page: the pages are clear
+        Positioned.fill(child: AppLavaBackground(animate: !fullScreen)),
         Positioned.fill(
           child: MediaQuery(
             data: mediaQuery.copyWith(
@@ -173,24 +181,24 @@ class _HomeStackNavigationBar extends StatelessWidget {
           switch (tab) {
             AppTabModel.home => AppNavigationBarItemData(
               title: LocaleKeys.app_navigation_home.tr(),
-              icon: Icons.home_rounded,
+              svgPictureFilePath: Assets.icons.iconNavbarHome.path,
             ),
             AppTabModel.downloads => AppNavigationBarItemData(
               title: LocaleKeys.app_navigation_downloads.tr(),
-              icon: Icons.download_rounded,
+              svgPictureFilePath: Assets.icons.iconNavbarDownload.path,
               badge: unfinishedCount,
             ),
             AppTabModel.player => AppNavigationBarItemData(
               title: LocaleKeys.app_navigation_player.tr(),
-              icon: Icons.smart_display_rounded,
+              svgPictureFilePath: Assets.icons.iconNavbarPlayer.path,
             ),
             AppTabModel.settings => AppNavigationBarItemData(
               title: LocaleKeys.app_navigation_settings.tr(),
-              icon: Icons.settings_rounded,
+              svgPictureFilePath: Assets.icons.iconNavbarSettings.path,
             ),
             AppTabModel.donations => AppNavigationBarItemData(
               title: LocaleKeys.app_navigation_donations.tr(),
-              icon: Icons.favorite_rounded,
+              svgPictureFilePath: Assets.icons.iconNavbarHeart.path,
             ),
           },
       ],

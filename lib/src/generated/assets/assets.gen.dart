@@ -67,12 +67,158 @@ class $AssetsIconsGen {
   SvgGenImage get iconAppleLogo =>
       const SvgGenImage('assets/icons/icon_apple_logo.svg');
 
+  /// File path: assets/icons/icon_arrow_refresh.svg
+  SvgGenImage get iconArrowRefresh =>
+      const SvgGenImage('assets/icons/icon_arrow_refresh.svg');
+
+  /// File path: assets/icons/icon_arrow_reload.svg
+  SvgGenImage get iconArrowReload =>
+      const SvgGenImage('assets/icons/icon_arrow_reload.svg');
+
+  /// File path: assets/icons/icon_arrow_undo_left.svg
+  SvgGenImage get iconArrowUndoLeft =>
+      const SvgGenImage('assets/icons/icon_arrow_undo_left.svg');
+
+  /// File path: assets/icons/icon_arrow_undo_right.svg
+  SvgGenImage get iconArrowUndoRight =>
+      const SvgGenImage('assets/icons/icon_arrow_undo_right.svg');
+
+  /// File path: assets/icons/icon_check.svg
+  SvgGenImage get iconCheck => const SvgGenImage('assets/icons/icon_check.svg');
+
+  /// File path: assets/icons/icon_chevron_right_md.svg
+  SvgGenImage get iconChevronRightMd =>
+      const SvgGenImage('assets/icons/icon_chevron_right_md.svg');
+
+  /// File path: assets/icons/icon_circle_check.svg
+  SvgGenImage get iconCircleCheck =>
+      const SvgGenImage('assets/icons/icon_circle_check.svg');
+
+  /// File path: assets/icons/icon_close_sm.svg
+  SvgGenImage get iconCloseSm =>
+      const SvgGenImage('assets/icons/icon_close_sm.svg');
+
+  /// File path: assets/icons/icon_copy.svg
+  SvgGenImage get iconCopy => const SvgGenImage('assets/icons/icon_copy.svg');
+
+  /// File path: assets/icons/icon_download_folder.svg
+  SvgGenImage get iconDownloadFolder =>
+      const SvgGenImage('assets/icons/icon_download_folder.svg');
+
+  /// File path: assets/icons/icon_file.svg
+  SvgGenImage get iconFile => const SvgGenImage('assets/icons/icon_file.svg');
+
+  /// File path: assets/icons/icon_file_download.svg
+  SvgGenImage get iconFileDownload =>
+      const SvgGenImage('assets/icons/icon_file_download.svg');
+
+  /// File path: assets/icons/icon_folder.svg
+  SvgGenImage get iconFolder =>
+      const SvgGenImage('assets/icons/icon_folder.svg');
+
+  /// File path: assets/icons/icon_link.svg
+  SvgGenImage get iconLink => const SvgGenImage('assets/icons/icon_link.svg');
+
+  /// File path: assets/icons/icon_navbar_download.svg
+  SvgGenImage get iconNavbarDownload =>
+      const SvgGenImage('assets/icons/icon_navbar_download.svg');
+
+  /// File path: assets/icons/icon_navbar_heart.svg
+  SvgGenImage get iconNavbarHeart =>
+      const SvgGenImage('assets/icons/icon_navbar_heart.svg');
+
+  /// File path: assets/icons/icon_navbar_home.svg
+  SvgGenImage get iconNavbarHome =>
+      const SvgGenImage('assets/icons/icon_navbar_home.svg');
+
+  /// File path: assets/icons/icon_navbar_player.svg
+  SvgGenImage get iconNavbarPlayer =>
+      const SvgGenImage('assets/icons/icon_navbar_player.svg');
+
+  /// File path: assets/icons/icon_navbar_settings.svg
+  SvgGenImage get iconNavbarSettings =>
+      const SvgGenImage('assets/icons/icon_navbar_settings.svg');
+
+  /// File path: assets/icons/icon_pause.svg
+  SvgGenImage get iconPause => const SvgGenImage('assets/icons/icon_pause.svg');
+
+  /// File path: assets/icons/icon_play.svg
+  SvgGenImage get iconPlay => const SvgGenImage('assets/icons/icon_play.svg');
+
+  /// File path: assets/icons/icon_player_expand.svg
+  SvgGenImage get iconPlayerExpand =>
+      const SvgGenImage('assets/icons/icon_player_expand.svg');
+
+  /// File path: assets/icons/icon_player_shrink.svg
+  SvgGenImage get iconPlayerShrink =>
+      const SvgGenImage('assets/icons/icon_player_shrink.svg');
+
+  /// File path: assets/icons/icon_search.svg
+  SvgGenImage get iconSearch =>
+      const SvgGenImage('assets/icons/icon_search.svg');
+
+  /// File path: assets/icons/icon_shield_warning.svg
+  SvgGenImage get iconShieldWarning =>
+      const SvgGenImage('assets/icons/icon_shield_warning.svg');
+
+  /// File path: assets/icons/icon_star.svg
+  SvgGenImage get iconStar => const SvgGenImage('assets/icons/icon_star.svg');
+
+  /// File path: assets/icons/icon_trash_empty.svg
+  SvgGenImage get iconTrashEmpty =>
+      const SvgGenImage('assets/icons/icon_trash_empty.svg');
+
+  /// File path: assets/icons/icon_volume_max.svg
+  SvgGenImage get iconVolumeMax =>
+      const SvgGenImage('assets/icons/icon_volume_max.svg');
+
+  /// File path: assets/icons/icon_volume_min.svg
+  SvgGenImage get iconVolumeMin =>
+      const SvgGenImage('assets/icons/icon_volume_min.svg');
+
+  /// File path: assets/icons/icon_volume_mute.svg
+  SvgGenImage get iconVolumeMute =>
+      const SvgGenImage('assets/icons/icon_volume_mute.svg');
+
   /// File path: assets/icons/icon_windows_logo.svg
   SvgGenImage get iconWindowsLogo =>
       const SvgGenImage('assets/icons/icon_windows_logo.svg');
 
   /// List of all assets
-  List<SvgGenImage> get values => [iconAppleLogo, iconWindowsLogo];
+  List<SvgGenImage> get values => [
+    iconAppleLogo,
+    iconArrowRefresh,
+    iconArrowReload,
+    iconArrowUndoLeft,
+    iconArrowUndoRight,
+    iconCheck,
+    iconChevronRightMd,
+    iconCircleCheck,
+    iconCloseSm,
+    iconCopy,
+    iconDownloadFolder,
+    iconFile,
+    iconFileDownload,
+    iconFolder,
+    iconLink,
+    iconNavbarDownload,
+    iconNavbarHeart,
+    iconNavbarHome,
+    iconNavbarPlayer,
+    iconNavbarSettings,
+    iconPause,
+    iconPlay,
+    iconPlayerExpand,
+    iconPlayerShrink,
+    iconSearch,
+    iconShieldWarning,
+    iconStar,
+    iconTrashEmpty,
+    iconVolumeMax,
+    iconVolumeMin,
+    iconVolumeMute,
+    iconWindowsLogo,
+  ];
 }
 
 class $AssetsLangGen {

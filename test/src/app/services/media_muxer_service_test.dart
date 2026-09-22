@@ -3,8 +3,8 @@ import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path/path.dart' as p;
-import 'package:black_cat/src/app/errors/errors.dart';
-import 'package:black_cat/src/app/services/services.dart';
+import 'package:peeky_cat/src/app/errors/errors.dart';
+import 'package:peeky_cat/src/app/services/services.dart';
 
 import '../../support/dash_stream_builder.dart';
 

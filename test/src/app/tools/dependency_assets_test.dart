@@ -1,7 +1,7 @@
 import 'dart:ffi' show Abi;
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:black_cat/src/app/tools/tools.dart';
+import 'package:peeky_cat/src/app/tools/tools.dart';
 
 const _ytDlpChecksums =
     '1fa6733c37ea6fb51c99ad8fe785e7b7e5f3246c9b980230329d4fb72ed8d4d6  yt-dlp\n'

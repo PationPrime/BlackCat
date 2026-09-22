@@ -1,4 +1,4 @@
-// Live check of the BlackCat stats on GitHub (two API requests). Not part of
+// Live check of the PeekyCat stats on GitHub (two API requests). Not part of
 // the regular run:
 //   $env:GITHUB_LIVE='1'; flutter test --tags live
 @Tags(['live'])
@@ -7,11 +7,11 @@ library;
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:black_cat/src/app/api/api.dart';
-import 'package:black_cat/src/app/data_sources/data_sources.dart';
-import 'package:black_cat/src/app/models/models.dart';
-import 'package:black_cat/src/app/operation_result/operation_result.dart';
-import 'package:black_cat/src/app/repositories/repositories.dart';
+import 'package:peeky_cat/src/app/api/api.dart';
+import 'package:peeky_cat/src/app/data_sources/data_sources.dart';
+import 'package:peeky_cat/src/app/models/models.dart';
+import 'package:peeky_cat/src/app/operation_result/operation_result.dart';
+import 'package:peeky_cat/src/app/repositories/repositories.dart';
 
 import '../../support/test_localization.dart';
 

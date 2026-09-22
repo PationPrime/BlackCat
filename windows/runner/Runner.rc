@@ -89,13 +89,13 @@ BEGIN
     BEGIN
         BLOCK "040904e4"
         BEGIN
-            VALUE "CompanyName", "com.blackcat" "\0"
-            VALUE "FileDescription", "BlackCat" "\0"
+            VALUE "CompanyName", "com.peekycat" "\0"
+            VALUE "FileDescription", "PeekyCat" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "BlackCat" "\0"
-            VALUE "LegalCopyright", "Copyright (C) 2026 com.blackcat. All rights reserved." "\0"
-            VALUE "OriginalFilename", "BlackCat.exe" "\0"
-            VALUE "ProductName", "BlackCat" "\0"
+            VALUE "InternalName", "PeekyCat" "\0"
+            VALUE "LegalCopyright", "Copyright (C) 2026 com.peekycat. All rights reserved." "\0"
+            VALUE "OriginalFilename", "PeekyCat.exe" "\0"
+            VALUE "ProductName", "PeekyCat" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

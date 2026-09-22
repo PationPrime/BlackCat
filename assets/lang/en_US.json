@@ -1,6 +1,6 @@
 {
   "app": {
-    "title": "BlackCat",
+    "title": "PeekyCat",
     "common": {
       "file_size": {
         "bytes": "{value} B",
@@ -29,7 +29,7 @@
       },
       "google_dialog": {
         "title": "Google sign-in: only as a last resort",
-        "open_source": "BlackCat is an open-source app. It isn't registered in the Google Cloud Console and hasn't been verified by Google, so Google treats its sign-in window as unverified.",
+        "open_source": "PeekyCat is an open-source app. It isn't registered in the Google Cloud Console and hasn't been verified by Google, so Google treats its sign-in window as unverified.",
         "risks": "Your account password is typed right into the app window. Google may block such a sign-in, ask for extra verification or flag your account activity as suspicious.",
         "cookies": "Adding cookies from a browser where you're already signed in to YouTube is safer: the app never sees your password, and YouTube sees a regular sign-in from your browser. It takes a couple of minutes — step-by-step instructions are in the settings.",
         "sign_in_anyway": "Sign in with Google anyway",
@@ -43,7 +43,7 @@
       "close": "Close"
     },
     "tray": {
-      "open": "Open BlackCat",
+      "open": "Open PeekyCat",
       "hide": "Minimize to tray",
       "quit": "Quit",
       "no_active_download": "No active download"
@@ -149,7 +149,7 @@
       "cookies": {
         "title": "YouTube cookies",
         "recommended_badge": "Recommended",
-        "description": "The recommended way to sign in to YouTube. The app takes cookies from a browser where you're already signed in: your password never goes into BlackCat, and YouTube sees a regular sign-in from your browser. Both yt-dlp and the built-in downloader use them.",
+        "description": "The recommended way to sign in to YouTube. The app takes cookies from a browser where you're already signed in: your password never goes into PeekyCat, and YouTube sees a regular sign-in from your browser. Both yt-dlp and the built-in downloader use them.",
         "steps_title": "How to get and add cookies",
         "step_1": "Install a browser extension that exports cookies in the Netscape format: “Get cookies.txt LOCALLY” for Chrome, Edge, Yandex Browser and other Chromium browsers, or “cookies.txt” for Firefox. Allow it to run in private windows.",
         "step_2": "Open a new private (incognito) window: Ctrl+Shift+N in Chrome, Edge and Yandex Browser or Ctrl+Shift+P in Firefox; on macOS use Cmd instead of Ctrl. Sign in to your account on youtube.com.",
@@ -173,7 +173,7 @@
         "picker_confirm": "Import",
         "success": "Cookies imported: signed in to YouTube.",
         "google_title": "Sign in with a Google account",
-        "google_description": "Only as a last resort. BlackCat is an open-source app that isn't registered in the Google Cloud Console, so Google treats its sign-in window as unverified: the sign-in may be blocked or need extra verification, and your password is typed right into the app window.",
+        "google_description": "Only as a last resort. PeekyCat is an open-source app that isn't registered in the Google Cloud Console, so Google treats its sign-in window as unverified: the sign-in may be blocked or need extra verification, and your password is typed right into the app window.",
         "google_sign_in": "Sign in with Google…"
       },
       "subtitle": "Download folder, interface language and YouTube cookies."
@@ -181,7 +181,7 @@
     "donations": {
       "title": "Support the project",
       "subtitle": "If the app helps you, you can support its development.",
-      "hero_title": "Thank you for using BlackCat!",
+      "hero_title": "Thank you for using PeekyCat!",
       "hero_description": "Your support helps update the app and add new features faster",
       "platforms_title": "Ways to support",
       "open": "Open",
@@ -191,7 +191,7 @@
       "open_failed": "Couldn't open the link {url}",
       "thank_you": "Thank you for your support!",
       "github": {
-        "title": "BlackCat on GitHub",
+        "title": "PeekyCat on GitHub",
         "stars": "GitHub stars",
         "open_repository": "Open the repository on GitHub",
         "downloads_macos": "macOS downloads",

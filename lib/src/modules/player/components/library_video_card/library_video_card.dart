@@ -2,11 +2,13 @@ import 'dart:io';
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:black_cat/src/app/design_system/design_system.dart';
-import 'package:black_cat/src/app/localization/lang/locale_keys.g.dart';
-import 'package:black_cat/src/app/models/models.dart';
-import 'package:black_cat/src/app/tools/tools.dart';
-import 'package:black_cat/src/app/widgets/widgets.dart';
+import 'package:peeky_cat/src/app/design_system/design_system.dart';
+import 'package:peeky_cat/src/app/localization/lang/locale_keys.g.dart';
+import 'package:peeky_cat/src/app/models/models.dart';
+import 'package:peeky_cat/src/app/tools/tools.dart';
+import 'package:peeky_cat/src/app/widgets/widgets.dart';
+
+import '../../../../generated/assets/assets.gen.dart' show Assets;
 
 part 'library_video_thumbnail.dart';
 
@@ -101,12 +103,12 @@ class _LibraryVideoCardState extends State<LibraryVideoCard> {
             ),
             const SizedBox(width: 4),
             AppIconButton(
-              icon: Icons.folder_open_rounded,
+              svgPictureIconPath: Assets.icons.iconFolder.path,
               tooltip: LocaleKeys.app_player_show_in_folder.tr(),
               onPressed: widget.onShowInFolderPressed,
             ),
             AppIconButton(
-              icon: Icons.delete_outline_rounded,
+              svgPictureIconPath: Assets.icons.iconTrashEmpty.path,
               tooltip: LocaleKeys.app_player_delete.tr(),
               onPressed: widget.onDeletePressed,
             ),

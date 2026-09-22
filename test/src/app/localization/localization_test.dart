@@ -1,10 +1,10 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:black_cat/src/app/localization/lang/codegen_loader.g.dart';
-import 'package:black_cat/src/app/models/models.dart';
+import 'package:peeky_cat/src/app/localization/lang/codegen_loader.g.dart';
+import 'package:peeky_cat/src/app/models/models.dart';
 
 final _placeholderPattern = RegExp(r'\{(\w+)\}');
 
-/// `{'app.title': 'BlackCat', ...}` from nested translations
+/// `{'app.title': 'PeekyCat', ...}` from nested translations
 Map<String, String> _flatten(
   Map<String, dynamic> translations, [
   String prefix = '',

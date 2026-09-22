@@ -5,7 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:image/image.dart' as img;
 import 'package:media_kit/media_kit.dart';
 import 'package:path/path.dart' as p;
-import 'package:black_cat/src/app/services/services.dart';
+import 'package:peeky_cat/src/app/services/services.dart';
 
 /// Real files and the real libmpv. Needs FFmpeg for the sample videos
 /// and a Windows build of the app for libmpv:

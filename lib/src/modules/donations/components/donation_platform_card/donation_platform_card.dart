@@ -3,10 +3,12 @@ import 'dart:async';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:pretty_qr_code/pretty_qr_code.dart';
-import 'package:black_cat/src/app/design_system/design_system.dart';
-import 'package:black_cat/src/app/localization/lang/locale_keys.g.dart';
-import 'package:black_cat/src/app/models/models.dart';
-import 'package:black_cat/src/app/widgets/widgets.dart';
+import 'package:peeky_cat/src/app/design_system/design_system.dart';
+import 'package:peeky_cat/src/app/localization/lang/locale_keys.g.dart';
+import 'package:peeky_cat/src/app/models/models.dart';
+import 'package:peeky_cat/src/app/widgets/widgets.dart';
+
+import '../../../../generated/assets/assets.gen.dart';
 
 /// A way to support the developer: the service, a QR code of the link for
 /// a phone, and buttons to open or copy the link
@@ -179,9 +181,9 @@ class _DonationPlatformCardState extends State<DonationPlatformCard> {
               ),
               const SizedBox(width: 8),
               AppIconButton(
-                icon: _copied
-                    ? Icons.check_rounded
-                    : Icons.content_copy_rounded,
+                svgPictureIconPath: _copied
+                    ? Assets.icons.iconCircleCheck.path
+                    : Assets.icons.iconCopy.path,
                 tooltip: _copied
                     ? LocaleKeys.app_donations_link_copied.tr()
                     : LocaleKeys.app_donations_copy_link.tr(),

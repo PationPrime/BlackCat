@@ -1,13 +1,13 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:black_cat/src/app/logger/app_logger.dart';
-import 'package:black_cat/src/app/models/models.dart';
-import 'package:black_cat/src/app/operation_result/operation_result.dart';
-import 'package:black_cat/src/app/repositories/repositories.dart';
+import 'package:peeky_cat/src/app/logger/app_logger.dart';
+import 'package:peeky_cat/src/app/models/models.dart';
+import 'package:peeky_cat/src/app/operation_result/operation_result.dart';
+import 'package:peeky_cat/src/app/repositories/repositories.dart';
 
 part 'project_stats_state.dart';
 
-/// Stars of BlackCat on GitHub and downloads of its latest release, for the
+/// Stars of PeekyCat on GitHub and downloads of its latest release, for the
 /// support page
 final class ProjectStatsController extends Cubit<ProjectStatsState> {
   static const _appLogger = AppLogger(where: 'ProjectStatsController');

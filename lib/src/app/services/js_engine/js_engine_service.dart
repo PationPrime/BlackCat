@@ -71,7 +71,7 @@ class WebViewJsEngineServiceImpl implements JsEngineService {
         windowPosY: -32000,
         useWindowPositionAndSize: true,
         titleBarHeight: 0,
-        title: 'BlackCat JS',
+        title: 'PeekyCat JS',
         userDataFolderWindows: await _fileSystemService.localAppFolder(
           StorageConstants.jsEngineProfileFolder,
         ),

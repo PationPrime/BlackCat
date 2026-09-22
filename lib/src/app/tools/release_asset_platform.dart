@@ -3,8 +3,8 @@ import 'package:path/path.dart' as p;
 import '../models/models.dart';
 
 /// The system a release file is for, by its name:
-/// `BlackCat_0.1.0.1_Apple_Silicon_aarch64.dmg` is for macOS,
-/// `BlackCat_Windows_x86_0.1.0.1.zip` is for Windows
+/// `PeekyCat_0.1.0.1_Apple_Silicon_aarch64.dmg` is for macOS,
+/// `PeekyCat_Windows_x86_0.1.0.1.zip` is for Windows
 abstract final class ReleaseAssetPlatform {
   static const _extensions = {
     '.dmg': ReleasePlatformModel.macos,

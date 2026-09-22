@@ -11,13 +11,13 @@ import 'router/app_router.dart';
 import 'shared_controllers/shared_controllers.dart';
 import 'widgets/widgets.dart';
 
-class BlackCatAppView extends StatelessWidget {
+class PeekyCatAppView extends StatelessWidget {
   final AppRouter appRouter;
 
   /// Language of the first frame: the one saved in the settings
   final AppLanguageModel initialLanguage;
 
-  const BlackCatAppView({
+  const PeekyCatAppView({
     required this.appRouter,
     required this.initialLanguage,
     super.key,

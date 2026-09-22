@@ -2,16 +2,16 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:black_cat/src/app/api/api.dart';
-import 'package:black_cat/src/app/constants/constants.dart';
-import 'package:black_cat/src/app/data_sources/data_sources.dart';
-import 'package:black_cat/src/app/models/models.dart';
-import 'package:black_cat/src/app/operation_result/operation_result.dart';
-import 'package:black_cat/src/app/repositories/repositories.dart';
+import 'package:peeky_cat/src/app/api/api.dart';
+import 'package:peeky_cat/src/app/constants/constants.dart';
+import 'package:peeky_cat/src/app/data_sources/data_sources.dart';
+import 'package:peeky_cat/src/app/models/models.dart';
+import 'package:peeky_cat/src/app/operation_result/operation_result.dart';
+import 'package:peeky_cat/src/app/repositories/repositories.dart';
 
 import '../../support/test_localization.dart';
 
-const _repository = '/repos/PationPrime/BlackCat';
+const _repository = '/repos/PationPrime/PeekyCat';
 
 /// GitHub API stand-in: the repository and its latest release
 final class _GitHubServer {
@@ -52,23 +52,23 @@ final class _GitHubServer {
       response.write(
         jsonEncode(switch (path) {
           _repository => {
-            'full_name': 'PationPrime/BlackCat',
+            'full_name': 'PationPrime/PeekyCat',
             'stargazers_count': stars,
           },
           _ => {
             'tag_name': 'v0.2.0',
             'assets': [
               {
-                'name': 'BlackCat_0.2.0_Apple_Silicon_aarch64.dmg',
+                'name': 'PeekyCat_0.2.0_Apple_Silicon_aarch64.dmg',
                 'download_count': 40,
               },
-              {'name': 'BlackCat_0.2.0_Intel_x64.dmg', 'download_count': 7},
+              {'name': 'PeekyCat_0.2.0_Intel_x64.dmg', 'download_count': 7},
               {
-                'name': 'BlackCat_Windows_x86_0.2.0.zip',
+                'name': 'PeekyCat_Windows_x86_0.2.0.zip',
                 'download_count': 1500,
               },
               {
-                'name': 'BlackCat_Windows_x86_0.2.0.zip.sha256',
+                'name': 'PeekyCat_Windows_x86_0.2.0.zip.sha256',
                 'download_count': 3,
               },
             ],

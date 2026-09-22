@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:black_cat/src/app/failure/failure.dart';
-import 'package:black_cat/src/app/widgets/widgets.dart';
-import 'package:black_cat/src/modules/donations/module.dart';
+import 'package:peeky_cat/src/app/failure/failure.dart';
+import 'package:peeky_cat/src/app/widgets/widgets.dart';
+import 'package:peeky_cat/src/modules/donations/module.dart';
 
 import '../../support/test_app.dart';
 import '../../support/test_localization.dart';
@@ -23,7 +23,7 @@ void main() {
     );
 
     expect(find.text('Поддержать проект'), findsOneWidget);
-    expect(find.text('Спасибо, что пользуетесь BlackCat!'), findsOneWidget);
+    expect(find.text('Спасибо, что пользуетесь PeekyCat!'), findsOneWidget);
     expect(find.text('СПОСОБЫ ПОДДЕРЖКИ'), findsOneWidget);
     expect(find.text('Спасибо за поддержку!'), findsOneWidget);
     expect(find.byType(DonationPlatformCard), findsNWidgets(3));
@@ -146,7 +146,7 @@ void main() {
     await app.close();
   });
 
-  testWidgets('BlackCat на GitHub: звёзды и скачивания последней версии', (
+  testWidgets('PeekyCat на GitHub: звёзды и скачивания последней версии', (
     tester,
   ) async {
     final app = TestApp();
@@ -162,7 +162,7 @@ void main() {
     Finder inPanel(String text) =>
         find.descendant(of: panel, matching: find.text(text));
 
-    expect(find.text('BLACKCAT НА GITHUB'), findsOneWidget);
+    expect(find.text('PEEKYCAT НА GITHUB'), findsOneWidget);
     expect(app.projectStatsRepository.requests, 1);
 
     for (final (label, value) in [
@@ -209,7 +209,7 @@ void main() {
     await tester.tap(find.text('Звёзды на GitHub'));
     await app.settle(tester);
 
-    expect(app.urlLauncher.opened, ['https://github.com/PationPrime/BlackCat']);
+    expect(app.urlLauncher.opened, ['https://github.com/PationPrime/PeekyCat']);
 
     /// Downloads are numbers only
     await tester.tap(find.text('Скачиваний для macOS'));

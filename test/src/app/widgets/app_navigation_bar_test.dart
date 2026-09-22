@@ -1,16 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:black_cat/src/app/design_system/design_system.dart';
-import 'package:black_cat/src/app/widgets/widgets.dart';
+import 'package:peeky_cat/src/app/design_system/design_system.dart';
+import 'package:peeky_cat/src/app/widgets/widgets.dart';
+import 'package:peeky_cat/src/generated/assets/assets.gen.dart';
 
-const _items = [
-  AppNavigationBarItemData(title: 'Главная', icon: Icons.home_rounded),
+final _items = [
+  AppNavigationBarItemData(
+    title: 'Главная',
+    svgPictureFilePath: Assets.icons.iconNavbarHome.path,
+  ),
   AppNavigationBarItemData(
     title: 'Загрузки',
-    icon: Icons.download_rounded,
+    svgPictureFilePath: Assets.icons.iconNavbarDownload.path,
     badge: 3,
   ),
-  AppNavigationBarItemData(title: 'Настройки', icon: Icons.settings_rounded),
+  AppNavigationBarItemData(
+    title: 'Настройки',
+    svgPictureFilePath: Assets.icons.iconNavbarSettings.path,
+  ),
 ];
 
 final class _Bar {

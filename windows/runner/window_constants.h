@@ -5,11 +5,11 @@
 // the class and the title
 inline constexpr wchar_t kWindowClassName[] = L"FLUTTER_RUNNER_WIN32_WINDOW";
 
-inline constexpr wchar_t kWindowTitle[] = L"BlackCat";
+inline constexpr wchar_t kWindowTitle[] = L"PeekyCat";
 
 // Held by the running copy of the app for its whole lifetime
 inline constexpr wchar_t kSingleInstanceMutexName[] =
-    L"BlackCatSingleInstanceMutex";
+    L"PeekyCatSingleInstanceMutex";
 
 // Initial window size in logical pixels. The minimum size is set from Dart
 inline constexpr unsigned int kDefaultWindowWidth = 1040;

@@ -3,7 +3,7 @@ part of 'app_navigation_bar.dart';
 /// Navigation bar button
 class AppNavigationBarItemData extends Equatable {
   final String title;
-  final IconData icon;
+  final String svgPictureFilePath;
 
   /// Number next to the title, e.g. unfinished downloads.
   /// Hidden when `null` or zero
@@ -11,10 +11,10 @@ class AppNavigationBarItemData extends Equatable {
 
   const AppNavigationBarItemData({
     required this.title,
-    required this.icon,
+    required this.svgPictureFilePath,
     this.badge,
   });
 
   @override
-  List<Object?> get props => [title, icon, badge];
+  List<Object?> get props => [title, svgPictureFilePath, badge];
 }

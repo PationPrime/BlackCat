@@ -1,7 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:black_cat/src/app/design_system/design_system.dart';
-import 'package:black_cat/src/app/localization/lang/locale_keys.g.dart';
+import 'package:peeky_cat/src/app/design_system/design_system.dart';
+import 'package:peeky_cat/src/app/localization/lang/locale_keys.g.dart';
 
 /// Thanks to the user and why the support matters
 class DonationsHero extends StatelessWidget {
@@ -39,10 +39,12 @@ class DonationsHero extends StatelessWidget {
               ),
             ],
           ),
-          child: Icon(
-            Icons.favorite_rounded,
-            size: 28,
-            color: context.color.onAccent,
+          child: Center(
+            child: Icon(
+              Icons.favorite_rounded,
+              size: 28,
+              color: context.color.onAccent,
+            ),
           ),
         ),
         const SizedBox(width: 20),

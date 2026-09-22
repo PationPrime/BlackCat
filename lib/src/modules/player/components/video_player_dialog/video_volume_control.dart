@@ -1,11 +1,11 @@
 part of 'video_player_dialog.dart';
 
-IconData _volumeIcon({required double volume, required bool isMuted}) =>
+String _volumeIcon({required double volume, required bool isMuted}) =>
     isMuted || volume <= 0
-    ? Icons.volume_off_rounded
+    ? Assets.icons.iconVolumeMute.path
     : volume < 0.5
-    ? Icons.volume_down_rounded
-    : Icons.volume_up_rounded;
+    ? Assets.icons.iconVolumeMin.path
+    : Assets.icons.iconVolumeMax.path;
 
 /// Mute button with a volume slider that slides out under the cursor
 class _VideoVolumeControl extends StatefulWidget {
@@ -13,12 +13,14 @@ class _VideoVolumeControl extends StatefulWidget {
   final bool isMuted;
   final ValueChanged<double> onVolumeChanged;
   final VoidCallback onMuteToggled;
+  final double iconSize;
 
   const _VideoVolumeControl({
     required this.volume,
     required this.isMuted,
     required this.onVolumeChanged,
     required this.onMuteToggled,
+    this.iconSize = 24,
   });
 
   @override
@@ -52,6 +54,7 @@ class _VideoVolumeControlState extends State<_VideoVolumeControl> {
                 ? LocaleKeys.app_player_controls_unmute.tr()
                 : LocaleKeys.app_player_controls_mute.tr(),
             onPressed: widget.onMuteToggled,
+            iconSize: widget.iconSize,
           ),
           AnimatedContainer(
             duration: const Duration(milliseconds: 150),
@@ -126,8 +129,13 @@ class _VideoVolumeControlState extends State<_VideoVolumeControl> {
 class _VideoVolumeHint extends StatelessWidget {
   final double volume;
   final bool isMuted;
+  final double iconSize;
 
-  const _VideoVolumeHint({required this.volume, required this.isMuted});
+  const _VideoVolumeHint({
+    required this.volume,
+    required this.isMuted,
+    this.iconSize = 24,
+  });
 
   @override
   Widget build(BuildContext context) => DecoratedBox(
@@ -140,9 +148,10 @@ class _VideoVolumeHint extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
+          SvgPicture.asset(
             _volumeIcon(volume: volume, isMuted: isMuted),
-            size: 20,
+            height: iconSize,
+            width: iconSize,
             color: context.color.onPlayer,
           ),
           const SizedBox(width: 8),

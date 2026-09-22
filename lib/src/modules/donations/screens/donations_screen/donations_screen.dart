@@ -5,19 +5,19 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:black_cat/src/app/constants/constants.dart';
-import 'package:black_cat/src/app/design_system/design_system.dart';
-import 'package:black_cat/src/app/localization/lang/locale_keys.g.dart';
-import 'package:black_cat/src/app/models/models.dart';
-import 'package:black_cat/src/app/repositories/repositories.dart';
-import 'package:black_cat/src/app/services/services.dart';
-import 'package:black_cat/src/app/widgets/widgets.dart';
+import 'package:peeky_cat/src/app/constants/constants.dart';
+import 'package:peeky_cat/src/app/design_system/design_system.dart';
+import 'package:peeky_cat/src/app/localization/lang/locale_keys.g.dart';
+import 'package:peeky_cat/src/app/models/models.dart';
+import 'package:peeky_cat/src/app/repositories/repositories.dart';
+import 'package:peeky_cat/src/app/services/services.dart';
+import 'package:peeky_cat/src/app/widgets/widgets.dart';
 
 import '../../components/components.dart';
 import '../../controllers/controllers.dart';
 
 /// Ways to support the developer: the same services as in rconite, and
-/// BlackCat on GitHub
+/// PeekyCat on GitHub
 @RoutePage()
 class DonationsScreen extends StatefulWidget implements AutoRouteWrapper {
   const DonationsScreen({super.key});

@@ -1,24 +1,20 @@
 import 'package:flutter/material.dart';
 
-import 'app_background_glow.dart';
-
+/// A page over the app background: clear, so the lava lamp of the page
+/// area shows through
 class AppScaffold extends Scaffold {
   AppScaffold({
     super.key,
     super.appBar,
     super.floatingActionButton,
     super.bottomNavigationBar,
-    super.backgroundColor,
+    Color? backgroundColor,
     super.resizeToAvoidBottomInset,
-    bool showBackgroundGlow = true,
     Widget? body,
   }) : super(
+         backgroundColor: backgroundColor ?? Colors.transparent,
          body: Stack(
-           children: [
-             if (showBackgroundGlow)
-               const Positioned.fill(child: AppBackgroundGlow()),
-             if (body is Widget) Positioned.fill(child: body),
-           ],
+           children: [if (body is Widget) Positioned.fill(child: body)],
          ),
        );
 }

@@ -390,6 +390,7 @@ class _VideoPlayerSurfaceState extends State<_VideoPlayerSurface> {
                         child: _VideoVolumeHint(
                           volume: playback.volume,
                           isMuted: playback.isMuted,
+                          iconSize: 24,
                         ),
                       ),
                     ),

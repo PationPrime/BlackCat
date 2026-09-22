@@ -7,6 +7,7 @@ export 'app_failure_banner/app_failure_banner.dart';
 export 'app_google_sign_in_dialog/app_google_sign_in_dialog.dart';
 export 'app_icon_logo/app_icon_logo.dart';
 export 'app_input/app_text_field.dart';
+export 'app_lava_background/app_lava_background.dart';
 export 'app_navigation_bar/app_navigation_bar.dart';
 export 'app_page_header/app_page_header.dart';
 export 'app_progress_bar/app_progress_bar.dart';

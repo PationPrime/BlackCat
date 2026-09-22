@@ -3,14 +3,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../modules/modules.dart';
 import 'design_system/design_system.dart';
-import 'backcat_app_view.dart';
+import 'peekycat_app_view.dart';
 import 'models/models.dart';
 import 'repositories/repositories.dart';
 import 'router/app_router.dart';
 import 'services/services.dart';
 import 'shared_controllers/shared_controllers.dart';
 
-class BlackCatApp extends StatelessWidget {
+class PeekyCatApp extends StatelessWidget {
   final AppThemeType appThemeType;
   final AppRouter appRouter;
   final FileSystemService fileSystemService;
@@ -33,7 +33,7 @@ class BlackCatApp extends StatelessWidget {
   /// Language of the first frame: the one saved in the settings
   final AppLanguageModel initialLanguage;
 
-  const BlackCatApp({
+  const PeekyCatApp({
     super.key,
     required this.appThemeType,
     required this.appRouter,
@@ -117,7 +117,7 @@ class BlackCatApp extends StatelessWidget {
           )..restoreQueue(),
         ),
       ],
-      child: BlackCatAppView(
+      child: PeekyCatAppView(
         appRouter: appRouter,
         initialLanguage: initialLanguage,
       ),

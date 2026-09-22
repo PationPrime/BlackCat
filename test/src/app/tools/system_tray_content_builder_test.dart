@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:black_cat/src/app/models/models.dart';
-import 'package:black_cat/src/app/tools/tools.dart';
+import 'package:peeky_cat/src/app/models/models.dart';
+import 'package:peeky_cat/src/app/tools/tools.dart';
 
 import '../../support/test_localization.dart';
 
@@ -43,19 +43,19 @@ void main() {
 
     expect(_labels(content), [
       'Нет активной загрузки',
-      'Открыть BlackCat',
+      'Открыть PeekyCat',
       'Свернуть в трей',
       'Выйти',
     ]);
     expect((content.menu.first as SystemTrayMenuActionModel).enabled, isFalse);
-    expect(content.toolTip, 'BlackCat');
+    expect(content.toolTip, 'PeekyCat');
   });
 
   test('активная загрузка: название и процент в меню и подсказке', () {
     final content = SystemTrayContentBuilder.build(_task());
 
     expect(_labels(content).take(2), ['Обзор', 'Скачивание 42%']);
-    expect(content.toolTip, 'BlackCat\nОбзор\nСкачивание 42%');
+    expect(content.toolTip, 'PeekyCat\nОбзор\nСкачивание 42%');
   });
 
   test('длинное название сворачивается в троеточие', () {

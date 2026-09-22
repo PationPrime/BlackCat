@@ -1,11 +1,13 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:black_cat/src/app/constants/constants.dart';
-import 'package:black_cat/src/app/design_system/design_system.dart';
-import 'package:black_cat/src/app/localization/lang/locale_keys.g.dart';
-import 'package:black_cat/src/app/models/models.dart';
-import 'package:black_cat/src/app/tools/tools.dart';
-import 'package:black_cat/src/app/widgets/widgets.dart';
+import 'package:peeky_cat/src/app/constants/constants.dart';
+import 'package:peeky_cat/src/app/design_system/design_system.dart';
+import 'package:peeky_cat/src/app/localization/lang/locale_keys.g.dart';
+import 'package:peeky_cat/src/app/models/models.dart';
+import 'package:peeky_cat/src/app/tools/tools.dart';
+import 'package:peeky_cat/src/app/widgets/widgets.dart';
+
+import '../../../../generated/assets/assets.gen.dart';
 
 /// Current download along the bottom of the window, like in Steam: the video,
 /// its progress and a pause. The whole bar opens the downloads page
@@ -44,9 +46,7 @@ class DownloadFooter extends StatelessWidget {
         borderRadius: BorderRadius.circular(6),
       ),
       null => Center(
-        child: Icon(
-          Icons.download_done_rounded,
-          size: 22,
+        child: Assets.icons.iconNavbarDownload.svg(
           color: context.color.iconDisabled,
         ),
       ),
@@ -145,14 +145,14 @@ class DownloadFooter extends StatelessWidget {
                 if (task != null)
                   if (task.status.isPaused)
                     AppIconButton(
-                      icon: Icons.play_arrow_rounded,
+                      svgPictureIconPath: Assets.icons.iconPlay.path,
                       tooltip: LocaleKeys.app_downloader_buttons_resume.tr(),
                       iconColor: context.color.accent,
                       onPressed: onResumePressed,
                     )
                   else
                     AppIconButton(
-                      icon: Icons.pause_rounded,
+                      svgPictureIconPath: Assets.icons.iconPause.path,
                       tooltip: LocaleKeys.app_downloader_buttons_pause.tr(),
 
                       /// Muxing video and audio cannot be interrupted
@@ -161,9 +161,10 @@ class DownloadFooter extends StatelessWidget {
                           : null,
                     ),
                 AppIconButton(
-                  icon: Icons.chevron_right_rounded,
+                  svgPictureIconPath: Assets.icons.iconChevronRightMd.path,
                   tooltip: LocaleKeys.app_footer_open_downloads.tr(),
                   onPressed: onOpenPressed,
+                  iconSize: 15,
                 ),
               ],
             ),

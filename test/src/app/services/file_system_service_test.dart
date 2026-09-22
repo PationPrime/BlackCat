@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:archive/archive.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path/path.dart' as p;
-import 'package:black_cat/src/app/services/services.dart';
+import 'package:peeky_cat/src/app/services/services.dart';
 
 void main() {
   test(

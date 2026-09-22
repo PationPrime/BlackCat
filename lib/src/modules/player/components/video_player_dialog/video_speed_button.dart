@@ -54,15 +54,16 @@ class _VideoSpeedButton extends StatelessWidget {
             child: Row(
               children: [
                 SizedBox(
-                  width: 28,
+                  width: 15,
                   child: option == rate
-                      ? Icon(
-                          Icons.check_rounded,
-                          size: 18,
+                      ? Assets.icons.iconCheck.svg(
+                          height: 15,
+                          width: 15,
                           color: context.color.onPlayer,
                         )
                       : null,
                 ),
+                const SizedBox(width: 8),
                 Text(
                   option == 1
                       ? LocaleKeys.app_player_controls_speed_normal.tr()
@@ -104,6 +105,7 @@ class _VideoSpeedButton extends StatelessWidget {
           '${_format(rate)}×',
           style: context.text.bodyMedium.copyWith(
             color: context.color.onPlayer,
+            fontSize: 12,
             fontFeatures: const [FontFeature.tabularFigures()],
           ),
         ),

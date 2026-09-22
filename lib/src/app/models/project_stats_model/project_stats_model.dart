@@ -1,9 +1,9 @@
 import 'package:equatable/equatable.dart';
 
-/// A desktop system BlackCat is released for
+/// A desktop system PeekyCat is released for
 enum ReleasePlatformModel { macos, windows, linux }
 
-/// BlackCat on GitHub: stars of the repository and downloads of the latest
+/// PeekyCat on GitHub: stars of the repository and downloads of the latest
 /// release
 class ProjectStatsModel extends Equatable {
   /// `null` when GitHub did not tell them
