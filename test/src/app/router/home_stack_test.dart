@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:black_cat/src/app/errors/errors.dart';
 import 'package:black_cat/src/app/models/models.dart';
+import 'package:black_cat/src/app/shared_controllers/shared_controllers.dart';
 import 'package:black_cat/src/app/widgets/widgets.dart';
 import 'package:black_cat/src/modules/modules.dart';
 
@@ -83,7 +84,7 @@ void main() {
   );
 
   testWidgets(
-    'на главной вкладки сайтов: YouTube по умолчанию, RuTube, TikTok и Instagram рядом, поиск каждой сохраняется',
+    'на главной вкладки сайтов: YouTube по умолчанию, RuTube, TikTok, Instagram и X рядом, поиск каждой сохраняется',
     (tester) async {
       final app = TestApp();
 
@@ -125,6 +126,12 @@ void main() {
 
       expect(find.byType(InstagramDownloadScreen), findsOneWidget);
       expect(find.text('https://www.instagram.com/reel/...'), findsOneWidget);
+
+      await tester.tap(find.descendant(of: tabs, matching: find.text('X')));
+      await app.settle(tester);
+
+      expect(find.byType(XDownloadScreen), findsOneWidget);
+      expect(find.text('https://x.com/user/status/...'), findsOneWidget);
 
       await tester.tap(
         find.descendant(of: tabs, matching: find.text('YouTube')),
@@ -294,6 +301,49 @@ void main() {
     expect(app.navigationController.state.tab, AppTabModel.donations);
     expect(find.byType(DonationsScreen), findsOneWidget);
     expect(find.byType(DonationPlatformCard), findsNWidgets(3));
+
+    await app.close();
+  });
+
+  testWidgets('в окне наименьшего размера видны вкладки всех сайтов', (
+    tester,
+  ) async {
+    const titles = ['YouTube', 'TikTok', 'Instagram', 'X', 'RuTube'];
+
+    /// The pages of the smallest window: its width without the navigation
+    /// bar of icons
+    final width =
+        AppWindowController.minimumSize.width - AppNavigationBar.compactWidth;
+    final selected = <int>[];
+    final app = TestApp();
+
+    await app.pumpPage(
+      tester,
+      Scaffold(
+        appBar: AppBar(
+          centerTitle: true,
+          title: HomeSourceTabs(
+            titles: titles,
+            selectedIndex: 0,
+            onSelected: selected.add,
+          ),
+        ),
+      ),
+      size: Size(width, AppWindowController.minimumSize.height),
+    );
+
+    expect(tester.takeException(), isNull);
+
+    for (final title in titles) {
+      final tab = find.text(title);
+
+      expect(tester.getRect(tab).left, greaterThanOrEqualTo(0));
+      expect(tester.getRect(tab).right, lessThanOrEqualTo(width));
+    }
+
+    await tester.tap(find.text('RuTube'));
+
+    expect(selected, [4]);
 
     await app.close();
   });

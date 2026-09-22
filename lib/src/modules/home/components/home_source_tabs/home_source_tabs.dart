@@ -16,25 +16,29 @@ class HomeSourceTabs extends StatelessWidget {
     this.onSelected,
   });
 
+  /// A narrow window gets the tabs a little smaller: every site stays in view
   @override
-  Widget build(BuildContext context) => DecoratedBox(
-    decoration: BoxDecoration(
-      color: context.color.surface,
-      borderRadius: BorderRadius.circular(999),
-      border: Border.all(color: context.color.border),
-    ),
-    child: Padding(
-      padding: const EdgeInsets.all(4),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          for (final (index, title) in titles.indexed)
-            _HomeSourceTab(
-              title: title,
-              selected: index == selectedIndex,
-              onPressed: onSelected == null ? null : () => onSelected!(index),
-            ),
-        ],
+  Widget build(BuildContext context) => FittedBox(
+    fit: BoxFit.scaleDown,
+    child: DecoratedBox(
+      decoration: BoxDecoration(
+        color: context.color.surface,
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(color: context.color.border),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(4),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            for (final (index, title) in titles.indexed)
+              _HomeSourceTab(
+                title: title,
+                selected: index == selectedIndex,
+                onPressed: onSelected == null ? null : () => onSelected!(index),
+              ),
+          ],
+        ),
       ),
     ),
   );

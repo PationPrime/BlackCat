@@ -58,6 +58,17 @@ final class InstagramApiClient extends ApiClient {
       );
 }
 
+/// X posts from the embed (syndication) API and their video files
+final class XApiClient extends ApiClient {
+  XApiClient({super.interceptors})
+    : super(
+        headers: const {
+          'User-Agent': YouTubeConstants.browserUserAgent,
+          'Accept-Language': 'en-US,en;q=0.9',
+        },
+      );
+}
+
 /// yt-dlp and Deno releases on GitHub
 final class GitHubApiClient extends ApiClient {
   static const _userAgent = 'YT-Download';
@@ -72,6 +83,7 @@ base class ApiProvider {
   late final RuTubeApiClient rutube;
   late final TikTokApiClient tiktok;
   late final InstagramApiClient instagram;
+  late final XApiClient x;
   late final GitHubApiClient github;
 
   ApiProvider({List<Interceptor> interceptors = const []}) {
@@ -85,6 +97,7 @@ base class ApiProvider {
       rutube = RuTubeApiClient(interceptors: interceptors);
       tiktok = TikTokApiClient(interceptors: interceptors);
       instagram = InstagramApiClient(interceptors: interceptors);
+      x = XApiClient(interceptors: interceptors);
       github = GitHubApiClient(interceptors: interceptors);
     } catch (error, stackTrace) {
       Error.throwWithStackTrace(

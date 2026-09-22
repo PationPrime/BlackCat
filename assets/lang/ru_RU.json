@@ -216,7 +216,7 @@
         "disk_write": "Не удалось записать скачиваемый файл: {error}",
         "disk_full": "Недостаточно места на диске: загрузке нужно ещё {needed}, свободно {available}. Освободите место и повторите загрузку: скачанное сохранится.",
         "disk_full_unknown_size": "Недостаточно места на диске для загрузки. Освободите место и повторите загрузку: скачанное сохранится.",
-        "unsupported_url": "Это не ссылка на видео YouTube, RuTube, TikTok или Instagram.",
+        "unsupported_url": "Это не ссылка на видео YouTube, RuTube, TikTok, Instagram или X.",
         "not_rutube_url": "Это не ссылка на видео RuTube.",
         "rutube_unavailable": "Видео недоступно на RuTube.",
         "rutube_live": "Трансляции RuTube пока не скачиваются.",
@@ -236,6 +236,12 @@
         "instagram_http_status": "Instagram ответил ошибкой {status}.",
         "instagram_no_connection": "Нет соединения с Instagram.",
         "instagram_interrupted": "Instagram обрывает загрузку видео. Попробуйте ещё раз.",
+        "not_x_url": "Это не ссылка на пост X (Twitter).",
+        "x_unavailable": "Пост X недоступен: он удалён, скрыт автором или показывается только после входа в аккаунт.",
+        "x_no_video": "В этом посте X нет видео.",
+        "x_http_status": "X ответил ошибкой {status}.",
+        "x_no_connection": "Нет соединения с X.",
+        "x_interrupted": "X обрывает загрузку видео. Попробуйте ещё раз.",
         "stream_protected": "Видео защищено от скачивания: его части зашифрованы.",
         "stream_format": "Видео отдаётся в формате, который приложение пока не умеет скачивать.",
         "web_view_runtime": "Для скачивания нужен Microsoft Edge WebView2 Runtime.",
@@ -339,7 +345,8 @@
         "youtube": "YouTube",
         "rutube": "RuTube",
         "tiktok": "TikTok",
-        "instagram": "Instagram"
+        "instagram": "Instagram",
+        "x": "X"
       },
       "youtube": {
         "title": "YouTube",
@@ -359,6 +366,11 @@
         "title": "Instagram",
         "subtitle": "Вставьте ссылку на рилс или пост с видео Instagram и нажмите Enter, затем выберите качество.",
         "url_hint": "https://www.instagram.com/reel/..."
+      },
+      "x": {
+        "title": "X",
+        "subtitle": "Вставьте ссылку на пост X (Twitter) с видео и нажмите Enter, затем выберите качество.",
+        "url_hint": "https://x.com/user/status/..."
       },
       "added": "«{title}» добавлено в загрузки.",
       "open_downloads": "Открыть загрузки",

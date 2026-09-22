@@ -265,7 +265,7 @@ class CodegenLoader extends AssetLoader {
           "disk_full_unknown_size":
               "Not enough disk space for the download. Free up space and try again: the downloaded part is kept.",
           "unsupported_url":
-              "This is not a YouTube, RuTube, TikTok or Instagram video link.",
+              "This is not a YouTube, RuTube, TikTok, Instagram or X video link.",
           "not_rutube_url": "This is not a RuTube video link.",
           "rutube_unavailable": "The video is unavailable on RuTube.",
           "rutube_live": "RuTube live streams can't be downloaded yet.",
@@ -291,6 +291,14 @@ class CodegenLoader extends AssetLoader {
           "instagram_no_connection": "No connection to Instagram.",
           "instagram_interrupted":
               "Instagram keeps interrupting the video download. Try again.",
+          "not_x_url": "This is not an X (Twitter) post link.",
+          "x_unavailable":
+              "The X post is unavailable: it was removed, hidden by the author or is shown only after signing in.",
+          "x_no_video": "This X post has no video.",
+          "x_http_status": "X responded with error {status}.",
+          "x_no_connection": "No connection to X.",
+          "x_interrupted":
+              "X keeps interrupting the video download. Try again.",
           "stream_protected":
               "The video is protected from downloading: its parts are encrypted.",
           "stream_format":
@@ -421,6 +429,7 @@ class CodegenLoader extends AssetLoader {
           "rutube": "RuTube",
           "tiktok": "TikTok",
           "instagram": "Instagram",
+          "x": "X",
         },
         "youtube": {
           "title": "YouTube",
@@ -444,6 +453,12 @@ class CodegenLoader extends AssetLoader {
           "subtitle":
               "Paste an Instagram reel or video post link and press Enter, then choose the quality.",
           "url_hint": "https://www.instagram.com/reel/...",
+        },
+        "x": {
+          "title": "X",
+          "subtitle":
+              "Paste an X (Twitter) post link with a video and press Enter, then choose the quality.",
+          "url_hint": "https://x.com/user/status/...",
         },
         "added": "“{title}” was added to downloads.",
         "open_downloads": "Open downloads",
@@ -756,7 +771,7 @@ class CodegenLoader extends AssetLoader {
           "disk_full_unknown_size":
               "Недостаточно места на диске для загрузки. Освободите место и повторите загрузку: скачанное сохранится.",
           "unsupported_url":
-              "Это не ссылка на видео YouTube, RuTube, TikTok или Instagram.",
+              "Это не ссылка на видео YouTube, RuTube, TikTok, Instagram или X.",
           "not_rutube_url": "Это не ссылка на видео RuTube.",
           "rutube_unavailable": "Видео недоступно на RuTube.",
           "rutube_live": "Трансляции RuTube пока не скачиваются.",
@@ -782,6 +797,13 @@ class CodegenLoader extends AssetLoader {
           "instagram_no_connection": "Нет соединения с Instagram.",
           "instagram_interrupted":
               "Instagram обрывает загрузку видео. Попробуйте ещё раз.",
+          "not_x_url": "Это не ссылка на пост X (Twitter).",
+          "x_unavailable":
+              "Пост X недоступен: он удалён, скрыт автором или показывается только после входа в аккаунт.",
+          "x_no_video": "В этом посте X нет видео.",
+          "x_http_status": "X ответил ошибкой {status}.",
+          "x_no_connection": "Нет соединения с X.",
+          "x_interrupted": "X обрывает загрузку видео. Попробуйте ещё раз.",
           "stream_protected":
               "Видео защищено от скачивания: его части зашифрованы.",
           "stream_format":
@@ -912,6 +934,7 @@ class CodegenLoader extends AssetLoader {
           "rutube": "RuTube",
           "tiktok": "TikTok",
           "instagram": "Instagram",
+          "x": "X",
         },
         "youtube": {
           "title": "YouTube",
@@ -935,6 +958,12 @@ class CodegenLoader extends AssetLoader {
           "subtitle":
               "Вставьте ссылку на рилс или пост с видео Instagram и нажмите Enter, затем выберите качество.",
           "url_hint": "https://www.instagram.com/reel/...",
+        },
+        "x": {
+          "title": "X",
+          "subtitle":
+              "Вставьте ссылку на пост X (Twitter) с видео и нажмите Enter, затем выберите качество.",
+          "url_hint": "https://x.com/user/status/...",
         },
         "added": "«{title}» добавлено в загрузки.",
         "open_downloads": "Открыть загрузки",

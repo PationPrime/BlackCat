@@ -106,6 +106,7 @@ class AddVideoController extends Cubit<AddVideoState> {
               VideoSourceModel.rutube => codes.notRuTubeUrl,
               VideoSourceModel.tiktok => codes.notTikTokUrl,
               VideoSourceModel.instagram => codes.notInstagramUrl,
+              VideoSourceModel.x => codes.notXUrl,
             }),
           ),
         ),

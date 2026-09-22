@@ -2,6 +2,7 @@ import '../models/models.dart';
 import 'instagram_url_parser.dart';
 import 'rutube_url_parser.dart';
 import 'tiktok_url_parser.dart';
+import 'x_url_parser.dart';
 import 'youtube_url_parser.dart';
 
 abstract final class VideoLinks {
@@ -13,6 +14,7 @@ abstract final class VideoLinks {
     if (InstagramUrlParser.parse(url) != null) {
       return VideoSourceModel.instagram;
     }
+    if (XUrlParser.parse(url) != null) return VideoSourceModel.x;
 
     return null;
   }

@@ -109,6 +109,11 @@ final class AppModule {
           apiProvider: _apiProvider,
         );
 
+        /// Both X engines take the file sizes from it
+        final remoteXDataSource = RemoteXDataSourceImpl(
+          apiProvider: _apiProvider,
+        );
+
         /// Every site has its own repository; the link picks it
         _videoRepository = SourceVideoRepository({
           VideoSourceModel.youtube: YouTubeVideoRepository(
@@ -150,6 +155,10 @@ final class AppModule {
             mediaMuxerService: mediaMuxerService,
             fileSystemService: _fileSystemService,
           ),
+          VideoSourceModel.x: XVideoRepository(
+            remoteXDataSource: remoteXDataSource,
+            fileSystemService: _fileSystemService,
+          ),
         });
 
         final ytDlpService = YtDlpServiceImpl(
@@ -178,6 +187,11 @@ final class AppModule {
             ytDlpService: ytDlpService,
             remoteInstagramDataSource: remoteInstagramDataSource,
             mediaMuxerService: mediaMuxerService,
+            fileSystemService: _fileSystemService,
+          ),
+          VideoSourceModel.x: XYtDlpVideoRepository(
+            ytDlpService: ytDlpService,
+            remoteXDataSource: remoteXDataSource,
             fileSystemService: _fileSystemService,
           ),
         });
