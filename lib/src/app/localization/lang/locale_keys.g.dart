@@ -17,9 +17,41 @@ abstract class LocaleKeys {
   static const app_authorization_checking = 'app.authorization.checking';
   static const app_authorization_waiting = 'app.authorization.waiting';
   static const app_authorization_signed_in = 'app.authorization.signed_in';
+  static const app_authorization_signed_in_cookies =
+      'app.authorization.signed_in_cookies';
   static const app_authorization_sign_out = 'app.authorization.sign_out';
   static const app_authorization_window_title =
       'app.authorization.window_title';
+  static const app_authorization_add_cookies = 'app.authorization.add_cookies';
+  static const app_authorization_update_cookies =
+      'app.authorization.update_cookies';
+  static const app_authorization_update = 'app.authorization.update';
+  static const app_authorization_recommendation_title =
+      'app.authorization.recommendation.title';
+  static const app_authorization_recommendation_signed_out =
+      'app.authorization.recommendation.signed_out';
+  static const app_authorization_recommendation_window =
+      'app.authorization.recommendation.window';
+  static const app_authorization_recommendation_replace =
+      'app.authorization.recommendation.replace';
+  static const app_authorization_recommendation_why =
+      'app.authorization.recommendation.why';
+  static const app_authorization_recommendation =
+      'app.authorization.recommendation';
+  static const app_authorization_google_dialog_title =
+      'app.authorization.google_dialog.title';
+  static const app_authorization_google_dialog_open_source =
+      'app.authorization.google_dialog.open_source';
+  static const app_authorization_google_dialog_risks =
+      'app.authorization.google_dialog.risks';
+  static const app_authorization_google_dialog_cookies =
+      'app.authorization.google_dialog.cookies';
+  static const app_authorization_google_dialog_sign_in_anyway =
+      'app.authorization.google_dialog.sign_in_anyway';
+  static const app_authorization_google_dialog_cancel =
+      'app.authorization.google_dialog.cancel';
+  static const app_authorization_google_dialog =
+      'app.authorization.google_dialog';
   static const app_authorization = 'app.authorization';
   static const app_window_minimize = 'app.window.minimize';
   static const app_window_maximize = 'app.window.maximize';
@@ -56,8 +88,6 @@ abstract class LocaleKeys {
   static const app_downloader_buttons_hide = 'app.downloader.buttons.hide';
   static const app_downloader_buttons_reorder =
       'app.downloader.buttons.reorder';
-  static const app_downloader_buttons_import_cookies =
-      'app.downloader.buttons.import_cookies';
   static const app_downloader_buttons = 'app.downloader.buttons';
   static const app_downloader_video_views = 'app.downloader.video.views';
   static const app_downloader_video_quality = 'app.downloader.video.quality';
@@ -159,6 +189,8 @@ abstract class LocaleKeys {
       'app.settings.language.description';
   static const app_settings_language = 'app.settings.language';
   static const app_settings_cookies_title = 'app.settings.cookies.title';
+  static const app_settings_cookies_recommended_badge =
+      'app.settings.cookies.recommended_badge';
   static const app_settings_cookies_description =
       'app.settings.cookies.description';
   static const app_settings_cookies_steps_title =
@@ -166,6 +198,12 @@ abstract class LocaleKeys {
   static const app_settings_cookies_step_1 = 'app.settings.cookies.step_1';
   static const app_settings_cookies_step_2 = 'app.settings.cookies.step_2';
   static const app_settings_cookies_step_3 = 'app.settings.cookies.step_3';
+  static const app_settings_cookies_step_4 = 'app.settings.cookies.step_4';
+  static const app_settings_cookies_step_5 = 'app.settings.cookies.step_5';
+  static const app_settings_cookies_step_6 = 'app.settings.cookies.step_6';
+  static const app_settings_cookies_refresh_title =
+      'app.settings.cookies.refresh_title';
+  static const app_settings_cookies_refresh = 'app.settings.cookies.refresh';
   static const app_settings_cookies_guide = 'app.settings.cookies.guide';
   static const app_settings_cookies_guide_failed =
       'app.settings.cookies.guide_failed';
@@ -187,6 +225,12 @@ abstract class LocaleKeys {
   static const app_settings_cookies_picker_confirm =
       'app.settings.cookies.picker_confirm';
   static const app_settings_cookies_success = 'app.settings.cookies.success';
+  static const app_settings_cookies_google_title =
+      'app.settings.cookies.google_title';
+  static const app_settings_cookies_google_description =
+      'app.settings.cookies.google_description';
+  static const app_settings_cookies_google_sign_in =
+      'app.settings.cookies.google_sign_in';
   static const app_settings_cookies = 'app.settings.cookies';
   static const app_settings_subtitle = 'app.settings.subtitle';
   static const app_settings = 'app.settings';
@@ -242,6 +286,23 @@ abstract class LocaleKeys {
   static const app_errors_video_disk_full = 'app.errors.video.disk_full';
   static const app_errors_video_disk_full_unknown_size =
       'app.errors.video.disk_full_unknown_size';
+  static const app_errors_video_unsupported_url =
+      'app.errors.video.unsupported_url';
+  static const app_errors_video_not_rutube_url =
+      'app.errors.video.not_rutube_url';
+  static const app_errors_video_rutube_unavailable =
+      'app.errors.video.rutube_unavailable';
+  static const app_errors_video_rutube_live = 'app.errors.video.rutube_live';
+  static const app_errors_video_rutube_http_status =
+      'app.errors.video.rutube_http_status';
+  static const app_errors_video_rutube_no_connection =
+      'app.errors.video.rutube_no_connection';
+  static const app_errors_video_rutube_interrupted =
+      'app.errors.video.rutube_interrupted';
+  static const app_errors_video_stream_protected =
+      'app.errors.video.stream_protected';
+  static const app_errors_video_stream_format =
+      'app.errors.video.stream_format';
   static const app_errors_video_web_view_runtime =
       'app.errors.video.web_view_runtime';
   static const app_errors_video_js_engine = 'app.errors.video.js_engine';
@@ -391,8 +452,16 @@ abstract class LocaleKeys {
   static const app_navigation_settings = 'app.navigation.settings';
   static const app_navigation_donations = 'app.navigation.donations';
   static const app_navigation = 'app.navigation';
-  static const app_home_title = 'app.home.title';
-  static const app_home_subtitle = 'app.home.subtitle';
+  static const app_home_tabs_youtube = 'app.home.tabs.youtube';
+  static const app_home_tabs_rutube = 'app.home.tabs.rutube';
+  static const app_home_tabs = 'app.home.tabs';
+  static const app_home_youtube_title = 'app.home.youtube.title';
+  static const app_home_youtube_subtitle = 'app.home.youtube.subtitle';
+  static const app_home_youtube = 'app.home.youtube';
+  static const app_home_rutube_title = 'app.home.rutube.title';
+  static const app_home_rutube_subtitle = 'app.home.rutube.subtitle';
+  static const app_home_rutube_url_hint = 'app.home.rutube.url_hint';
+  static const app_home_rutube = 'app.home.rutube';
   static const app_home_added = 'app.home.added';
   static const app_home_open_downloads = 'app.home.open_downloads';
   static const app_home_clear = 'app.home.clear';

@@ -32,6 +32,19 @@ class AppRouter extends RootStackRouter {
                   path: RoutePaths.home,
                   page: HomeRoute.page,
                   initial: true,
+
+                  /// Video sites, in the order of the home tabs
+                  children: [
+                    AutoRoute(
+                      path: RoutePaths.youtube,
+                      page: YouTubeDownloadRoute.page,
+                      initial: true,
+                    ),
+                    AutoRoute(
+                      path: RoutePaths.rutube,
+                      page: RuTubeDownloadRoute.page,
+                    ),
+                  ],
                 ),
                 AutoRoute(
                   path: RoutePaths.downloads,

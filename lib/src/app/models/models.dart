@@ -15,4 +15,5 @@ export 'quality_model/quality_model.dart';
 export 'system_tray_model/system_tray_menu_item_model.dart';
 export 'video_info_model/video_info_model.dart';
 export 'video_playback_model/video_playback_model.dart';
+export 'video_source_model/video_source_model.dart';
 export 'yt_dlp_model/yt_dlp_setup_model.dart';

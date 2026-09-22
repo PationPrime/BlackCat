@@ -13,7 +13,8 @@ import 'package:black_cat/src/app/tools/tools.dart';
 
 part 'add_video_state.dart';
 
-/// Video search on the home page: search by link and quality selection.
+/// Video search on a page of the home tabs: search by link and quality
+/// selection. Every tab searches the links of its own site.
 ///
 /// yt-dlp searches first; when yt-dlp itself fails (not the video),
 /// the built-in downloader searches instead. A search that needed signing in
@@ -25,6 +26,9 @@ class AddVideoController extends Cubit<AddVideoState> {
   final YtDlpVideoRepositoryInterface _ytDlpVideoRepository;
   final AuthorizationController _authorizationController;
 
+  /// Site of the links this search takes
+  final VideoSourceModel _source;
+
   late final StreamSubscription<AuthorizationState> _authorizationSubscription;
   AccountSessionModel? _session;
 
@@ -32,6 +36,7 @@ class AddVideoController extends Cubit<AddVideoState> {
     required this._videoRepository,
     required this._ytDlpVideoRepository,
     required this._authorizationController,
+    this._source = VideoSourceModel.youtube,
   }) : super(const AddVideoInitialState()) {
     _session = _authorizationController.state.session;
     _authorizationSubscription = _authorizationController.stream.listen(
@@ -82,6 +87,28 @@ class AddVideoController extends Cubit<AddVideoState> {
     DownloadEngineModel engine = DownloadEngineModel.fallback,
   }) async {
     if (url.trim().isEmpty || state.isInfoLoading) {
+      return;
+    }
+
+    /// A link of another site belongs to its own tab
+    if (VideoLinks.sourceOf(url) != _source) {
+      const codes = VideoErrorCodes();
+
+      _safeEmit(
+        state.copyWith(
+          requestedUrl: url,
+          requestedEngine: engine,
+          clearVideoInfo: true,
+          clearAddedVideo: true,
+          failure: const VideoErrorHandler().handleError(
+            VideoException(switch (_source) {
+              VideoSourceModel.youtube => codes.notYouTubeUrl,
+              VideoSourceModel.rutube => codes.notRuTubeUrl,
+            }),
+          ),
+        ),
+      );
+
       return;
     }
 

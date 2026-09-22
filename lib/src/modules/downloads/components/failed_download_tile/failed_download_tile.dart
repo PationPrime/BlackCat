@@ -15,8 +15,9 @@ class FailedDownloadTile extends StatelessWidget {
   final VoidCallback? onRemovePressed;
   final VoidCallback? onRetryPressed;
 
-  /// The sign-in and cookies import buttons are shown if signing in
-  /// to YouTube will most likely help
+  /// The cookies and sign-in buttons are shown if signing in to YouTube
+  /// will most likely help
+  final String? cookiesTitle;
   final String? signInTitle;
   final VoidCallback? onSignInPressed;
   final VoidCallback? onImportCookiesPressed;
@@ -27,6 +28,7 @@ class FailedDownloadTile extends StatelessWidget {
     this.onStartPressed,
     this.onRemovePressed,
     this.onRetryPressed,
+    this.cookiesTitle,
     this.signInTitle,
     this.onSignInPressed,
     this.onImportCookiesPressed,
@@ -45,6 +47,7 @@ class FailedDownloadTile extends StatelessWidget {
             subtitle: DownloadTaskFailure(
               task: task,
               onRetryPressed: onRetryPressed,
+              cookiesTitle: cookiesTitle,
               signInTitle: signInTitle,
               onSignInPressed: onSignInPressed,
               onImportCookiesPressed: onImportCookiesPressed,

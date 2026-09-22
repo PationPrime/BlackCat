@@ -8,6 +8,7 @@ import 'models/download_error.dart';
 import 'models/download_progress.dart';
 import 'models/download_request.dart';
 import 'models/download_result.dart';
+import 'models/segments_request.dart';
 import 'state/download_state_file.dart';
 import 'state/download_state_snapshot.dart';
 import 'worker/download_worker.dart';
@@ -39,24 +40,31 @@ final class FilesDownloader {
   /// Starts [request] in its own isolate: a paused download continues
   /// from its state. Throws [StateError] if a download with the same id
   /// is running
-  Future<FilesDownload> start(FilesDownloadRequest request) async {
-    if (_downloads.containsKey(request.id)) {
-      throw StateError('Download ${request.id} is already running');
+  Future<FilesDownload> start(FilesDownloadRequest request) =>
+      _start(request.id, request);
+
+  /// Starts [request] in its own isolate: segments already on disk are
+  /// not downloaded again. Throws [StateError] if a download with the same
+  /// id is running
+  Future<FilesDownload> startSegments(SegmentsDownloadRequest request) =>
+      _start(request.id, request);
+
+  Future<FilesDownload> _start(String id, Object request) async {
+    if (_downloads.containsKey(id)) {
+      throw StateError('Download $id is already running');
     }
 
-    final download = FilesDownload._(request.id);
+    final download = FilesDownload._(id);
 
-    _downloads[request.id] = download;
-    unawaited(
-      download.result.whenComplete(() => _downloads.remove(request.id)),
-    );
+    _downloads[id] = download;
+    unawaited(download.result.whenComplete(() => _downloads.remove(id)));
 
     try {
       await download._spawn(request);
     } catch (error) {
       download._complete(
         FilesDownloadFailed(
-          request.id,
+          id,
           error: FilesDownloadError(
             FilesDownloadErrorType.unknown,
             'The download isolate did not start: $error',
@@ -154,7 +162,7 @@ final class FilesDownload {
     }
   }
 
-  Future<void> _spawn(FilesDownloadRequest request) async {
+  Future<void> _spawn(Object request) async {
     final events = _events = ReceivePort('files_downloader:$id');
     final exits = _exits = ReceivePort();
     final errors = _errors = ReceivePort();

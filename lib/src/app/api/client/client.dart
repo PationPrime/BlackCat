@@ -21,6 +21,18 @@ final class MediaApiClient extends ApiClient {
       );
 }
 
+/// RuTube player API, HLS playlists and segments
+final class RuTubeApiClient extends ApiClient {
+  RuTubeApiClient({super.interceptors})
+    : super(
+        headers: const {
+          'User-Agent': YouTubeConstants.browserUserAgent,
+          'Origin': RuTubeConstants.origin,
+          'Referer': '${RuTubeConstants.origin}/',
+        },
+      );
+}
+
 /// yt-dlp and Deno releases on GitHub
 final class GitHubApiClient extends ApiClient {
   static const _userAgent = 'YT-Download';
@@ -32,6 +44,7 @@ final class GitHubApiClient extends ApiClient {
 base class ApiProvider {
   late final YouTubeApiClient youtube;
   late final MediaApiClient media;
+  late final RuTubeApiClient rutube;
   late final GitHubApiClient github;
 
   ApiProvider({List<Interceptor> interceptors = const []}) {
@@ -42,6 +55,7 @@ base class ApiProvider {
     try {
       youtube = YouTubeApiClient(interceptors: interceptors);
       media = MediaApiClient(interceptors: interceptors);
+      rutube = RuTubeApiClient(interceptors: interceptors);
       github = GitHubApiClient(interceptors: interceptors);
     } catch (error, stackTrace) {
       Error.throwWithStackTrace(

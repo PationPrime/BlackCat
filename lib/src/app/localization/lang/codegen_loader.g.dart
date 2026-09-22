@@ -26,12 +26,36 @@ class CodegenLoader extends AssetLoader {
         },
       },
       "authorization": {
-        "sign_in": "Sign in to YouTube",
+        "sign_in": "Sign in with Google",
         "checking": "Checking sign-in…",
         "waiting": "Waiting for sign-in…",
-        "signed_in": "Account connected",
+        "signed_in": "Signed in with Google",
+        "signed_in_cookies": "Cookies connected",
         "sign_out": "Sign out",
         "window_title": "Sign in to YouTube",
+        "add_cookies": "Add cookies",
+        "update_cookies": "Update cookies",
+        "update": "Update",
+        "recommendation": {
+          "title": "Sign in with cookies",
+          "signed_out":
+              "YouTube often asks you to sign in or confirm you're not a bot. We recommend adding cookies from a browser where you're already signed in to YouTube: your password never goes into the app.",
+          "window":
+              "You're signed in with Google in the app window. We recommend replacing this sign-in with cookies from your browser: it's safer for your account.",
+          "replace": "Replace with cookies",
+          "why": "Why not sign in with Google?",
+        },
+        "google_dialog": {
+          "title": "Google sign-in: only as a last resort",
+          "open_source":
+              "BlackCat is an open-source app. It isn't registered in the Google Cloud Console and hasn't been verified by Google, so Google treats its sign-in window as unverified.",
+          "risks":
+              "Your account password is typed right into the app window. Google may block such a sign-in, ask for extra verification or flag your account activity as suspicious.",
+          "cookies":
+              "Adding cookies from a browser where you're already signed in to YouTube is safer: the app never sees your password, and YouTube sees a regular sign-in from your browser. It takes a couple of minutes — step-by-step instructions are in the settings.",
+          "sign_in_anyway": "Sign in with Google anyway",
+          "cancel": "Cancel",
+        },
       },
       "window": {
         "minimize": "Minimize",
@@ -51,8 +75,8 @@ class CodegenLoader extends AssetLoader {
           "search": "Search",
           "searching": "Searching…",
           "show_in_folder": "Show in folder",
-          "sign_in_and_retry": "Sign in",
-          "refresh_sign_in_and_retry": "Refresh sign-in",
+          "sign_in_and_retry": "Sign in with Google",
+          "refresh_sign_in_and_retry": "Refresh Google sign-in",
           "add_video": "Add video",
           "settings": "Settings",
           "start_now": "Download now",
@@ -63,7 +87,6 @@ class CodegenLoader extends AssetLoader {
           "clear_finished": "Clear",
           "hide": "Hide",
           "reorder": "Drag to reorder",
-          "import_cookies": "Import cookies.txt",
         },
         "video": {
           "views": "{count} views",
@@ -148,15 +171,25 @@ class CodegenLoader extends AssetLoader {
         },
         "cookies": {
           "title": "YouTube cookies",
+          "recommended_badge": "Recommended",
           "description":
-              "If YouTube asks you to sign in or confirm you're not a bot and the app sign-in window doesn't work for you, import cookies from a browser where you're signed in to YouTube. Both yt-dlp and the built-in downloader use them.",
-          "steps_title": "How to get cookies.txt",
+              "The recommended way to sign in to YouTube. The app takes cookies from a browser where you're already signed in: your password never goes into BlackCat, and YouTube sees a regular sign-in from your browser. Both yt-dlp and the built-in downloader use them.",
+          "steps_title": "How to get and add cookies",
           "step_1":
-              "Open a new private (incognito) browser window and sign in to YouTube.",
+              "Install a browser extension that exports cookies in the Netscape format: “Get cookies.txt LOCALLY” for Chrome, Edge, Yandex Browser and other Chromium browsers, or “cookies.txt” for Firefox. Allow it to run in private windows.",
           "step_2":
-              "In the same tab, open youtube.com/robots.txt and export the youtube.com cookies in the Netscape format, for example with the “Get cookies.txt LOCALLY” extension for Chrome or “cookies.txt” for Firefox.",
+              "Open a new private (incognito) window: Ctrl+Shift+N in Chrome, Edge and Yandex Browser or Ctrl+Shift+P in Firefox; on macOS use Cmd instead of Ctrl. Sign in to your account on youtube.com.",
           "step_3":
-              "Close the private window so YouTube doesn't rotate these cookies, then choose the saved file below.",
+              "In the same window, open a new tab, close the YouTube tab and go to youtube.com/robots.txt — it must be the only tab of the window. This keeps YouTube from rotating the cookies while you save them.",
+          "step_4":
+              "Click the extension icon and export the cookies of the current site (youtube.com) to a .txt file.",
+          "step_5":
+              "Close the private window right away without signing out: signing out or browsing on in that window invalidates the saved cookies.",
+          "step_6":
+              "Click “Choose cookies.txt…” below and pick the saved file.",
+          "refresh_title": "When to update cookies",
+          "refresh":
+              "Cookies don't last forever, and YouTube may reset them sooner. If “confirm you're not a bot” or a message about expired cookies shows up again, repeat the steps and choose the new file: it replaces the old one.",
           "guide": "Detailed guide in the yt-dlp FAQ",
           "guide_failed": "Couldn't open the link {url}",
           "warning":
@@ -165,13 +198,17 @@ class CodegenLoader extends AssetLoader {
           "imported_at": "Imported {date}",
           "imported_badge": "In use",
           "sign_in_window_active":
-              "You are signed in through the app window now. Importing cookies will replace that sign-in.",
+              "You're signed in with Google in the app window now. We recommend replacing it with cookies: importing them replaces that sign-in.",
           "choose": "Choose cookies.txt…",
           "importing": "Importing…",
           "remove": "Delete cookies",
           "picker_label": "Text files",
           "picker_confirm": "Import",
           "success": "Cookies imported: signed in to YouTube.",
+          "google_title": "Sign in with a Google account",
+          "google_description":
+              "Only as a last resort. BlackCat is an open-source app that isn't registered in the Google Cloud Console, so Google treats its sign-in window as unverified: the sign-in may be blocked or need extra verification, and your password is typed right into the app window.",
+          "google_sign_in": "Sign in with Google…",
         },
         "subtitle": "Download folder, interface language and YouTube cookies.",
       },
@@ -227,6 +264,18 @@ class CodegenLoader extends AssetLoader {
               "Not enough disk space: the download needs {needed} more, {available} is free. Free up space and try again: the downloaded part is kept.",
           "disk_full_unknown_size":
               "Not enough disk space for the download. Free up space and try again: the downloaded part is kept.",
+          "unsupported_url": "This is not a YouTube or RuTube video link.",
+          "not_rutube_url": "This is not a RuTube video link.",
+          "rutube_unavailable": "The video is unavailable on RuTube.",
+          "rutube_live": "RuTube live streams can't be downloaded yet.",
+          "rutube_http_status": "RuTube responded with error {status}.",
+          "rutube_no_connection": "No connection to RuTube.",
+          "rutube_interrupted":
+              "RuTube keeps interrupting the video download. Try again.",
+          "stream_protected":
+              "The video is protected from downloading: its parts are encrypted.",
+          "stream_format":
+              "The video is served in a format the app can't download yet.",
           "web_view_runtime":
               "Downloading requires Microsoft Edge WebView2 Runtime.",
           "js_engine":
@@ -331,12 +380,12 @@ class CodegenLoader extends AssetLoader {
           "message_signed_in":
               "The yt-dlp components couldn't be installed, but you can still try to download videos: the app will use the built-in downloader with your YouTube sign-in.",
           "message_signed_out":
-              "The yt-dlp components couldn't be installed. The built-in downloader can download videos too, but YouTube usually requires signing in: sign in to your account or import cookies.txt.",
+              "The yt-dlp components couldn't be installed. The built-in downloader can download videos too, but YouTube usually requires signing in. We recommend adding cookies from a browser where you're signed in to YouTube; signing in with Google in the app window is a last resort.",
           "reason": "Reason: {error}",
           "retry": "Retry installation",
           "add_video": "Add video",
-          "sign_in": "Sign in",
-          "import_cookies": "Import cookies.txt",
+          "sign_in": "Sign in with Google",
+          "import_cookies": "Add cookies",
           "close": "Close",
         },
       },
@@ -348,9 +397,18 @@ class CodegenLoader extends AssetLoader {
         "donations": "Sponsor",
       },
       "home": {
-        "title": "Home",
-        "subtitle":
-            "Paste a YouTube video link and press Enter, then choose the quality.",
+        "tabs": {"youtube": "YouTube", "rutube": "RuTube"},
+        "youtube": {
+          "title": "YouTube",
+          "subtitle":
+              "Paste a YouTube video link and press Enter, then choose the quality.",
+        },
+        "rutube": {
+          "title": "RuTube",
+          "subtitle":
+              "Paste a RuTube video or short link and press Enter, then choose the quality.",
+          "url_hint": "https://rutube.ru/video/...",
+        },
         "added": "“{title}” was added to downloads.",
         "open_downloads": "Open downloads",
         "clear": "Clear",
@@ -422,12 +480,36 @@ class CodegenLoader extends AssetLoader {
         },
       },
       "authorization": {
-        "sign_in": "Войти в YouTube",
+        "sign_in": "Войти через Google",
         "checking": "Проверяем вход…",
         "waiting": "Ждём вход…",
-        "signed_in": "Аккаунт подключён",
+        "signed_in": "Вход через Google",
+        "signed_in_cookies": "Cookies подключены",
         "sign_out": "Выйти",
         "window_title": "Вход в YouTube",
+        "add_cookies": "Добавить cookies",
+        "update_cookies": "Обновить cookies",
+        "update": "Обновить",
+        "recommendation": {
+          "title": "Войдите с помощью cookies",
+          "signed_out":
+              "YouTube часто просит войти или подтвердить, что вы не бот. Рекомендуем добавить cookies из браузера, в котором вы уже вошли в YouTube: пароль при этом не вводится в приложение.",
+          "window":
+              "Сейчас вы вошли через Google в окне приложения. Рекомендуем заменить этот вход на cookies из браузера: так безопаснее для аккаунта.",
+          "replace": "Заменить на cookies",
+          "why": "Почему не вход через Google?",
+        },
+        "google_dialog": {
+          "title": "Вход через Google — только в крайнем случае",
+          "open_source":
+              "BlackCat — приложение с открытым исходным кодом. Оно не зарегистрировано в Google Cloud Console и не проходило проверку Google, поэтому для Google его окно входа — непроверенное.",
+          "risks":
+              "Пароль от аккаунта вводится прямо в окне приложения. Google может отклонить такой вход, попросить дополнительные подтверждения или посчитать активность аккаунта подозрительной.",
+          "cookies":
+              "Надёжнее добавить cookies из браузера, в котором вы уже вошли в YouTube: приложение не видит ваш пароль, а YouTube видит обычный вход из вашего браузера. Это займёт пару минут — пошаговая инструкция есть в настройках.",
+          "sign_in_anyway": "Всё равно войти через Google",
+          "cancel": "Отмена",
+        },
       },
       "window": {
         "minimize": "Свернуть",
@@ -447,8 +529,8 @@ class CodegenLoader extends AssetLoader {
           "search": "Найти",
           "searching": "Ищем…",
           "show_in_folder": "Показать в папке",
-          "sign_in_and_retry": "Войти",
-          "refresh_sign_in_and_retry": "Обновить вход",
+          "sign_in_and_retry": "Войти через Google",
+          "refresh_sign_in_and_retry": "Обновить вход через Google",
           "add_video": "Добавить видео",
           "settings": "Настройки",
           "start_now": "Скачать сейчас",
@@ -459,7 +541,6 @@ class CodegenLoader extends AssetLoader {
           "clear_finished": "Очистить",
           "hide": "Скрыть",
           "reorder": "Перетащите, чтобы изменить порядок",
-          "import_cookies": "Импортировать cookies.txt",
         },
         "video": {
           "views": "{count} просмотров",
@@ -544,15 +625,25 @@ class CodegenLoader extends AssetLoader {
         },
         "cookies": {
           "title": "Cookies YouTube",
+          "recommended_badge": "Рекомендуется",
           "description":
-              "Если YouTube просит войти или подтвердить, что вы не бот, а вход через окно приложения не подходит, импортируйте cookies браузера, в котором вы вошли в YouTube. Их используют и yt-dlp, и встроенный загрузчик.",
-          "steps_title": "Как получить cookies.txt",
+              "Рекомендуемый способ войти в YouTube. Приложение берёт cookies из браузера, в котором вы уже вошли: пароль не вводится в BlackCat, а YouTube видит обычный вход из вашего браузера. Cookies используют и yt-dlp, и встроенный загрузчик.",
+          "steps_title": "Как получить и добавить cookies",
           "step_1":
-              "Откройте новое приватное (инкогнито) окно браузера и войдите в YouTube.",
+              "Установите в браузер расширение для экспорта cookies в формате Netscape: «Get cookies.txt LOCALLY» для Chrome, Edge, Яндекс Браузера и других браузеров на Chromium или «cookies.txt» для Firefox. Разрешите ему работать в приватных окнах.",
           "step_2":
-              "В той же вкладке откройте youtube.com/robots.txt и экспортируйте cookies youtube.com в формате Netscape, например расширением «Get cookies.txt LOCALLY» для Chrome или «cookies.txt» для Firefox.",
+              "Откройте новое приватное окно (инкогнито): Ctrl+Shift+N в Chrome, Edge и Яндекс Браузере или Ctrl+Shift+P в Firefox; на macOS — Cmd вместо Ctrl. Войдите в свой аккаунт на youtube.com.",
           "step_3":
-              "Закройте приватное окно, чтобы YouTube не сменил эти cookies, и выберите сохранённый файл ниже.",
+              "В этом же окне откройте новую вкладку, закройте вкладку YouTube и перейдите на youtube.com/robots.txt — она должна остаться единственной вкладкой окна. Так YouTube не сменит cookies, пока вы их сохраняете.",
+          "step_4":
+              "Нажмите на значок расширения и экспортируйте cookies текущего сайта (youtube.com) в файл .txt.",
+          "step_5":
+              "Сразу закройте приватное окно, не выходя из аккаунта: если выйти или продолжить работу в этом окне, сохранённые cookies перестанут действовать.",
+          "step_6":
+              "Нажмите «Выбрать cookies.txt…» ниже и укажите сохранённый файл.",
+          "refresh_title": "Когда обновлять cookies",
+          "refresh":
+              "Срок действия cookies ограничен, и YouTube может сбросить их раньше. Если снова появится «подтвердите, что вы не бот» или сообщение об истёкших cookies, повторите шаги и выберите новый файл — он заменит старый.",
           "guide": "Подробная инструкция в FAQ yt-dlp",
           "guide_failed": "Не удалось открыть ссылку {url}",
           "warning":
@@ -561,13 +652,17 @@ class CodegenLoader extends AssetLoader {
           "imported_at": "Импортирован {date}",
           "imported_badge": "Используется",
           "sign_in_window_active":
-              "Сейчас используется вход через окно приложения. Импорт cookies заменит его.",
+              "Сейчас используется вход через Google в окне приложения. Рекомендуем заменить его на cookies: импорт заменит этот вход.",
           "choose": "Выбрать cookies.txt…",
           "importing": "Импортируем…",
           "remove": "Удалить cookies",
           "picker_label": "Текстовые файлы",
           "picker_confirm": "Импортировать",
           "success": "Cookies импортированы: вход в YouTube выполнен.",
+          "google_title": "Вход через аккаунт Google",
+          "google_description":
+              "Только в крайнем случае. BlackCat — приложение с открытым исходным кодом без регистрации в Google Cloud Console, поэтому Google считает его окно входа непроверенным: вход могут отклонить или попросить дополнительные подтверждения, а пароль вводится прямо в окне приложения.",
+          "google_sign_in": "Войти через Google…",
         },
         "subtitle": "Папка для загрузок, язык интерфейса и cookies YouTube.",
       },
@@ -624,6 +719,18 @@ class CodegenLoader extends AssetLoader {
               "Недостаточно места на диске: загрузке нужно ещё {needed}, свободно {available}. Освободите место и повторите загрузку: скачанное сохранится.",
           "disk_full_unknown_size":
               "Недостаточно места на диске для загрузки. Освободите место и повторите загрузку: скачанное сохранится.",
+          "unsupported_url": "Это не ссылка на видео YouTube или RuTube.",
+          "not_rutube_url": "Это не ссылка на видео RuTube.",
+          "rutube_unavailable": "Видео недоступно на RuTube.",
+          "rutube_live": "Трансляции RuTube пока не скачиваются.",
+          "rutube_http_status": "RuTube ответил ошибкой {status}.",
+          "rutube_no_connection": "Нет соединения с RuTube.",
+          "rutube_interrupted":
+              "RuTube обрывает загрузку видео. Попробуйте ещё раз.",
+          "stream_protected":
+              "Видео защищено от скачивания: его части зашифрованы.",
+          "stream_format":
+              "Видео отдаётся в формате, который приложение пока не умеет скачивать.",
           "web_view_runtime":
               "Для скачивания нужен Microsoft Edge WebView2 Runtime.",
           "js_engine":
@@ -728,12 +835,12 @@ class CodegenLoader extends AssetLoader {
           "message_signed_in":
               "Не удалось установить компоненты для yt-dlp, но вы всё равно можете попробовать скачать видео: приложение скачает его встроенным загрузчиком с вашим входом в YouTube.",
           "message_signed_out":
-              "Не удалось установить компоненты для yt-dlp. Встроенный загрузчик тоже скачивает видео, но YouTube обычно требует входа: войдите в аккаунт или импортируйте cookies.txt.",
+              "Не удалось установить компоненты для yt-dlp. Встроенный загрузчик тоже скачивает видео, но YouTube обычно требует входа. Рекомендуем добавить cookies из браузера, в котором вы вошли в YouTube; вход через Google в окне приложения — только в крайнем случае.",
           "reason": "Причина: {error}",
           "retry": "Повторить установку",
           "add_video": "Добавить видео",
-          "sign_in": "Войти",
-          "import_cookies": "Импортировать cookies.txt",
+          "sign_in": "Войти через Google",
+          "import_cookies": "Добавить cookies",
           "close": "Закрыть",
         },
       },
@@ -745,9 +852,18 @@ class CodegenLoader extends AssetLoader {
         "donations": "Поддержать",
       },
       "home": {
-        "title": "Главная",
-        "subtitle":
-            "Вставьте ссылку на видео YouTube и нажмите Enter, затем выберите качество.",
+        "tabs": {"youtube": "YouTube", "rutube": "RuTube"},
+        "youtube": {
+          "title": "YouTube",
+          "subtitle":
+              "Вставьте ссылку на видео YouTube и нажмите Enter, затем выберите качество.",
+        },
+        "rutube": {
+          "title": "RuTube",
+          "subtitle":
+              "Вставьте ссылку на видео или шортс RuTube и нажмите Enter, затем выберите качество.",
+          "url_hint": "https://rutube.ru/video/...",
+        },
         "added": "«{title}» добавлено в загрузки.",
         "open_downloads": "Открыть загрузки",
         "clear": "Очистить",

@@ -82,35 +82,81 @@ void main() {
     },
   );
 
-  testWidgets('вход в YouTube — в заголовке главной, а не в навбаре', (
-    tester,
-  ) async {
-    final app = TestApp();
+  testWidgets(
+    'на главной вкладки сайтов: YouTube по умолчанию, RuTube рядом, поиск каждой сохраняется',
+    (tester) async {
+      final app = TestApp();
 
-    await app.pumpApp(tester);
+      await app.pumpApp(tester);
 
-    final signIn = find.descendant(
-      of: find.byType(HomeScreen),
-      matching: find.text('Войти в YouTube'),
-    );
+      final tabs = find.byType(HomeSourceTabs);
 
-    expect(signIn, findsOneWidget);
-    expect(_inNavigationBar('Войти в YouTube'), findsNothing);
+      expect(
+        find.descendant(of: tabs, matching: find.text('YouTube')),
+        findsOneWidget,
+      );
+      expect(find.byType(YouTubeDownloadScreen), findsOneWidget);
+      expect(find.byType(RuTubeDownloadScreen), findsNothing);
 
-    await tester.tap(signIn);
-    await app.settle(tester);
+      await tester.enterText(_searchField, _url);
+      await tester.tap(
+        find.descendant(of: tabs, matching: find.text('RuTube')),
+      );
+      await app.settle(tester);
 
-    expect(app.authenticationRepository.signInCalls, 1);
-    expect(
-      find.descendant(
+      expect(find.byType(RuTubeDownloadScreen), findsOneWidget);
+      expect(find.text('https://rutube.ru/video/...'), findsOneWidget);
+
+      await tester.tap(
+        find.descendant(of: tabs, matching: find.text('YouTube')),
+      );
+      await app.settle(tester);
+
+      expect(find.byType(YouTubeDownloadScreen), findsOneWidget);
+      expect(find.widgetWithText(TextField, _url), findsOneWidget);
+
+      await app.close();
+    },
+  );
+
+  testWidgets(
+    'вход в YouTube — в заголовке главной, а не в навбаре: cookies первыми, Google — после предупреждения',
+    (tester) async {
+      final app = TestApp();
+
+      await app.pumpApp(tester);
+
+      final header = find.descendant(
         of: find.byType(HomeScreen),
-        matching: find.text('Аккаунт подключён'),
-      ),
-      findsOneWidget,
-    );
+        matching: find.byType(AppPageHeader),
+      );
+      final signIn = find.descendant(
+        of: header,
+        matching: find.text('Войти через Google'),
+      );
 
-    await app.close();
-  });
+      expect(
+        find.descendant(of: header, matching: find.text('Добавить cookies')),
+        findsOneWidget,
+      );
+      expect(signIn, findsOneWidget);
+      expect(_inNavigationBar('Войти через Google'), findsNothing);
+      expect(_inNavigationBar('Добавить cookies'), findsNothing);
+
+      await tester.tap(signIn);
+      await app.settle(tester);
+      await tester.tap(find.text('Всё равно войти через Google'));
+      await app.settle(tester);
+
+      expect(app.authenticationRepository.signInCalls, 1);
+      expect(
+        find.descendant(of: header, matching: find.text('Вход через Google')),
+        findsOneWidget,
+      );
+
+      await app.close();
+    },
+  );
 
   testWidgets(
     'нижняя панель: текущая загрузка поверх низа всех страниц, навбар не перекрывает',
@@ -281,10 +327,26 @@ void main() {
         findsOneWidget,
       );
 
+      /// Cookies are the main button, the Google window is next to it
+      expect(
+        find.descendant(
+          of: find.byType(DependenciesFallbackDialog),
+          matching: find.widgetWithText(AppPrimaryButton, 'Добавить cookies'),
+        ),
+        findsOneWidget,
+      );
+      expect(
+        find.descendant(
+          of: find.byType(DependenciesFallbackDialog),
+          matching: find.text('Войти через Google'),
+        ),
+        findsOneWidget,
+      );
+
       await tester.tap(
         find.descendant(
           of: find.byType(DependenciesFallbackDialog),
-          matching: find.text('Импортировать cookies.txt'),
+          matching: find.text('Добавить cookies'),
         ),
       );
       await app.settle(tester);
@@ -296,9 +358,47 @@ void main() {
         isTrue,
       );
       expect(
-        find.text('Как получить cookies.txt').hitTestable(),
+        find.text('Как получить и добавить cookies').hitTestable(),
         findsOneWidget,
       );
+
+      await app.close();
+    },
+  );
+
+  testWidgets(
+    'установка не удалась: вход через Google из диалога — только после предупреждения',
+    (tester) async {
+      final app = TestApp(setup: const YtDlpSetupModel());
+
+      await app.pumpApp(tester);
+      await app.dependenciesController.check();
+      await app.settle(tester);
+
+      app.dependenciesRepository.installs.single.failWith(
+        const DependencyFailure(
+          code: 'download',
+          message: 'Не удалось скачать yt-dlp: нет соединения с GitHub.',
+        ),
+      );
+      await app.settle(tester);
+      await tester.tap(find.text('Закрыть'));
+      await app.settle(tester);
+      await tester.tap(
+        find.descendant(
+          of: find.byType(DependenciesFallbackDialog),
+          matching: find.text('Войти через Google'),
+        ),
+      );
+      await app.settle(tester);
+
+      expect(find.byType(AppGoogleSignInDialog), findsOneWidget);
+      expect(app.authenticationRepository.signInCalls, 0);
+
+      await tester.tap(find.text('Всё равно войти через Google'));
+      await app.settle(tester);
+
+      expect(app.authenticationRepository.signInCalls, 1);
 
       await app.close();
     },
@@ -366,12 +466,15 @@ void main() {
       await tester.enterText(_searchField, _url);
       await tester.sendKeyEvent(LogicalKeyboardKey.enter);
       await app.settle(tester);
-      await tester.tap(
-        find.descendant(
-          of: find.byType(AppFailureBanner),
-          matching: find.text('Импортировать cookies.txt'),
-        ),
+      final addCookies = find.descendant(
+        of: find.byType(AppFailureBanner),
+        matching: find.text('Добавить cookies'),
       );
+
+      /// The advice to use cookies stands above the error: it scrolls into view
+      await tester.ensureVisible(addCookies);
+      await app.settle(tester);
+      await tester.tap(addCookies);
       await app.settle(tester);
 
       expect(find.byType(SettingsScreen), findsOneWidget);
@@ -379,13 +482,22 @@ void main() {
         tester.widget<CookiesCard>(find.byType(CookiesCard)).highlighted,
         isTrue,
       );
-      expect(find.text('Файл не выбран').hitTestable(), findsOneWidget);
+
+      /// The card opens at its instructions
+      expect(
+        find.text('Как получить и добавить cookies').hitTestable(),
+        findsOneWidget,
+      );
       expect(
         tester.widget<AppNavigationBar>(_navigationBar).selectedIndex,
         AppTabModel.settings.index,
       );
 
-      await tester.tap(find.text('Подробная инструкция в FAQ yt-dlp'));
+      final guide = find.text('Подробная инструкция в FAQ yt-dlp');
+
+      await tester.ensureVisible(guide);
+      await app.settle(tester);
+      await tester.tap(guide);
       await app.settle(tester);
 
       expect(app.urlLauncher.opened, [
@@ -400,7 +512,11 @@ void main() {
         ),
       );
 
-      await tester.tap(find.text('Выбрать cookies.txt…'));
+      final choose = find.text('Выбрать cookies.txt…');
+
+      await tester.ensureVisible(choose);
+      await app.settle(tester);
+      await tester.tap(choose);
       await app.settle(tester);
 
       /// Back on the home page the search has repeated with the new cookies
@@ -412,7 +528,7 @@ void main() {
       expect(
         find.descendant(
           of: find.byType(HomeScreen),
-          matching: find.text('Аккаунт подключён'),
+          matching: find.text('Cookies подключены'),
         ),
         findsOneWidget,
       );

@@ -12,8 +12,9 @@ enum DependenciesFallbackAction {
 }
 
 /// yt-dlp was not installed: the built-in downloader still works. With a
-/// YouTube sign-in (window or cookies.txt) the user can download right away,
-/// otherwise the dialog offers to sign in first
+/// YouTube sign-in (cookies or the Google window) the user can download right
+/// away, otherwise the dialog offers cookies first and the Google sign-in
+/// window as the last resort
 class DependenciesFallbackDialog extends StatelessWidget {
   static const _maxWidth = 520.0;
 
@@ -63,13 +64,13 @@ class DependenciesFallbackDialog extends StatelessWidget {
           )
         else ...[
           AppSecondaryButton(
+            title: LocaleKeys.app_dependencies_fallback_dialog_sign_in.tr(),
+            onPressed: () => choose(DependenciesFallbackAction.signIn),
+          ),
+          AppPrimaryButton(
             title: LocaleKeys.app_dependencies_fallback_dialog_import_cookies
                 .tr(),
             onPressed: () => choose(DependenciesFallbackAction.importCookies),
-          ),
-          AppPrimaryButton(
-            title: LocaleKeys.app_dependencies_fallback_dialog_sign_in.tr(),
-            onPressed: () => choose(DependenciesFallbackAction.signIn),
           ),
         ],
       ],

@@ -10,12 +10,31 @@
       }
     },
     "authorization": {
-      "sign_in": "Sign in to YouTube",
+      "sign_in": "Sign in with Google",
       "checking": "Checking sign-in…",
       "waiting": "Waiting for sign-in…",
-      "signed_in": "Account connected",
+      "signed_in": "Signed in with Google",
+      "signed_in_cookies": "Cookies connected",
       "sign_out": "Sign out",
-      "window_title": "Sign in to YouTube"
+      "window_title": "Sign in to YouTube",
+      "add_cookies": "Add cookies",
+      "update_cookies": "Update cookies",
+      "update": "Update",
+      "recommendation": {
+        "title": "Sign in with cookies",
+        "signed_out": "YouTube often asks you to sign in or confirm you're not a bot. We recommend adding cookies from a browser where you're already signed in to YouTube: your password never goes into the app.",
+        "window": "You're signed in with Google in the app window. We recommend replacing this sign-in with cookies from your browser: it's safer for your account.",
+        "replace": "Replace with cookies",
+        "why": "Why not sign in with Google?"
+      },
+      "google_dialog": {
+        "title": "Google sign-in: only as a last resort",
+        "open_source": "BlackCat is an open-source app. It isn't registered in the Google Cloud Console and hasn't been verified by Google, so Google treats its sign-in window as unverified.",
+        "risks": "Your account password is typed right into the app window. Google may block such a sign-in, ask for extra verification or flag your account activity as suspicious.",
+        "cookies": "Adding cookies from a browser where you're already signed in to YouTube is safer: the app never sees your password, and YouTube sees a regular sign-in from your browser. It takes a couple of minutes — step-by-step instructions are in the settings.",
+        "sign_in_anyway": "Sign in with Google anyway",
+        "cancel": "Cancel"
+      }
     },
     "window": {
       "minimize": "Minimize",
@@ -35,8 +54,8 @@
         "search": "Search",
         "searching": "Searching…",
         "show_in_folder": "Show in folder",
-        "sign_in_and_retry": "Sign in",
-        "refresh_sign_in_and_retry": "Refresh sign-in",
+        "sign_in_and_retry": "Sign in with Google",
+        "refresh_sign_in_and_retry": "Refresh Google sign-in",
         "add_video": "Add video",
         "settings": "Settings",
         "start_now": "Download now",
@@ -46,8 +65,7 @@
         "retry": "Retry",
         "clear_finished": "Clear",
         "hide": "Hide",
-        "reorder": "Drag to reorder",
-        "import_cookies": "Import cookies.txt"
+        "reorder": "Drag to reorder"
       },
       "video": {
         "views": "{count} views",
@@ -125,24 +143,33 @@
       },
       "cookies": {
         "title": "YouTube cookies",
-        "description": "If YouTube asks you to sign in or confirm you're not a bot and the app sign-in window doesn't work for you, import cookies from a browser where you're signed in to YouTube. Both yt-dlp and the built-in downloader use them.",
-        "steps_title": "How to get cookies.txt",
-        "step_1": "Open a new private (incognito) browser window and sign in to YouTube.",
-        "step_2": "In the same tab, open youtube.com/robots.txt and export the youtube.com cookies in the Netscape format, for example with the “Get cookies.txt LOCALLY” extension for Chrome or “cookies.txt” for Firefox.",
-        "step_3": "Close the private window so YouTube doesn't rotate these cookies, then choose the saved file below.",
+        "recommended_badge": "Recommended",
+        "description": "The recommended way to sign in to YouTube. The app takes cookies from a browser where you're already signed in: your password never goes into BlackCat, and YouTube sees a regular sign-in from your browser. Both yt-dlp and the built-in downloader use them.",
+        "steps_title": "How to get and add cookies",
+        "step_1": "Install a browser extension that exports cookies in the Netscape format: “Get cookies.txt LOCALLY” for Chrome, Edge, Yandex Browser and other Chromium browsers, or “cookies.txt” for Firefox. Allow it to run in private windows.",
+        "step_2": "Open a new private (incognito) window: Ctrl+Shift+N in Chrome, Edge and Yandex Browser or Ctrl+Shift+P in Firefox; on macOS use Cmd instead of Ctrl. Sign in to your account on youtube.com.",
+        "step_3": "In the same window, open a new tab, close the YouTube tab and go to youtube.com/robots.txt — it must be the only tab of the window. This keeps YouTube from rotating the cookies while you save them.",
+        "step_4": "Click the extension icon and export the cookies of the current site (youtube.com) to a .txt file.",
+        "step_5": "Close the private window right away without signing out: signing out or browsing on in that window invalidates the saved cookies.",
+        "step_6": "Click “Choose cookies.txt…” below and pick the saved file.",
+        "refresh_title": "When to update cookies",
+        "refresh": "Cookies don't last forever, and YouTube may reset them sooner. If “confirm you're not a bot” or a message about expired cookies shows up again, repeat the steps and choose the new file: it replaces the old one.",
         "guide": "Detailed guide in the yt-dlp FAQ",
         "guide_failed": "Couldn't open the link {url}",
         "warning": "The cookies file gives access to your account: don't share it with anyone.",
         "not_imported": "No file selected",
         "imported_at": "Imported {date}",
         "imported_badge": "In use",
-        "sign_in_window_active": "You are signed in through the app window now. Importing cookies will replace that sign-in.",
+        "sign_in_window_active": "You're signed in with Google in the app window now. We recommend replacing it with cookies: importing them replaces that sign-in.",
         "choose": "Choose cookies.txt…",
         "importing": "Importing…",
         "remove": "Delete cookies",
         "picker_label": "Text files",
         "picker_confirm": "Import",
-        "success": "Cookies imported: signed in to YouTube."
+        "success": "Cookies imported: signed in to YouTube.",
+        "google_title": "Sign in with a Google account",
+        "google_description": "Only as a last resort. BlackCat is an open-source app that isn't registered in the Google Cloud Console, so Google treats its sign-in window as unverified: the sign-in may be blocked or need extra verification, and your password is typed right into the app window.",
+        "google_sign_in": "Sign in with Google…"
       },
       "subtitle": "Download folder, interface language and YouTube cookies."
     },
@@ -189,6 +216,15 @@
         "disk_write": "Could not write the file being downloaded: {error}",
         "disk_full": "Not enough disk space: the download needs {needed} more, {available} is free. Free up space and try again: the downloaded part is kept.",
         "disk_full_unknown_size": "Not enough disk space for the download. Free up space and try again: the downloaded part is kept.",
+        "unsupported_url": "This is not a YouTube or RuTube video link.",
+        "not_rutube_url": "This is not a RuTube video link.",
+        "rutube_unavailable": "The video is unavailable on RuTube.",
+        "rutube_live": "RuTube live streams can't be downloaded yet.",
+        "rutube_http_status": "RuTube responded with error {status}.",
+        "rutube_no_connection": "No connection to RuTube.",
+        "rutube_interrupted": "RuTube keeps interrupting the video download. Try again.",
+        "stream_protected": "The video is protected from downloading: its parts are encrypted.",
+        "stream_format": "The video is served in a format the app can't download yet.",
         "web_view_runtime": "Downloading requires Microsoft Edge WebView2 Runtime.",
         "js_engine": "The built-in JavaScript engine (WebView2) returned an error: {error}",
         "destination_unavailable": "Could not save the file to “{path}”: {error}",
@@ -269,12 +305,12 @@
       "fallback_dialog": {
         "title": "yt-dlp isn't installed",
         "message_signed_in": "The yt-dlp components couldn't be installed, but you can still try to download videos: the app will use the built-in downloader with your YouTube sign-in.",
-        "message_signed_out": "The yt-dlp components couldn't be installed. The built-in downloader can download videos too, but YouTube usually requires signing in: sign in to your account or import cookies.txt.",
+        "message_signed_out": "The yt-dlp components couldn't be installed. The built-in downloader can download videos too, but YouTube usually requires signing in. We recommend adding cookies from a browser where you're signed in to YouTube; signing in with Google in the app window is a last resort.",
         "reason": "Reason: {error}",
         "retry": "Retry installation",
         "add_video": "Add video",
-        "sign_in": "Sign in",
-        "import_cookies": "Import cookies.txt",
+        "sign_in": "Sign in with Google",
+        "import_cookies": "Add cookies",
         "close": "Close"
       }
     },
@@ -286,8 +322,19 @@
       "donations": "Sponsor"
     },
     "home": {
-      "title": "Home",
-      "subtitle": "Paste a YouTube video link and press Enter, then choose the quality.",
+      "tabs": {
+        "youtube": "YouTube",
+        "rutube": "RuTube"
+      },
+      "youtube": {
+        "title": "YouTube",
+        "subtitle": "Paste a YouTube video link and press Enter, then choose the quality."
+      },
+      "rutube": {
+        "title": "RuTube",
+        "subtitle": "Paste a RuTube video or short link and press Enter, then choose the quality.",
+        "url_hint": "https://rutube.ru/video/..."
+      },
       "added": "“{title}” was added to downloads.",
       "open_downloads": "Open downloads",
       "clear": "Clear",
