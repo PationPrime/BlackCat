@@ -310,6 +310,20 @@ abstract class LocaleKeys {
       'app.errors.video.tiktok_no_connection';
   static const app_errors_video_tiktok_interrupted =
       'app.errors.video.tiktok_interrupted';
+  static const app_errors_video_not_instagram_url =
+      'app.errors.video.not_instagram_url';
+  static const app_errors_video_instagram_unavailable =
+      'app.errors.video.instagram_unavailable';
+  static const app_errors_video_instagram_photo =
+      'app.errors.video.instagram_photo';
+  static const app_errors_video_instagram_rate_limited =
+      'app.errors.video.instagram_rate_limited';
+  static const app_errors_video_instagram_http_status =
+      'app.errors.video.instagram_http_status';
+  static const app_errors_video_instagram_no_connection =
+      'app.errors.video.instagram_no_connection';
+  static const app_errors_video_instagram_interrupted =
+      'app.errors.video.instagram_interrupted';
   static const app_errors_video_stream_protected =
       'app.errors.video.stream_protected';
   static const app_errors_video_stream_format =
@@ -466,6 +480,7 @@ abstract class LocaleKeys {
   static const app_home_tabs_youtube = 'app.home.tabs.youtube';
   static const app_home_tabs_rutube = 'app.home.tabs.rutube';
   static const app_home_tabs_tiktok = 'app.home.tabs.tiktok';
+  static const app_home_tabs_instagram = 'app.home.tabs.instagram';
   static const app_home_tabs = 'app.home.tabs';
   static const app_home_youtube_title = 'app.home.youtube.title';
   static const app_home_youtube_subtitle = 'app.home.youtube.subtitle';
@@ -478,6 +493,10 @@ abstract class LocaleKeys {
   static const app_home_tiktok_subtitle = 'app.home.tiktok.subtitle';
   static const app_home_tiktok_url_hint = 'app.home.tiktok.url_hint';
   static const app_home_tiktok = 'app.home.tiktok';
+  static const app_home_instagram_title = 'app.home.instagram.title';
+  static const app_home_instagram_subtitle = 'app.home.instagram.subtitle';
+  static const app_home_instagram_url_hint = 'app.home.instagram.url_hint';
+  static const app_home_instagram = 'app.home.instagram';
   static const app_home_added = 'app.home.added';
   static const app_home_open_downloads = 'app.home.open_downloads';
   static const app_home_clear = 'app.home.clear';

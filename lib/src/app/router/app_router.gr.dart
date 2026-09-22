@@ -91,6 +91,22 @@ class HomeStackRoute extends PageRouteInfo<void> {
 }
 
 /// generated route for
+/// [InstagramDownloadScreen]
+class InstagramDownloadRoute extends PageRouteInfo<void> {
+  const InstagramDownloadRoute({List<PageRouteInfo>? children})
+    : super(InstagramDownloadRoute.name, initialChildren: children);
+
+  static const String name = 'InstagramDownloadRoute';
+
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      return WrappedRoute(child: const InstagramDownloadScreen());
+    },
+  );
+}
+
+/// generated route for
 /// [MainWrapperRouterPage]
 class MainWrapperRouter extends PageRouteInfo<void> {
   const MainWrapperRouter({List<PageRouteInfo>? children})

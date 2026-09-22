@@ -41,12 +41,16 @@ class AppRouter extends RootStackRouter {
                       initial: true,
                     ),
                     AutoRoute(
-                      path: RoutePaths.rutube,
-                      page: RuTubeDownloadRoute.page,
-                    ),
-                    AutoRoute(
                       path: RoutePaths.tiktok,
                       page: TikTokDownloadRoute.page,
+                    ),
+                    AutoRoute(
+                      path: RoutePaths.instagram,
+                      page: InstagramDownloadRoute.page,
+                    ),
+                    AutoRoute(
+                      path: RoutePaths.rutube,
+                      page: RuTubeDownloadRoute.page,
                     ),
                   ],
                 ),
