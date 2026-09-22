@@ -122,7 +122,7 @@ class _HomeStackNavigationBar extends StatelessWidget {
   });
 
   Widget _header(BuildContext context) {
-    const logo = AppCatLogo();
+    const logo = AppIconLogo();
 
     return Padding(
       /// The app title bar lies over the top of the window

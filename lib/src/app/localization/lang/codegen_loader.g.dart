@@ -169,6 +169,11 @@ class CodegenLoader extends AssetLoader {
           "title": "Language",
           "description": "App interface language.",
         },
+        "about": {
+          "title": "About",
+          "version": "Version {version}",
+          "version_with_build": "Version {version} (build {build})",
+        },
         "cookies": {
           "title": "YouTube cookies",
           "recommended_badge": "Recommended",
@@ -383,6 +388,8 @@ class CodegenLoader extends AssetLoader {
               "The download folder is not found: {path}. Check that the drive is connected or choose another folder in the settings.",
           "storage": "Could not update the video list: {error}",
           "playback": "Could not play the video: {error}",
+          "delete":
+              "Couldn't delete the video: {error}. If the file is open in another app, close it and try again.",
         },
       },
       "dependencies": {
@@ -495,6 +502,14 @@ class CodegenLoader extends AssetLoader {
         "open_folder": "Open folder",
         "refresh": "Refresh",
         "show_in_folder": "Show in folder",
+        "delete": "Delete",
+        "delete_dialog": {
+          "title": "Delete the video?",
+          "message":
+              "“{title}” will be deleted from the device along with its entry in Downloads. This can't be undone.",
+          "confirm": "Delete",
+          "cancel": "Cancel",
+        },
         "play": "Watch",
         "videos_title": "Videos",
         "empty":
@@ -681,6 +696,11 @@ class CodegenLoader extends AssetLoader {
         "language": {
           "title": "Язык",
           "description": "Язык интерфейса приложения.",
+        },
+        "about": {
+          "title": "О приложении",
+          "version": "Версия {version}",
+          "version_with_build": "Версия {version} (сборка {build})",
         },
         "cookies": {
           "title": "Cookies YouTube",
@@ -896,6 +916,8 @@ class CodegenLoader extends AssetLoader {
               "Папка загрузок не найдена: {path}. Проверьте, подключён ли диск, или выберите другую папку в настройках.",
           "storage": "Не удалось обновить список видео: {error}",
           "playback": "Не удалось воспроизвести видео: {error}",
+          "delete":
+              "Не удалось удалить видео: {error}. Если файл открыт в другой программе, закройте её и попробуйте ещё раз.",
         },
       },
       "dependencies": {
@@ -1008,6 +1030,14 @@ class CodegenLoader extends AssetLoader {
         "open_folder": "Открыть папку",
         "refresh": "Обновить",
         "show_in_folder": "Показать в папке",
+        "delete": "Удалить",
+        "delete_dialog": {
+          "title": "Удалить видео?",
+          "message":
+              "«{title}» будет удалено с устройства вместе с записью в загрузках. Это действие нельзя отменить.",
+          "confirm": "Удалить",
+          "cancel": "Отмена",
+        },
         "play": "Смотреть",
         "videos_title": "Видео",
         "empty":

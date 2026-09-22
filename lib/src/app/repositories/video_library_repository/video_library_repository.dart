@@ -259,6 +259,49 @@ final class VideoLibraryRepository implements VideoLibraryRepositoryInterface {
   }
 
   @override
+  Future<OperationResult<List<String>>> deleteVideo(
+    LibraryVideoModel video,
+  ) async {
+    try {
+      await _localVideoLibraryDataSource.deleteFile(video.path);
+    } catch (error, stackTrace) {
+      return fail(
+        errorHandler.handleError(
+          PlayerException(
+            const PlayerErrorCodes().delete,
+            path: video.path,
+            cause: error,
+          ),
+          stackTrace: stackTrace,
+        ),
+      );
+    }
+
+    try {
+      await _libraryVideoTableProvider.deleteVideos([video.id]);
+
+      if (video.thumbnailPath case final thumbnailPath?) {
+        try {
+          await _localVideoLibraryDataSource.deleteFile(thumbnailPath);
+        } on FileSystemException {
+          /// The thumbnail is still shown: it goes on the next reading
+        }
+      }
+
+      final pathKey = _pathKey(video.path);
+
+      return ok([
+        for (final task in await _downloadTaskTableProvider.getTasks())
+          if (task.filePath case final filePath?
+              when _pathKey(filePath) == pathKey)
+            task.id,
+      ]);
+    } catch (error, stackTrace) {
+      return fail(_storageFailure(error, stackTrace));
+    }
+  }
+
+  @override
   Stream<void> watchFolder(String folder) =>
       _localVideoLibraryDataSource.watchFolder(folder);
 }

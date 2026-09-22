@@ -23,6 +23,13 @@ abstract interface class VideoLibraryRepositoryInterface
   /// Saves where the user stopped watching and the duration once known
   Future<OperationResult<void>> savePosition(LibraryVideoModel video);
 
+  /// Deletes the video file from the device for good, then the video
+  /// from the library with its thumbnail. Returns the ids of the downloads
+  /// of the file: the download list forgets them.
+  ///
+  /// A file the system keeps fails and leaves everything as it is
+  Future<OperationResult<List<String>>> deleteVideo(LibraryVideoModel video);
+
   /// Emits when a video file of [folder] appears, changes or disappears
   Stream<void> watchFolder(String folder);
 }

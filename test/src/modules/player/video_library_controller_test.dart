@@ -248,4 +248,45 @@ void main() {
       await harness.close();
     },
   );
+
+  test(
+    'удаление убирает видео из списка и отдаёт загрузки его файла',
+    () async {
+      final harness = _Harness();
+
+      harness.repository.downloadsOfVideo['a'] = ['task-a'];
+
+      await harness.start();
+
+      final taskIds = await harness.controller.deleteVideo('a');
+
+      expect(taskIds, ['task-a']);
+      expect(harness.repository.deletedVideos, ['a']);
+      expect(harness.ids, ['b']);
+      expect(harness.state.failure, isNull);
+
+      /// The folder is read again without the deleted file
+      await harness.controller.refresh();
+
+      expect(harness.ids, ['b']);
+
+      await harness.close();
+    },
+  );
+
+  test('занятый файл: видео остаётся, ошибка показывается', () async {
+    final harness = _Harness();
+
+    harness.repository.lockedVideos.add('a');
+
+    await harness.start();
+
+    final taskIds = await harness.controller.deleteVideo('a');
+
+    expect(taskIds, isEmpty);
+    expect(harness.ids, ['a', 'b']);
+    expect(harness.state.failure?.code, const PlayerErrorCodes().delete);
+
+    await harness.close();
+  });
 }

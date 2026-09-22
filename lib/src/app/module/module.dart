@@ -208,6 +208,7 @@ final class AppModule {
           localSettingsDataSource: LocalSettingsDataSourceImpl(),
           fileSelectorService: fileSelectorService,
           fileSystemService: _fileSystemService,
+          appInfoService: const AppInfoServiceImpl(),
         );
 
         _downloadQueueRepository = DownloadQueueRepository(

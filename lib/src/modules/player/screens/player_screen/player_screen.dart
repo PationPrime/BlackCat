@@ -11,6 +11,7 @@ import 'package:black_cat/src/app/repositories/repositories.dart';
 import 'package:black_cat/src/app/services/services.dart';
 import 'package:black_cat/src/app/shared_controllers/shared_controllers.dart';
 import 'package:black_cat/src/app/widgets/widgets.dart';
+import 'package:black_cat/src/modules/downloads/controllers/controllers.dart';
 
 import '../../components/components.dart';
 import '../../controllers/controllers.dart';
@@ -112,7 +113,34 @@ class PlayerScreen extends StatelessWidget implements AutoRouteWrapper {
         onPlayPressed: () => VideoPlayerDialog.show(context, video: video),
         onShowInFolderPressed: () =>
             context.read<FileSystemService>().revealInExplorer(video.path),
+        onDeletePressed: () => _deleteVideo(context, video),
       );
+
+  /// The file is deleted from the device for good, so only after
+  /// confirmation. The download list forgets the video too
+  Future<void> _deleteVideo(
+    BuildContext context,
+    LibraryVideoModel video,
+  ) async {
+    final videoLibraryController = context.read<VideoLibraryController>();
+    final downloadQueueController = context.read<DownloadQueueController>();
+    final confirmed = await AppConfirmationDialog.show(
+      context,
+      title: LocaleKeys.app_player_delete_dialog_title.tr(),
+      message: LocaleKeys.app_player_delete_dialog_message.tr(
+        namedArgs: {'title': video.title},
+      ),
+      confirmTitle: LocaleKeys.app_player_delete_dialog_confirm.tr(),
+      cancelTitle: LocaleKeys.app_player_delete_dialog_cancel.tr(),
+      destructive: true,
+    );
+
+    if (!confirmed) return;
+
+    for (final taskId in await videoLibraryController.deleteVideo(video.id)) {
+      await downloadQueueController.removeTask(taskId);
+    }
+  }
 
   @override
   Widget build(

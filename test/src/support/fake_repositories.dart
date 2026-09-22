@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:black_cat/src/app/errors/errors.dart';
 import 'package:black_cat/src/app/failure/failure.dart';
@@ -263,6 +264,7 @@ class FakeSettingsRepository implements SettingsRepositoryInterface {
   OperationResult<DownloadDirectoryModel> resetResult;
   OperationResult<AppLanguageModel> languageResult;
   OperationResult<AppLanguageModel>? setLanguageResult;
+  OperationResult<AppVersionModel> appVersionResult;
 
   final pickInitialDirectories = <String?>[];
   final savedLanguages = <AppLanguageModel>[];
@@ -285,6 +287,10 @@ class FakeSettingsRepository implements SettingsRepositoryInterface {
     ),
     this.languageResult = (failure: null, data: AppLanguageModel.russian),
     this.setLanguageResult,
+    this.appVersionResult = (
+      failure: null,
+      data: const AppVersionModel(version: '0.2.0', buildNumber: '1'),
+    ),
   });
 
   @override
@@ -319,6 +325,10 @@ class FakeSettingsRepository implements SettingsRepositoryInterface {
 
     return setLanguageResult ?? (failure: null, data: language);
   }
+
+  @override
+  Future<OperationResult<AppVersionModel>> getAppVersion() async =>
+      appVersionResult;
 }
 
 /// Stats of the latest release v0.1.0: a star, three downloads for macOS
@@ -548,6 +558,44 @@ class FakeVideoLibraryRepository implements VideoLibraryRepositoryInterface {
     );
 
     return ok(null);
+  }
+
+  /// Deleted videos by id
+  final deletedVideos = <String>[];
+
+  /// Download ids of a video file by the video id
+  final downloadsOfVideo = <String, List<String>>{};
+
+  /// Files the system keeps: their deletion fails
+  final lockedVideos = <String>{};
+
+  @override
+  Future<OperationResult<List<String>>> deleteVideo(
+    LibraryVideoModel video,
+  ) async {
+    if (lockedVideos.contains(video.id)) {
+      return fail(
+        errorHandler.handleError(
+          PlayerException(
+            const PlayerErrorCodes().delete,
+            path: video.path,
+            cause: const FileSystemException(
+              'Cannot delete file',
+              'a.mp4',
+              OSError('The file is used by another process', 32),
+            ),
+          ),
+        ),
+      );
+    }
+
+    deletedVideos.add(video.id);
+
+    for (final videos in folders.values) {
+      videos.removeWhere((stored) => stored.id == video.id);
+    }
+
+    return ok(downloadsOfVideo[video.id] ?? const []);
   }
 
   void _replace(

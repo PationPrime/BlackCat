@@ -15,7 +15,7 @@ import 'package:black_cat/src/modules/downloads/controllers/controllers.dart';
 import '../../components/components.dart';
 import '../../controllers/controllers.dart';
 
-/// Download folder, interface language and YouTube cookies
+/// Download folder, interface language, YouTube cookies and the app version
 @RoutePage()
 class SettingsScreen extends StatelessWidget implements AutoRouteWrapper {
   const SettingsScreen({super.key});
@@ -234,6 +234,8 @@ class _SettingsViewState extends State<_SettingsView> {
                             );
                           },
                         ),
+                        const SizedBox(height: 16),
+                        AboutCard(appVersion: settingsState.appVersion),
                       ],
                     ),
                   ),

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:easy_localization/easy_localization.dart';
 
 import '../../failure/failure.dart';
@@ -17,11 +19,16 @@ final class PlayerErrorCodes extends ErrorCodes {
   /// The player could not open or play the video
   final String playback;
 
+  /// The video file could not be deleted: another app has it open or the
+  /// user may not change the folder
+  final String delete;
+
   const PlayerErrorCodes({
     super.otherError,
     this.folderNotFound = 'folder_not_found',
     this.storage = 'storage',
     this.playback = 'playback',
+    this.delete = 'delete',
   });
 }
 

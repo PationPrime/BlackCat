@@ -111,15 +111,6 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
   /// Player menus: the playback speed
   final Color playerMenu;
 
-  /// App logo: the cat is black in both themes
-  final Color logo;
-
-  /// Thin outline that keeps the black cat apart from a dark background
-  final Color logoOutline;
-
-  /// Lines inside the logo: the ears, the tail and the paws
-  final Color logoDetail;
-
   final Color transparent;
 
   const AppThemeColors({
@@ -167,9 +158,6 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
     required this.playerTrack,
     required this.playerHover,
     required this.playerMenu,
-    required this.logo,
-    required this.logoOutline,
-    required this.logoDetail,
     required this.transparent,
   });
 
@@ -219,9 +207,6 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
     Color? playerTrack,
     Color? playerHover,
     Color? playerMenu,
-    Color? logo,
-    Color? logoOutline,
-    Color? logoDetail,
     Color? transparent,
   }) => AppThemeColors(
     background: background ?? this.background,
@@ -268,9 +253,6 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
     playerTrack: playerTrack ?? this.playerTrack,
     playerHover: playerHover ?? this.playerHover,
     playerMenu: playerMenu ?? this.playerMenu,
-    logo: logo ?? this.logo,
-    logoOutline: logoOutline ?? this.logoOutline,
-    logoDetail: logoDetail ?? this.logoDetail,
     transparent: transparent ?? this.transparent,
   );
 
@@ -352,16 +334,13 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
       playerTrack: Color.lerp(playerTrack, other.playerTrack, t)!,
       playerHover: Color.lerp(playerHover, other.playerHover, t)!,
       playerMenu: Color.lerp(playerMenu, other.playerMenu, t)!,
-      logo: Color.lerp(logo, other.logo, t)!,
-      logoOutline: Color.lerp(logoOutline, other.logoOutline, t)!,
-      logoDetail: Color.lerp(logoDetail, other.logoDetail, t)!,
       transparent: Color.lerp(transparent, other.transparent, t)!,
     );
   }
 
   static const light = AppThemeColors(
     background: AppColors.stoneFAFAF9,
-    backgroundGlow: AppColors.green80EF80Alpha12,
+    backgroundGlow: AppColors.violetA78BFAAlpha12,
     surface: AppColors.white,
     card: AppColors.white,
     dialog: AppColors.white,
@@ -376,10 +355,10 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
     textHint: AppColors.stoneA8A29E,
     iconPrimary: AppColors.stone44403C,
     iconDisabled: AppColors.stoneA8A29E,
-    accent: AppColors.green80EF80,
-    accentHover: AppColors.green66D966,
-    accentSubtle: AppColors.green80EF80Alpha10,
-    textSelection: AppColors.green80EF80Alpha35,
+    accent: AppColors.violetA78BFA,
+    accentHover: AppColors.violet8B5CF6,
+    accentSubtle: AppColors.violetA78BFAAlpha10,
+    textSelection: AppColors.violetA78BFAAlpha35,
     onAccent: AppColors.stone0C0A09,
     buttonNeutral: AppColors.stone1C1917,
     buttonNeutralHover: AppColors.stone292524,
@@ -404,15 +383,12 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
     playerTrack: AppColors.white20,
     playerHover: AppColors.white10,
     playerMenu: AppColors.gray282828Alpha90,
-    logo: AppColors.stone0C0A09,
-    logoOutline: AppColors.transparent,
-    logoDetail: AppColors.stone57534E,
     transparent: AppColors.transparent,
   );
 
   static const dark = AppThemeColors(
     background: AppColors.stone0C0A09,
-    backgroundGlow: AppColors.green80EF80Alpha16,
+    backgroundGlow: AppColors.violetA78BFAAlpha16,
     surface: AppColors.stone1C1917,
     card: AppColors.stone1C1917Alpha70,
     dialog: AppColors.stone1C1917,
@@ -427,10 +403,10 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
     textHint: AppColors.stone78716C,
     iconPrimary: AppColors.stoneD6D3D1,
     iconDisabled: AppColors.stone78716C,
-    accent: AppColors.green80EF80,
-    accentHover: AppColors.green66D966,
-    accentSubtle: AppColors.green80EF80Alpha10,
-    textSelection: AppColors.green80EF80Alpha35,
+    accent: AppColors.violetA78BFA,
+    accentHover: AppColors.violet8B5CF6,
+    accentSubtle: AppColors.violetA78BFAAlpha10,
+    textSelection: AppColors.violetA78BFAAlpha35,
     onAccent: AppColors.stone0C0A09,
     buttonNeutral: AppColors.stoneF5F5F4,
     buttonNeutralHover: AppColors.white,
@@ -455,9 +431,6 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
     playerTrack: AppColors.white20,
     playerHover: AppColors.white10,
     playerMenu: AppColors.gray282828Alpha90,
-    logo: AppColors.stone0C0A09,
-    logoOutline: AppColors.white,
-    logoDetail: AppColors.white50,
     transparent: AppColors.transparent,
   );
 }

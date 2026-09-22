@@ -1,3 +1,4 @@
+export 'app_info/app_info_service.dart';
 export 'app_window/app_window_service.dart';
 export 'challenge_solver/challenge_solver_service.dart';
 export 'file_selector/file_selector_service.dart';

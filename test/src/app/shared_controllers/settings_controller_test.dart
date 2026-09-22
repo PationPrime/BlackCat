@@ -131,6 +131,41 @@ void main() {
     },
   );
 
+  test('loadSettings читает версию приложения', () async {
+    final controller = SettingsController(
+      settingsRepository: FakeSettingsRepository(),
+    );
+
+    expect(controller.state.appVersion, isNull);
+
+    await controller.loadSettings();
+
+    expect(
+      controller.state.appVersion,
+      const AppVersionModel(version: '0.2.0', buildNumber: '1'),
+    );
+  });
+
+  test(
+    'версия не прочиталась — настройки загружаются без ошибки на странице',
+    () async {
+      final controller = SettingsController(
+        settingsRepository: FakeSettingsRepository(
+          appVersionResult: (
+            failure: const SettingsFailure(message: 'no version'),
+            data: null,
+          ),
+        ),
+      );
+
+      await controller.loadSettings();
+
+      expect(controller.state.appVersion, isNull);
+      expect(controller.state.failure, isNull);
+      expect(controller.state.downloadDirectory?.isDefault, isTrue);
+    },
+  );
+
   test('AppLanguageModel.fromCode: неизвестный или пустой код — русский', () {
     expect(AppLanguageModel.fromCode('en'), AppLanguageModel.english);
     expect(AppLanguageModel.fromCode('de'), AppLanguageModel.russian);

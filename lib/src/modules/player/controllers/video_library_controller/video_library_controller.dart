@@ -289,6 +289,43 @@ final class VideoLibraryController extends Cubit<VideoLibraryState> {
     }
   }
 
+  /// Deletes the video file from the device and the video from the library.
+  /// Returns the ids of the downloads of the file, for the download list to
+  /// forget them; empty when nothing was deleted
+  Future<List<String>> deleteVideo(String videoId) async {
+    final video = state.videos
+        .where((video) => video.id == videoId)
+        .firstOrNull;
+
+    if (video == null) return const [];
+
+    final response = await _videoLibraryRepository.deleteVideo(video);
+
+    if (response.isFailed) {
+      final failure = response.failure ?? const OtherFailure();
+
+      _appLogger.logFailure(failure, 'Failed to delete the video');
+      _safeEmit(state.copyWith(failure: failure));
+
+      return const [];
+    }
+
+    /// A reading that started before the file was deleted still lists it
+    _syncGeneration++;
+
+    _safeEmit(
+      state.copyWith(
+        videos: [
+          for (final video in state.videos)
+            if (video.id != videoId) video,
+        ],
+        clearFailure: true,
+      ),
+    );
+
+    return response.requireData;
+  }
+
   void showFailure(Failure failure) =>
       _safeEmit(state.copyWith(failure: failure));
 

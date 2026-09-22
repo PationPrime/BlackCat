@@ -1,6 +1,7 @@
 export 'account_session_model/account_session_model.dart';
 export 'app_language_model/app_language_model.dart';
 export 'app_tab_model/app_tab_model.dart';
+export 'app_version_model/app_version_model.dart';
 export 'app_window_model/app_window_frame_model.dart';
 export 'browser_cookie_model/browser_cookie_model.dart';
 export 'dependency_model/dependency_model.dart';

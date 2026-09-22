@@ -16,12 +16,14 @@ class LibraryVideoCard extends StatefulWidget {
   final LibraryVideoModel video;
   final VoidCallback? onPlayPressed;
   final VoidCallback? onShowInFolderPressed;
+  final VoidCallback? onDeletePressed;
 
   const LibraryVideoCard({
     super.key,
     required this.video,
     this.onPlayPressed,
     this.onShowInFolderPressed,
+    this.onDeletePressed,
   });
 
   @override
@@ -102,6 +104,11 @@ class _LibraryVideoCardState extends State<LibraryVideoCard> {
               icon: Icons.folder_open_rounded,
               tooltip: LocaleKeys.app_player_show_in_folder.tr(),
               onPressed: widget.onShowInFolderPressed,
+            ),
+            AppIconButton(
+              icon: Icons.delete_outline_rounded,
+              tooltip: LocaleKeys.app_player_delete.tr(),
+              onPressed: widget.onDeletePressed,
             ),
           ],
         ),

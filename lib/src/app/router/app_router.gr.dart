@@ -37,7 +37,7 @@ class DonationsRoute extends PageRouteInfo<void> {
   static PageInfo page = PageInfo(
     name,
     builder: (data) {
-      return const DonationsScreen();
+      return WrappedRoute(child: const DonationsScreen());
     },
   );
 }
