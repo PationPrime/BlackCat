@@ -299,6 +299,17 @@ abstract class LocaleKeys {
       'app.errors.video.rutube_no_connection';
   static const app_errors_video_rutube_interrupted =
       'app.errors.video.rutube_interrupted';
+  static const app_errors_video_not_tiktok_url =
+      'app.errors.video.not_tiktok_url';
+  static const app_errors_video_tiktok_unavailable =
+      'app.errors.video.tiktok_unavailable';
+  static const app_errors_video_tiktok_photo = 'app.errors.video.tiktok_photo';
+  static const app_errors_video_tiktok_http_status =
+      'app.errors.video.tiktok_http_status';
+  static const app_errors_video_tiktok_no_connection =
+      'app.errors.video.tiktok_no_connection';
+  static const app_errors_video_tiktok_interrupted =
+      'app.errors.video.tiktok_interrupted';
   static const app_errors_video_stream_protected =
       'app.errors.video.stream_protected';
   static const app_errors_video_stream_format =
@@ -454,6 +465,7 @@ abstract class LocaleKeys {
   static const app_navigation = 'app.navigation';
   static const app_home_tabs_youtube = 'app.home.tabs.youtube';
   static const app_home_tabs_rutube = 'app.home.tabs.rutube';
+  static const app_home_tabs_tiktok = 'app.home.tabs.tiktok';
   static const app_home_tabs = 'app.home.tabs';
   static const app_home_youtube_title = 'app.home.youtube.title';
   static const app_home_youtube_subtitle = 'app.home.youtube.subtitle';
@@ -462,6 +474,10 @@ abstract class LocaleKeys {
   static const app_home_rutube_subtitle = 'app.home.rutube.subtitle';
   static const app_home_rutube_url_hint = 'app.home.rutube.url_hint';
   static const app_home_rutube = 'app.home.rutube';
+  static const app_home_tiktok_title = 'app.home.tiktok.title';
+  static const app_home_tiktok_subtitle = 'app.home.tiktok.subtitle';
+  static const app_home_tiktok_url_hint = 'app.home.tiktok.url_hint';
+  static const app_home_tiktok = 'app.home.tiktok';
   static const app_home_added = 'app.home.added';
   static const app_home_open_downloads = 'app.home.open_downloads';
   static const app_home_clear = 'app.home.clear';

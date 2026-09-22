@@ -42,6 +42,17 @@ final class VideoErrorCodes extends ErrorCodes {
   final String rutubeNoConnection;
   final String rutubeInterrupted;
 
+  final String notTikTokUrl;
+
+  /// TikTok does not show the video: removed, hidden, blocked in the country
+  final String tiktokUnavailable;
+
+  /// A TikTok photo post: it has no video
+  final String tiktokPhoto;
+  final String tiktokHttpStatus;
+  final String tiktokNoConnection;
+  final String tiktokInterrupted;
+
   /// The video segments are encrypted
   final String streamProtected;
 
@@ -82,6 +93,12 @@ final class VideoErrorCodes extends ErrorCodes {
     this.rutubeHttpStatus = 'rutube_http_status',
     this.rutubeNoConnection = 'rutube_no_connection',
     this.rutubeInterrupted = 'rutube_interrupted',
+    this.notTikTokUrl = 'not_tiktok_url',
+    this.tiktokUnavailable = 'tiktok_unavailable',
+    this.tiktokPhoto = 'tiktok_photo',
+    this.tiktokHttpStatus = 'tiktok_http_status',
+    this.tiktokNoConnection = 'tiktok_no_connection',
+    this.tiktokInterrupted = 'tiktok_interrupted',
     this.streamProtected = 'stream_protected',
     this.streamFormat = 'stream_format',
     this.rateLimited = '429',

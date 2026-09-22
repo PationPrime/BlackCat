@@ -134,6 +134,12 @@ final class AppModule {
             mediaMuxerService: mediaMuxerService,
             fileSystemService: _fileSystemService,
           ),
+          VideoSourceModel.tiktok: TikTokVideoRepository(
+            remoteTikTokDataSource: RemoteTikTokDataSourceImpl(
+              apiProvider: _apiProvider,
+            ),
+            fileSystemService: _fileSystemService,
+          ),
         });
 
         final ytDlpService = YtDlpServiceImpl(
@@ -152,6 +158,10 @@ final class AppModule {
           VideoSourceModel.rutube: RuTubeYtDlpVideoRepository(
             ytDlpService: ytDlpService,
             mediaMuxerService: mediaMuxerService,
+            fileSystemService: _fileSystemService,
+          ),
+          VideoSourceModel.tiktok: TikTokYtDlpVideoRepository(
+            ytDlpService: ytDlpService,
             fileSystemService: _fileSystemService,
           ),
         });

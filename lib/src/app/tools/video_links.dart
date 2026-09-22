@@ -1,5 +1,6 @@
 import '../models/models.dart';
 import 'rutube_url_parser.dart';
+import 'tiktok_url_parser.dart';
 import 'youtube_url_parser.dart';
 
 abstract final class VideoLinks {
@@ -7,6 +8,7 @@ abstract final class VideoLinks {
   static VideoSourceModel? sourceOf(String? url) {
     if (YouTubeUrlParser.parse(url) != null) return VideoSourceModel.youtube;
     if (RuTubeUrlParser.parse(url) != null) return VideoSourceModel.rutube;
+    if (TikTokUrlParser.parse(url) != null) return VideoSourceModel.tiktok;
 
     return null;
   }

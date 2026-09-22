@@ -104,6 +104,7 @@ class AddVideoController extends Cubit<AddVideoState> {
             VideoException(switch (_source) {
               VideoSourceModel.youtube => codes.notYouTubeUrl,
               VideoSourceModel.rutube => codes.notRuTubeUrl,
+              VideoSourceModel.tiktok => codes.notTikTokUrl,
             }),
           ),
         ),

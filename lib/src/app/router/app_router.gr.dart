@@ -155,6 +155,22 @@ class SettingsRoute extends PageRouteInfo<void> {
 }
 
 /// generated route for
+/// [TikTokDownloadScreen]
+class TikTokDownloadRoute extends PageRouteInfo<void> {
+  const TikTokDownloadRoute({List<PageRouteInfo>? children})
+    : super(TikTokDownloadRoute.name, initialChildren: children);
+
+  static const String name = 'TikTokDownloadRoute';
+
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      return WrappedRoute(child: const TikTokDownloadScreen());
+    },
+  );
+}
+
+/// generated route for
 /// [YouTubeDownloadScreen]
 class YouTubeDownloadRoute extends PageRouteInfo<void> {
   const YouTubeDownloadRoute({List<PageRouteInfo>? children})

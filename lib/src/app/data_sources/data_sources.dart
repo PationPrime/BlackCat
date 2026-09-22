@@ -6,6 +6,7 @@ export 'media_stream/remote_media_stream_data_source.dart';
 export 'rutube/remote_rutube_data_source.dart';
 export 'settings/local_settings_data_source.dart';
 export 'thumbnail/remote_thumbnail_data_source.dart';
+export 'tiktok/remote_tiktok_data_source.dart';
 export 'video_library/local_video_library_data_source.dart';
 export 'youtube/local_player_data_source.dart';
 export 'youtube/remote_youtube_data_source.dart';

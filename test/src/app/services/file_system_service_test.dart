@@ -24,6 +24,16 @@ void main() {
     },
   );
 
+  test('длинное название обрезается, не разрезая эмодзи пополам', () {
+    final name = FileSystemServiceImpl.buildFilename(
+      '${'а' * 149}🌇 #BMW',
+      r'C:\tmp\tiktok-593369.mp4',
+    );
+
+    expect(name, '${'а' * 149}🌇.mp4');
+    expect(utf8.decode(utf8.encode(name)), name);
+  });
+
   test('uniquePath нумерует уже существующие файлы', () {
     final taken = {r'C:\Downloads\clip.mp4', r'C:\Downloads\clip (2).mp4'};
 
