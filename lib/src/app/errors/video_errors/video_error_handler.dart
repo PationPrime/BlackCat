@@ -55,6 +55,13 @@ class VideoErrorHandler extends ErrorHandler<VideoErrorCodes> {
       'rutube_no_connection' =>
         LocaleKeys.app_errors_video_rutube_no_connection,
       'rutube_interrupted' => LocaleKeys.app_errors_video_rutube_interrupted,
+      'not_tiktok_url' => LocaleKeys.app_errors_video_not_tiktok_url,
+      'tiktok_unavailable' => LocaleKeys.app_errors_video_tiktok_unavailable,
+      'tiktok_photo' => LocaleKeys.app_errors_video_tiktok_photo,
+      'tiktok_http_status' => LocaleKeys.app_errors_video_tiktok_http_status,
+      'tiktok_no_connection' =>
+        LocaleKeys.app_errors_video_tiktok_no_connection,
+      'tiktok_interrupted' => LocaleKeys.app_errors_video_tiktok_interrupted,
       'stream_protected' => LocaleKeys.app_errors_video_stream_protected,
       'stream_format' => LocaleKeys.app_errors_video_stream_format,
       '403' => LocaleKeys.app_errors_network_forbidden,

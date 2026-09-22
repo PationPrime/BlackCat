@@ -33,6 +33,18 @@ final class RuTubeApiClient extends ApiClient {
       );
 }
 
+/// TikTok video pages and their files. TikTok gives the page data and the
+/// file links to a browser; the links are checked against the page cookies
+final class TikTokApiClient extends ApiClient {
+  TikTokApiClient({super.interceptors})
+    : super(
+        headers: const {
+          'User-Agent': YouTubeConstants.browserUserAgent,
+          'Accept-Language': 'en-US,en;q=0.9',
+        },
+      );
+}
+
 /// yt-dlp and Deno releases on GitHub
 final class GitHubApiClient extends ApiClient {
   static const _userAgent = 'YT-Download';
@@ -45,6 +57,7 @@ base class ApiProvider {
   late final YouTubeApiClient youtube;
   late final MediaApiClient media;
   late final RuTubeApiClient rutube;
+  late final TikTokApiClient tiktok;
   late final GitHubApiClient github;
 
   ApiProvider({List<Interceptor> interceptors = const []}) {
@@ -56,6 +69,7 @@ base class ApiProvider {
       youtube = YouTubeApiClient(interceptors: interceptors);
       media = MediaApiClient(interceptors: interceptors);
       rutube = RuTubeApiClient(interceptors: interceptors);
+      tiktok = TikTokApiClient(interceptors: interceptors);
       github = GitHubApiClient(interceptors: interceptors);
     } catch (error, stackTrace) {
       Error.throwWithStackTrace(

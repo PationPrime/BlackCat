@@ -216,13 +216,19 @@
         "disk_write": "Не удалось записать скачиваемый файл: {error}",
         "disk_full": "Недостаточно места на диске: загрузке нужно ещё {needed}, свободно {available}. Освободите место и повторите загрузку: скачанное сохранится.",
         "disk_full_unknown_size": "Недостаточно места на диске для загрузки. Освободите место и повторите загрузку: скачанное сохранится.",
-        "unsupported_url": "Это не ссылка на видео YouTube или RuTube.",
+        "unsupported_url": "Это не ссылка на видео YouTube, RuTube или TikTok.",
         "not_rutube_url": "Это не ссылка на видео RuTube.",
         "rutube_unavailable": "Видео недоступно на RuTube.",
         "rutube_live": "Трансляции RuTube пока не скачиваются.",
         "rutube_http_status": "RuTube ответил ошибкой {status}.",
         "rutube_no_connection": "Нет соединения с RuTube.",
         "rutube_interrupted": "RuTube обрывает загрузку видео. Попробуйте ещё раз.",
+        "not_tiktok_url": "Это не ссылка на видео TikTok.",
+        "tiktok_unavailable": "Видео TikTok недоступно: оно удалено, скрыто автором или не показывается в вашей стране.",
+        "tiktok_photo": "Это фото-пост TikTok: в нём нет видео.",
+        "tiktok_http_status": "TikTok ответил ошибкой {status}.",
+        "tiktok_no_connection": "Нет соединения с TikTok.",
+        "tiktok_interrupted": "TikTok обрывает загрузку видео. Попробуйте ещё раз.",
         "stream_protected": "Видео защищено от скачивания: его части зашифрованы.",
         "stream_format": "Видео отдаётся в формате, который приложение пока не умеет скачивать.",
         "web_view_runtime": "Для скачивания нужен Microsoft Edge WebView2 Runtime.",
@@ -324,7 +330,8 @@
     "home": {
       "tabs": {
         "youtube": "YouTube",
-        "rutube": "RuTube"
+        "rutube": "RuTube",
+        "tiktok": "TikTok"
       },
       "youtube": {
         "title": "YouTube",
@@ -334,6 +341,11 @@
         "title": "RuTube",
         "subtitle": "Вставьте ссылку на видео или шортс RuTube и нажмите Enter, затем выберите качество.",
         "url_hint": "https://rutube.ru/video/..."
+      },
+      "tiktok": {
+        "title": "TikTok",
+        "subtitle": "Вставьте ссылку на видео TikTok и нажмите Enter, затем выберите качество.",
+        "url_hint": "https://www.tiktok.com/@user/video/..."
       },
       "added": "«{title}» добавлено в загрузки.",
       "open_downloads": "Открыть загрузки",

@@ -13,6 +13,7 @@ class HomeScreen extends StatelessWidget {
   static const _tabTitles = [
     LocaleKeys.app_home_tabs_youtube,
     LocaleKeys.app_home_tabs_rutube,
+    LocaleKeys.app_home_tabs_tiktok,
   ];
 
   const HomeScreen({super.key});

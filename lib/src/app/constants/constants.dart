@@ -4,4 +4,5 @@ export 'download_constants.dart';
 export 'player_constants.dart';
 export 'rutube_constants.dart';
 export 'storage_constants.dart';
+export 'tiktok_constants.dart';
 export 'youtube_constants.dart';

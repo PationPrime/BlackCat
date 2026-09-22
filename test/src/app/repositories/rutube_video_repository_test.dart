@@ -304,7 +304,7 @@ void main() {
     expect(rutube.urls, [_url]);
     expect(
       unsupported.failure?.message,
-      'Это не ссылка на видео YouTube или RuTube.',
+      'Это не ссылка на видео YouTube, RuTube или TikTok.',
     );
   });
 }

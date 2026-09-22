@@ -173,21 +173,34 @@ Exception mediaDownloadExceptionOf(
   VideoSourceModel source = VideoSourceModel.youtube,
 }) {
   const codes = VideoErrorCodes();
-  final rutube = source == VideoSourceModel.rutube;
+  final (httpStatus, noConnection, interrupted) = switch (source) {
+    VideoSourceModel.youtube => (
+      codes.httpStatus,
+      codes.noConnection,
+      codes.streamInterrupted,
+    ),
+    VideoSourceModel.rutube => (
+      codes.rutubeHttpStatus,
+      codes.rutubeNoConnection,
+      codes.rutubeInterrupted,
+    ),
+    VideoSourceModel.tiktok => (
+      codes.tiktokHttpStatus,
+      codes.tiktokNoConnection,
+      codes.tiktokInterrupted,
+    ),
+  };
 
   return switch (error) {
     FilesDownloadError(statusCode: 401 || 403 || 410) =>
       const MediaStreamLinksExpiredException(),
-    FilesDownloadError(statusCode: 429) when !rutube => VideoException(
-      codes.rateLimited,
-    ),
+    FilesDownloadError(statusCode: 429)
+        when source == VideoSourceModel.youtube =>
+      VideoException(codes.rateLimited),
     FilesDownloadError(type: FilesDownloadErrorType.httpStatus) =>
-      VideoException(
-        rutube ? codes.rutubeHttpStatus : codes.httpStatus,
-        args: {'status': '${error.statusCode}'},
-      ),
+      VideoException(httpStatus, args: {'status': '${error.statusCode}'}),
     FilesDownloadError(type: FilesDownloadErrorType.network) => VideoException(
-      rutube ? codes.rutubeNoConnection : codes.noConnection,
+      noConnection,
     ),
     FilesDownloadError(type: FilesDownloadErrorType.diskFull) => VideoException(
       codes.diskFull,
@@ -195,9 +208,7 @@ Exception mediaDownloadExceptionOf(
     ),
     FilesDownloadError(type: FilesDownloadErrorType.fileSystem) =>
       VideoException(codes.diskWrite, args: {'error': error.message}),
-    _ => VideoException(
-      rutube ? codes.rutubeInterrupted : codes.streamInterrupted,
-    ),
+    _ => VideoException(interrupted),
   };
 }
 

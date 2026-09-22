@@ -21,6 +21,8 @@ final _searchField = find.descendant(
 const _url = 'https://youtu.be/kgA8JPY2lIA';
 const _otherUrl = 'https://youtu.be/otherVideo1';
 const _rutubeUrl = 'https://rutube.ru/shorts/7fe803e5db2951c0a6097232efc4a439/';
+const _tiktokUrl =
+    'https://www.tiktok.com/@bmw/video/7664657841843719457?is_from_webapp=1';
 
 const _signInFailure = VideoFailure(
   code: 'bot_check',
@@ -429,6 +431,43 @@ void main() {
       expect(app.ytDlpVideoRepository.requestedUrls, [_rutubeUrl]);
       expect(find.byType(VideoCard), findsOneWidget);
       expect(find.text('Это не ссылка на видео RuTube.'), findsNothing);
+
+      await app.close();
+    },
+  );
+
+  testWidgets(
+    'вкладка TikTok ищет видео TikTok, ссылки других сайтов не принимает',
+    (tester) async {
+      final app = TestApp(
+        ytDlpVideoRepository: FakeYtDlpVideoRepository(
+          infoResults: [(failure: null, data: testVideoInfo)],
+        ),
+      );
+
+      await app.pumpPage(tester, const TikTokDownloadScreen());
+      await app.dependenciesController.check();
+
+      expect(find.text('TikTok'), findsOneWidget);
+      expect(
+        find.text('https://www.tiktok.com/@user/video/...'),
+        findsOneWidget,
+      );
+
+      await tester.enterText(_searchField, _rutubeUrl);
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      await app.settle(tester);
+
+      expect(find.text('Это не ссылка на видео TikTok.'), findsOneWidget);
+      expect(app.ytDlpVideoRepository.requestedUrls, isEmpty);
+
+      await tester.enterText(_searchField, _tiktokUrl);
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      await app.settle(tester);
+
+      expect(app.ytDlpVideoRepository.requestedUrls, [_tiktokUrl]);
+      expect(find.byType(VideoCard), findsOneWidget);
+      expect(find.text('Это не ссылка на видео TikTok.'), findsNothing);
 
       await app.close();
     },

@@ -216,13 +216,19 @@
         "disk_write": "Could not write the file being downloaded: {error}",
         "disk_full": "Not enough disk space: the download needs {needed} more, {available} is free. Free up space and try again: the downloaded part is kept.",
         "disk_full_unknown_size": "Not enough disk space for the download. Free up space and try again: the downloaded part is kept.",
-        "unsupported_url": "This is not a YouTube or RuTube video link.",
+        "unsupported_url": "This is not a YouTube, RuTube or TikTok video link.",
         "not_rutube_url": "This is not a RuTube video link.",
         "rutube_unavailable": "The video is unavailable on RuTube.",
         "rutube_live": "RuTube live streams can't be downloaded yet.",
         "rutube_http_status": "RuTube responded with error {status}.",
         "rutube_no_connection": "No connection to RuTube.",
         "rutube_interrupted": "RuTube keeps interrupting the video download. Try again.",
+        "not_tiktok_url": "This is not a TikTok video link.",
+        "tiktok_unavailable": "The TikTok video is unavailable: it was removed, hidden by its author or isn't shown in your country.",
+        "tiktok_photo": "This is a TikTok photo post: it has no video.",
+        "tiktok_http_status": "TikTok responded with error {status}.",
+        "tiktok_no_connection": "No connection to TikTok.",
+        "tiktok_interrupted": "TikTok keeps interrupting the video download. Try again.",
         "stream_protected": "The video is protected from downloading: its parts are encrypted.",
         "stream_format": "The video is served in a format the app can't download yet.",
         "web_view_runtime": "Downloading requires Microsoft Edge WebView2 Runtime.",
@@ -324,7 +330,8 @@
     "home": {
       "tabs": {
         "youtube": "YouTube",
-        "rutube": "RuTube"
+        "rutube": "RuTube",
+        "tiktok": "TikTok"
       },
       "youtube": {
         "title": "YouTube",
@@ -334,6 +341,11 @@
         "title": "RuTube",
         "subtitle": "Paste a RuTube video or short link and press Enter, then choose the quality.",
         "url_hint": "https://rutube.ru/video/..."
+      },
+      "tiktok": {
+        "title": "TikTok",
+        "subtitle": "Paste a TikTok video link and press Enter, then choose the quality.",
+        "url_hint": "https://www.tiktok.com/@user/video/..."
       },
       "added": "“{title}” was added to downloads.",
       "open_downloads": "Open downloads",

@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'dart:isolate';
-import 'dart:math' as math;
 
 import 'package:archive/archive_io.dart';
 import 'package:crypto/crypto.dart';
@@ -335,9 +334,11 @@ class FileSystemServiceImpl implements FileSystemService {
         .replaceAll(RegExp(r'\s+'), ' ')
         .trim();
 
-    base = base
-        .substring(0, math.min(base.length, 150))
-        .replaceFirst(RegExp(r'[. ]+$'), '');
+    /// By code points: a cut emoji would leave half of it, which Windows
+    /// does not take in a file name
+    base = String.fromCharCodes(
+      base.runes.take(150),
+    ).replaceFirst(RegExp(r'[. ]+$'), '');
 
     return '${base.isEmpty ? p.basenameWithoutExtension(filePath) : base}$extension';
   }

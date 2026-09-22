@@ -264,7 +264,8 @@ class CodegenLoader extends AssetLoader {
               "Not enough disk space: the download needs {needed} more, {available} is free. Free up space and try again: the downloaded part is kept.",
           "disk_full_unknown_size":
               "Not enough disk space for the download. Free up space and try again: the downloaded part is kept.",
-          "unsupported_url": "This is not a YouTube or RuTube video link.",
+          "unsupported_url":
+              "This is not a YouTube, RuTube or TikTok video link.",
           "not_rutube_url": "This is not a RuTube video link.",
           "rutube_unavailable": "The video is unavailable on RuTube.",
           "rutube_live": "RuTube live streams can't be downloaded yet.",
@@ -272,6 +273,14 @@ class CodegenLoader extends AssetLoader {
           "rutube_no_connection": "No connection to RuTube.",
           "rutube_interrupted":
               "RuTube keeps interrupting the video download. Try again.",
+          "not_tiktok_url": "This is not a TikTok video link.",
+          "tiktok_unavailable":
+              "The TikTok video is unavailable: it was removed, hidden by its author or isn't shown in your country.",
+          "tiktok_photo": "This is a TikTok photo post: it has no video.",
+          "tiktok_http_status": "TikTok responded with error {status}.",
+          "tiktok_no_connection": "No connection to TikTok.",
+          "tiktok_interrupted":
+              "TikTok keeps interrupting the video download. Try again.",
           "stream_protected":
               "The video is protected from downloading: its parts are encrypted.",
           "stream_format":
@@ -397,7 +406,7 @@ class CodegenLoader extends AssetLoader {
         "donations": "Sponsor",
       },
       "home": {
-        "tabs": {"youtube": "YouTube", "rutube": "RuTube"},
+        "tabs": {"youtube": "YouTube", "rutube": "RuTube", "tiktok": "TikTok"},
         "youtube": {
           "title": "YouTube",
           "subtitle":
@@ -408,6 +417,12 @@ class CodegenLoader extends AssetLoader {
           "subtitle":
               "Paste a RuTube video or short link and press Enter, then choose the quality.",
           "url_hint": "https://rutube.ru/video/...",
+        },
+        "tiktok": {
+          "title": "TikTok",
+          "subtitle":
+              "Paste a TikTok video link and press Enter, then choose the quality.",
+          "url_hint": "https://www.tiktok.com/@user/video/...",
         },
         "added": "“{title}” was added to downloads.",
         "open_downloads": "Open downloads",
@@ -719,7 +734,8 @@ class CodegenLoader extends AssetLoader {
               "Недостаточно места на диске: загрузке нужно ещё {needed}, свободно {available}. Освободите место и повторите загрузку: скачанное сохранится.",
           "disk_full_unknown_size":
               "Недостаточно места на диске для загрузки. Освободите место и повторите загрузку: скачанное сохранится.",
-          "unsupported_url": "Это не ссылка на видео YouTube или RuTube.",
+          "unsupported_url":
+              "Это не ссылка на видео YouTube, RuTube или TikTok.",
           "not_rutube_url": "Это не ссылка на видео RuTube.",
           "rutube_unavailable": "Видео недоступно на RuTube.",
           "rutube_live": "Трансляции RuTube пока не скачиваются.",
@@ -727,6 +743,14 @@ class CodegenLoader extends AssetLoader {
           "rutube_no_connection": "Нет соединения с RuTube.",
           "rutube_interrupted":
               "RuTube обрывает загрузку видео. Попробуйте ещё раз.",
+          "not_tiktok_url": "Это не ссылка на видео TikTok.",
+          "tiktok_unavailable":
+              "Видео TikTok недоступно: оно удалено, скрыто автором или не показывается в вашей стране.",
+          "tiktok_photo": "Это фото-пост TikTok: в нём нет видео.",
+          "tiktok_http_status": "TikTok ответил ошибкой {status}.",
+          "tiktok_no_connection": "Нет соединения с TikTok.",
+          "tiktok_interrupted":
+              "TikTok обрывает загрузку видео. Попробуйте ещё раз.",
           "stream_protected":
               "Видео защищено от скачивания: его части зашифрованы.",
           "stream_format":
@@ -852,7 +876,7 @@ class CodegenLoader extends AssetLoader {
         "donations": "Поддержать",
       },
       "home": {
-        "tabs": {"youtube": "YouTube", "rutube": "RuTube"},
+        "tabs": {"youtube": "YouTube", "rutube": "RuTube", "tiktok": "TikTok"},
         "youtube": {
           "title": "YouTube",
           "subtitle":
@@ -863,6 +887,12 @@ class CodegenLoader extends AssetLoader {
           "subtitle":
               "Вставьте ссылку на видео или шортс RuTube и нажмите Enter, затем выберите качество.",
           "url_hint": "https://rutube.ru/video/...",
+        },
+        "tiktok": {
+          "title": "TikTok",
+          "subtitle":
+              "Вставьте ссылку на видео TikTok и нажмите Enter, затем выберите качество.",
+          "url_hint": "https://www.tiktok.com/@user/video/...",
         },
         "added": "«{title}» добавлено в загрузки.",
         "open_downloads": "Открыть загрузки",

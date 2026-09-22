@@ -13,6 +13,8 @@ export 'sapisid_authorization.dart';
 export 'speed_meter.dart';
 export 'system_tray_content_builder.dart';
 export 'system_tray_text.dart';
+export 'tiktok_qualities.dart';
+export 'tiktok_url_parser.dart';
 export 'video_links.dart';
 export 'youtube_url_parser.dart';
 export 'yt_dlp_output.dart';
