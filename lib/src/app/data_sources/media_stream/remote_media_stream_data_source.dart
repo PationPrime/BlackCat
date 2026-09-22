@@ -189,6 +189,11 @@ Exception mediaDownloadExceptionOf(
       codes.tiktokNoConnection,
       codes.tiktokInterrupted,
     ),
+    VideoSourceModel.instagram => (
+      codes.instagramHttpStatus,
+      codes.instagramNoConnection,
+      codes.instagramInterrupted,
+    ),
   };
 
   return switch (error) {

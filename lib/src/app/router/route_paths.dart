@@ -6,6 +6,7 @@ abstract final class RoutePaths {
   static const youtube = 'youtube';
   static const rutube = 'rutube';
   static const tiktok = 'tiktok';
+  static const instagram = 'instagram';
   static const downloads = 'downloads';
   static const player = 'player';
   static const settings = 'settings';

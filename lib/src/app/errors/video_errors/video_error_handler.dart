@@ -62,6 +62,18 @@ class VideoErrorHandler extends ErrorHandler<VideoErrorCodes> {
       'tiktok_no_connection' =>
         LocaleKeys.app_errors_video_tiktok_no_connection,
       'tiktok_interrupted' => LocaleKeys.app_errors_video_tiktok_interrupted,
+      'not_instagram_url' => LocaleKeys.app_errors_video_not_instagram_url,
+      'instagram_unavailable' =>
+        LocaleKeys.app_errors_video_instagram_unavailable,
+      'instagram_photo' => LocaleKeys.app_errors_video_instagram_photo,
+      'instagram_rate_limited' =>
+        LocaleKeys.app_errors_video_instagram_rate_limited,
+      'instagram_http_status' =>
+        LocaleKeys.app_errors_video_instagram_http_status,
+      'instagram_no_connection' =>
+        LocaleKeys.app_errors_video_instagram_no_connection,
+      'instagram_interrupted' =>
+        LocaleKeys.app_errors_video_instagram_interrupted,
       'stream_protected' => LocaleKeys.app_errors_video_stream_protected,
       'stream_format' => LocaleKeys.app_errors_video_stream_format,
       '403' => LocaleKeys.app_errors_network_forbidden,

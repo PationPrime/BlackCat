@@ -216,7 +216,7 @@
         "disk_write": "Не удалось записать скачиваемый файл: {error}",
         "disk_full": "Недостаточно места на диске: загрузке нужно ещё {needed}, свободно {available}. Освободите место и повторите загрузку: скачанное сохранится.",
         "disk_full_unknown_size": "Недостаточно места на диске для загрузки. Освободите место и повторите загрузку: скачанное сохранится.",
-        "unsupported_url": "Это не ссылка на видео YouTube, RuTube или TikTok.",
+        "unsupported_url": "Это не ссылка на видео YouTube, RuTube, TikTok или Instagram.",
         "not_rutube_url": "Это не ссылка на видео RuTube.",
         "rutube_unavailable": "Видео недоступно на RuTube.",
         "rutube_live": "Трансляции RuTube пока не скачиваются.",
@@ -229,6 +229,13 @@
         "tiktok_http_status": "TikTok ответил ошибкой {status}.",
         "tiktok_no_connection": "Нет соединения с TikTok.",
         "tiktok_interrupted": "TikTok обрывает загрузку видео. Попробуйте ещё раз.",
+        "not_instagram_url": "Это не ссылка на видео Instagram.",
+        "instagram_unavailable": "Instagram не показывает это видео без входа в аккаунт: оно удалено, закрыто автором или с возрастным ограничением.",
+        "instagram_photo": "В этом посте Instagram нет видео.",
+        "instagram_rate_limited": "Instagram временно ограничил просмотр без входа в аккаунт. Попробуйте через несколько минут.",
+        "instagram_http_status": "Instagram ответил ошибкой {status}.",
+        "instagram_no_connection": "Нет соединения с Instagram.",
+        "instagram_interrupted": "Instagram обрывает загрузку видео. Попробуйте ещё раз.",
         "stream_protected": "Видео защищено от скачивания: его части зашифрованы.",
         "stream_format": "Видео отдаётся в формате, который приложение пока не умеет скачивать.",
         "web_view_runtime": "Для скачивания нужен Microsoft Edge WebView2 Runtime.",
@@ -331,7 +338,8 @@
       "tabs": {
         "youtube": "YouTube",
         "rutube": "RuTube",
-        "tiktok": "TikTok"
+        "tiktok": "TikTok",
+        "instagram": "Instagram"
       },
       "youtube": {
         "title": "YouTube",
@@ -346,6 +354,11 @@
         "title": "TikTok",
         "subtitle": "Вставьте ссылку на видео TikTok и нажмите Enter, затем выберите качество.",
         "url_hint": "https://www.tiktok.com/@user/video/..."
+      },
+      "instagram": {
+        "title": "Instagram",
+        "subtitle": "Вставьте ссылку на рилс или пост с видео Instagram и нажмите Enter, затем выберите качество.",
+        "url_hint": "https://www.instagram.com/reel/..."
       },
       "added": "«{title}» добавлено в загрузки.",
       "open_downloads": "Открыть загрузки",

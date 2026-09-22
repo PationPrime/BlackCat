@@ -104,6 +104,11 @@ final class AppModule {
 
         const mediaMuxerService = Mp4MediaMuxerServiceImpl();
 
+        /// Both Instagram engines read the files through it
+        final remoteInstagramDataSource = RemoteInstagramDataSourceImpl(
+          apiProvider: _apiProvider,
+        );
+
         /// Every site has its own repository; the link picks it
         _videoRepository = SourceVideoRepository({
           VideoSourceModel.youtube: YouTubeVideoRepository(
@@ -140,6 +145,11 @@ final class AppModule {
             ),
             fileSystemService: _fileSystemService,
           ),
+          VideoSourceModel.instagram: InstagramVideoRepository(
+            remoteInstagramDataSource: remoteInstagramDataSource,
+            mediaMuxerService: mediaMuxerService,
+            fileSystemService: _fileSystemService,
+          ),
         });
 
         final ytDlpService = YtDlpServiceImpl(
@@ -162,6 +172,12 @@ final class AppModule {
           ),
           VideoSourceModel.tiktok: TikTokYtDlpVideoRepository(
             ytDlpService: ytDlpService,
+            fileSystemService: _fileSystemService,
+          ),
+          VideoSourceModel.instagram: InstagramYtDlpVideoRepository(
+            ytDlpService: ytDlpService,
+            remoteInstagramDataSource: remoteInstagramDataSource,
+            mediaMuxerService: mediaMuxerService,
             fileSystemService: _fileSystemService,
           ),
         });

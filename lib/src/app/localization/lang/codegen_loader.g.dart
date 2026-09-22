@@ -265,7 +265,7 @@ class CodegenLoader extends AssetLoader {
           "disk_full_unknown_size":
               "Not enough disk space for the download. Free up space and try again: the downloaded part is kept.",
           "unsupported_url":
-              "This is not a YouTube, RuTube or TikTok video link.",
+              "This is not a YouTube, RuTube, TikTok or Instagram video link.",
           "not_rutube_url": "This is not a RuTube video link.",
           "rutube_unavailable": "The video is unavailable on RuTube.",
           "rutube_live": "RuTube live streams can't be downloaded yet.",
@@ -281,6 +281,16 @@ class CodegenLoader extends AssetLoader {
           "tiktok_no_connection": "No connection to TikTok.",
           "tiktok_interrupted":
               "TikTok keeps interrupting the video download. Try again.",
+          "not_instagram_url": "This is not an Instagram video link.",
+          "instagram_unavailable":
+              "Instagram doesn't show this video without signing in: it was removed, made private by the author or is age-restricted.",
+          "instagram_photo": "This Instagram post has no video.",
+          "instagram_rate_limited":
+              "Instagram has temporarily limited viewing without signing in. Try again in a few minutes.",
+          "instagram_http_status": "Instagram responded with error {status}.",
+          "instagram_no_connection": "No connection to Instagram.",
+          "instagram_interrupted":
+              "Instagram keeps interrupting the video download. Try again.",
           "stream_protected":
               "The video is protected from downloading: its parts are encrypted.",
           "stream_format":
@@ -406,7 +416,12 @@ class CodegenLoader extends AssetLoader {
         "donations": "Sponsor",
       },
       "home": {
-        "tabs": {"youtube": "YouTube", "rutube": "RuTube", "tiktok": "TikTok"},
+        "tabs": {
+          "youtube": "YouTube",
+          "rutube": "RuTube",
+          "tiktok": "TikTok",
+          "instagram": "Instagram",
+        },
         "youtube": {
           "title": "YouTube",
           "subtitle":
@@ -423,6 +438,12 @@ class CodegenLoader extends AssetLoader {
           "subtitle":
               "Paste a TikTok video link and press Enter, then choose the quality.",
           "url_hint": "https://www.tiktok.com/@user/video/...",
+        },
+        "instagram": {
+          "title": "Instagram",
+          "subtitle":
+              "Paste an Instagram reel or video post link and press Enter, then choose the quality.",
+          "url_hint": "https://www.instagram.com/reel/...",
         },
         "added": "“{title}” was added to downloads.",
         "open_downloads": "Open downloads",
@@ -735,7 +756,7 @@ class CodegenLoader extends AssetLoader {
           "disk_full_unknown_size":
               "Недостаточно места на диске для загрузки. Освободите место и повторите загрузку: скачанное сохранится.",
           "unsupported_url":
-              "Это не ссылка на видео YouTube, RuTube или TikTok.",
+              "Это не ссылка на видео YouTube, RuTube, TikTok или Instagram.",
           "not_rutube_url": "Это не ссылка на видео RuTube.",
           "rutube_unavailable": "Видео недоступно на RuTube.",
           "rutube_live": "Трансляции RuTube пока не скачиваются.",
@@ -751,6 +772,16 @@ class CodegenLoader extends AssetLoader {
           "tiktok_no_connection": "Нет соединения с TikTok.",
           "tiktok_interrupted":
               "TikTok обрывает загрузку видео. Попробуйте ещё раз.",
+          "not_instagram_url": "Это не ссылка на видео Instagram.",
+          "instagram_unavailable":
+              "Instagram не показывает это видео без входа в аккаунт: оно удалено, закрыто автором или с возрастным ограничением.",
+          "instagram_photo": "В этом посте Instagram нет видео.",
+          "instagram_rate_limited":
+              "Instagram временно ограничил просмотр без входа в аккаунт. Попробуйте через несколько минут.",
+          "instagram_http_status": "Instagram ответил ошибкой {status}.",
+          "instagram_no_connection": "Нет соединения с Instagram.",
+          "instagram_interrupted":
+              "Instagram обрывает загрузку видео. Попробуйте ещё раз.",
           "stream_protected":
               "Видео защищено от скачивания: его части зашифрованы.",
           "stream_format":
@@ -876,7 +907,12 @@ class CodegenLoader extends AssetLoader {
         "donations": "Поддержать",
       },
       "home": {
-        "tabs": {"youtube": "YouTube", "rutube": "RuTube", "tiktok": "TikTok"},
+        "tabs": {
+          "youtube": "YouTube",
+          "rutube": "RuTube",
+          "tiktok": "TikTok",
+          "instagram": "Instagram",
+        },
         "youtube": {
           "title": "YouTube",
           "subtitle":
@@ -893,6 +929,12 @@ class CodegenLoader extends AssetLoader {
           "subtitle":
               "Вставьте ссылку на видео TikTok и нажмите Enter, затем выберите качество.",
           "url_hint": "https://www.tiktok.com/@user/video/...",
+        },
+        "instagram": {
+          "title": "Instagram",
+          "subtitle":
+              "Вставьте ссылку на рилс или пост с видео Instagram и нажмите Enter, затем выберите качество.",
+          "url_hint": "https://www.instagram.com/reel/...",
         },
         "added": "«{title}» добавлено в загрузки.",
         "open_downloads": "Открыть загрузки",

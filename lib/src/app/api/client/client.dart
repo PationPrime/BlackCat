@@ -45,6 +45,19 @@ final class TikTokApiClient extends ApiClient {
       );
 }
 
+/// Instagram post pages and their files. The page carries the post data only
+/// for a browser that opens it: the page requests say so
+final class InstagramApiClient extends ApiClient {
+  InstagramApiClient({super.interceptors})
+    : super(
+        headers: const {
+          'User-Agent': YouTubeConstants.browserUserAgent,
+          'Accept-Language': 'en-US,en;q=0.9',
+          'Referer': '${InstagramConstants.origin}/',
+        },
+      );
+}
+
 /// yt-dlp and Deno releases on GitHub
 final class GitHubApiClient extends ApiClient {
   static const _userAgent = 'YT-Download';
@@ -58,6 +71,7 @@ base class ApiProvider {
   late final MediaApiClient media;
   late final RuTubeApiClient rutube;
   late final TikTokApiClient tiktok;
+  late final InstagramApiClient instagram;
   late final GitHubApiClient github;
 
   ApiProvider({List<Interceptor> interceptors = const []}) {
@@ -70,6 +84,7 @@ base class ApiProvider {
       media = MediaApiClient(interceptors: interceptors);
       rutube = RuTubeApiClient(interceptors: interceptors);
       tiktok = TikTokApiClient(interceptors: interceptors);
+      instagram = InstagramApiClient(interceptors: interceptors);
       github = GitHubApiClient(interceptors: interceptors);
     } catch (error, stackTrace) {
       Error.throwWithStackTrace(

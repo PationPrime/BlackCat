@@ -83,7 +83,7 @@ void main() {
   );
 
   testWidgets(
-    'на главной вкладки сайтов: YouTube по умолчанию, RuTube и TikTok рядом, поиск каждой сохраняется',
+    'на главной вкладки сайтов: YouTube по умолчанию, RuTube, TikTok и Instagram рядом, поиск каждой сохраняется',
     (tester) async {
       final app = TestApp();
 
@@ -117,6 +117,14 @@ void main() {
         find.text('https://www.tiktok.com/@user/video/...'),
         findsOneWidget,
       );
+
+      await tester.tap(
+        find.descendant(of: tabs, matching: find.text('Instagram')),
+      );
+      await app.settle(tester);
+
+      expect(find.byType(InstagramDownloadScreen), findsOneWidget);
+      expect(find.text('https://www.instagram.com/reel/...'), findsOneWidget);
 
       await tester.tap(
         find.descendant(of: tabs, matching: find.text('YouTube')),

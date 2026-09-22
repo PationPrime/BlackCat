@@ -1,6 +1,7 @@
 export 'dependency_constants.dart';
 export 'donation_constants.dart';
 export 'download_constants.dart';
+export 'instagram_constants.dart';
 export 'player_constants.dart';
 export 'rutube_constants.dart';
 export 'storage_constants.dart';

@@ -9,6 +9,8 @@ export 'settings_repository/settings_repository.dart';
 export 'settings_repository/settings_repository_interface.dart';
 export 'video_library_repository/video_library_repository.dart';
 export 'video_library_repository/video_library_repository_interface.dart';
+export 'video_repository/instagram_video_repository.dart';
+export 'video_repository/instagram_yt_dlp_video_repository.dart';
 export 'video_repository/rutube_video_repository.dart';
 export 'video_repository/rutube_yt_dlp_video_repository.dart';
 export 'video_repository/source_video_repository.dart';

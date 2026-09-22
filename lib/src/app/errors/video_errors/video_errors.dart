@@ -53,6 +53,21 @@ final class VideoErrorCodes extends ErrorCodes {
   final String tiktokNoConnection;
   final String tiktokInterrupted;
 
+  final String notInstagramUrl;
+
+  /// Instagram does not show the post without an account: removed, private
+  /// or age-restricted
+  final String instagramUnavailable;
+
+  /// An Instagram post with photos only
+  final String instagramPhoto;
+
+  /// Instagram stopped showing posts without an account for a while
+  final String instagramRateLimited;
+  final String instagramHttpStatus;
+  final String instagramNoConnection;
+  final String instagramInterrupted;
+
   /// The video segments are encrypted
   final String streamProtected;
 
@@ -99,6 +114,13 @@ final class VideoErrorCodes extends ErrorCodes {
     this.tiktokHttpStatus = 'tiktok_http_status',
     this.tiktokNoConnection = 'tiktok_no_connection',
     this.tiktokInterrupted = 'tiktok_interrupted',
+    this.notInstagramUrl = 'not_instagram_url',
+    this.instagramUnavailable = 'instagram_unavailable',
+    this.instagramPhoto = 'instagram_photo',
+    this.instagramRateLimited = 'instagram_rate_limited',
+    this.instagramHttpStatus = 'instagram_http_status',
+    this.instagramNoConnection = 'instagram_no_connection',
+    this.instagramInterrupted = 'instagram_interrupted',
     this.streamProtected = 'stream_protected',
     this.streamFormat = 'stream_format',
     this.rateLimited = '429',
