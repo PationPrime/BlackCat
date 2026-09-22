@@ -51,6 +51,10 @@ void main() {
         AppNavigationBar.expandedWidth,
       );
       expect(_inNavigationBar('BlackCat'), findsOneWidget);
+      expect(
+        find.descendant(of: _navigationBar, matching: find.byType(AppIconLogo)),
+        findsOneWidget,
+      );
       expect(_inNavigationBar('Главная'), findsOneWidget);
       expect(_inNavigationBar('Загрузки'), findsOneWidget);
       expect(_inNavigationBar('Настройки'), findsOneWidget);
@@ -359,6 +363,15 @@ void main() {
     expect(tester.getRect(_footer).left, AppNavigationBar.compactWidth);
     expect(_inNavigationBar('Загрузки'), findsNothing);
     expect(find.byTooltip('Загрузки'), findsOneWidget);
+
+    /// Without the app name the icon names it in a tooltip
+    expect(
+      find.descendant(
+        of: find.byTooltip('BlackCat'),
+        matching: find.byType(AppIconLogo),
+      ),
+      findsOneWidget,
+    );
 
     await tester.tap(find.byTooltip('Настройки'));
     await app.settle(tester);

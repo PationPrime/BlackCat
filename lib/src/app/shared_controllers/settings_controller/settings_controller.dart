@@ -9,7 +9,8 @@ import '../../repositories/repositories.dart';
 
 part 'settings_state.dart';
 
-/// App settings: download folder and interface language
+/// App settings: download folder and interface language, and the version
+/// of the app
 final class SettingsController extends Cubit<SettingsState> {
   static const _appLogger = AppLogger(where: 'SettingsController');
 
@@ -30,6 +31,8 @@ final class SettingsController extends Cubit<SettingsState> {
 
   Future<void> loadSettings() async {
     _safeEmit(state.copyWith(isLoading: true, clearFailure: true));
+
+    await _loadAppVersion();
 
     final directoryResponse = await _settingsRepository.getDownloadDirectory();
 
@@ -115,6 +118,25 @@ final class SettingsController extends Cubit<SettingsState> {
       _safeEmit(state.copyWith(language: previousLanguage));
       _logAndEmitFailure(languageResponse.failure, 'Failed to save language');
     }
+  }
+
+  /// The version is only shown: the settings work without it, so a build
+  /// that does not tell it shows no error
+  Future<void> _loadAppVersion() async {
+    if (state.appVersion != null) return;
+
+    final versionResponse = await _settingsRepository.getAppVersion();
+
+    if (versionResponse.isFailed) {
+      _appLogger.logFailure(
+        versionResponse.failure ?? const OtherFailure(),
+        'Failed to read the app version',
+      );
+
+      return;
+    }
+
+    _safeEmit(state.copyWith(appVersion: versionResponse.requireData));
   }
 
   void _logAndEmitFailure(Failure? failure, String description) {

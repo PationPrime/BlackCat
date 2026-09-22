@@ -1,7 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:black_cat/src/app/design_system/design_system.dart';
 import 'package:black_cat/src/app/localization/lang/locale_keys.g.dart';
 import 'package:black_cat/src/app/widgets/widgets.dart';
 
@@ -12,7 +11,7 @@ class UrlSearchForm extends StatelessWidget {
   final TextEditingController controller;
   final FocusNode? focusNode;
 
-  /// Search is in progress: the button shows "Searching…"
+  /// Search is in progress: the button spins
   final bool loading;
 
   /// Searching is allowed: no search is running
@@ -67,13 +66,10 @@ class UrlSearchForm extends StatelessWidget {
       );
 
       final button = AppPrimaryButton(
-        title: loading
-            ? LocaleKeys.app_downloader_buttons_searching.tr()
-            : LocaleKeys.app_downloader_buttons_search.tr(),
+        title: LocaleKeys.app_downloader_buttons_search.tr(),
+        loading: loading,
+        loadingLabel: LocaleKeys.app_downloader_buttons_searching.tr(),
         onPressed: enabled ? _submit : null,
-        buttonColor: context.color.buttonNeutral,
-        hoverColor: context.color.buttonNeutralHover,
-        titleColor: context.color.onButtonNeutral,
       );
 
       if (constraints.maxWidth < rowBreakpoint) {

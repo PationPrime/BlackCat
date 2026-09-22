@@ -22,4 +22,7 @@ abstract interface class SettingsRepositoryInterface
   Future<OperationResult<AppLanguageModel>> setLanguage(
     AppLanguageModel language,
   );
+
+  /// Version of the running app build
+  Future<OperationResult<AppVersionModel>> getAppVersion();
 }

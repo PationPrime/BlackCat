@@ -141,6 +141,11 @@
         "title": "Language",
         "description": "App interface language."
       },
+      "about": {
+        "title": "About",
+        "version": "Version {version}",
+        "version_with_build": "Version {version} (build {build})"
+      },
       "cookies": {
         "title": "YouTube cookies",
         "recommended_badge": "Recommended",
@@ -302,7 +307,8 @@
       "player": {
         "folder_not_found": "The download folder is not found: {path}. Check that the drive is connected or choose another folder in the settings.",
         "storage": "Could not update the video list: {error}",
-        "playback": "Could not play the video: {error}"
+        "playback": "Could not play the video: {error}",
+        "delete": "Couldn't delete the video: {error}. If the file is open in another app, close it and try again."
       }
     },
     "dependencies": {
@@ -405,6 +411,13 @@
       "open_folder": "Open folder",
       "refresh": "Refresh",
       "show_in_folder": "Show in folder",
+      "delete": "Delete",
+      "delete_dialog": {
+        "title": "Delete the video?",
+        "message": "“{title}” will be deleted from the device along with its entry in Downloads. This can't be undone.",
+        "confirm": "Delete",
+        "cancel": "Cancel"
+      },
       "play": "Watch",
       "videos_title": "Videos",
       "empty": "No videos in the download folder yet. Downloaded videos will appear here on their own.",

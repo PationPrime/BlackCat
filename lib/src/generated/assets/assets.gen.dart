@@ -14,6 +14,20 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_svg/flutter_svg.dart' as _svg;
 import 'package:vector_graphics/vector_graphics.dart' as _vg;
 
+class $AssetsAppIconGen {
+  const $AssetsAppIconGen();
+
+  /// File path: assets/app_icon/app_icon.svg
+  SvgGenImage get appIcon => const SvgGenImage('assets/app_icon/app_icon.svg');
+
+  /// File path: assets/app_icon/app_icon_small.svg
+  SvgGenImage get appIconSmall =>
+      const SvgGenImage('assets/app_icon/app_icon_small.svg');
+
+  /// List of all assets
+  List<SvgGenImage> get values => [appIcon, appIconSmall];
+}
+
 class $AssetsDonationsGen {
   const $AssetsDonationsGen();
 
@@ -89,6 +103,7 @@ class $AssetsTrayGen {
 }
 
 abstract final class Assets {
+  static const $AssetsAppIconGen appIcon = $AssetsAppIconGen();
   static const $AssetsDonationsGen donations = $AssetsDonationsGen();
   static const $AssetsEjsGen ejs = $AssetsEjsGen();
   static const $AssetsIconsGen icons = $AssetsIconsGen();

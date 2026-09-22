@@ -188,6 +188,11 @@ abstract class LocaleKeys {
   static const app_settings_language_description =
       'app.settings.language.description';
   static const app_settings_language = 'app.settings.language';
+  static const app_settings_about_title = 'app.settings.about.title';
+  static const app_settings_about_version = 'app.settings.about.version';
+  static const app_settings_about_version_with_build =
+      'app.settings.about.version_with_build';
+  static const app_settings_about = 'app.settings.about';
   static const app_settings_cookies_title = 'app.settings.cookies.title';
   static const app_settings_cookies_recommended_badge =
       'app.settings.cookies.recommended_badge';
@@ -425,6 +430,7 @@ abstract class LocaleKeys {
       'app.errors.player.folder_not_found';
   static const app_errors_player_storage = 'app.errors.player.storage';
   static const app_errors_player_playback = 'app.errors.player.playback';
+  static const app_errors_player_delete = 'app.errors.player.delete';
   static const app_errors_player = 'app.errors.player';
   static const app_errors = 'app.errors';
   static const app_dependencies_install_dialog_title =
@@ -545,6 +551,16 @@ abstract class LocaleKeys {
   static const app_player_open_folder = 'app.player.open_folder';
   static const app_player_refresh = 'app.player.refresh';
   static const app_player_show_in_folder = 'app.player.show_in_folder';
+  static const app_player_delete = 'app.player.delete';
+  static const app_player_delete_dialog_title =
+      'app.player.delete_dialog.title';
+  static const app_player_delete_dialog_message =
+      'app.player.delete_dialog.message';
+  static const app_player_delete_dialog_confirm =
+      'app.player.delete_dialog.confirm';
+  static const app_player_delete_dialog_cancel =
+      'app.player.delete_dialog.cancel';
+  static const app_player_delete_dialog = 'app.player.delete_dialog';
   static const app_player_play = 'app.player.play';
   static const app_player_videos_title = 'app.player.videos_title';
   static const app_player_empty = 'app.player.empty';

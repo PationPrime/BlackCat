@@ -12,11 +12,13 @@ final class SettingsRepository implements SettingsRepositoryInterface {
   final LocalSettingsDataSource _localSettingsDataSource;
   final FileSelectorService _fileSelectorService;
   final FileSystemService _fileSystemService;
+  final AppInfoService _appInfoService;
 
   const SettingsRepository({
     required this._localSettingsDataSource,
     required this._fileSelectorService,
     required this._fileSystemService,
+    required this._appInfoService,
   });
 
   @override
@@ -141,6 +143,15 @@ final class SettingsRepository implements SettingsRepositoryInterface {
           stackTrace: stackTrace,
         ),
       );
+    }
+  }
+
+  @override
+  Future<OperationResult<AppVersionModel>> getAppVersion() async {
+    try {
+      return ok(await _appInfoService.getVersion());
+    } catch (error, stackTrace) {
+      return fail(errorHandler.handleError(error, stackTrace: stackTrace));
     }
   }
 

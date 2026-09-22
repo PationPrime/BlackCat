@@ -43,13 +43,13 @@ abstract base class AppColors {
   static const stone1C1917Alpha70 = Color(0xB31C1917);
   static const stone0C0A09 = Color(0xFF0C0A09);
 
-  // green: brand accent
-  static const green80EF80 = Color(0xFF80EF80);
-  static const green80EF80Alpha10 = Color(0x1A80EF80);
-  static const green80EF80Alpha12 = Color(0x1F80EF80);
-  static const green80EF80Alpha16 = Color(0x2980EF80);
-  static const green80EF80Alpha35 = Color(0x5980EF80);
-  static const green66D966 = Color(0xFF66D966);
+  // violet: brand accent, Tailwind violet-400 and violet-500
+  static const violetA78BFA = Color(0xFFA78BFA);
+  static const violetA78BFAAlpha10 = Color(0x1AA78BFA);
+  static const violetA78BFAAlpha12 = Color(0x1FA78BFA);
+  static const violetA78BFAAlpha16 = Color(0x29A78BFA);
+  static const violetA78BFAAlpha35 = Color(0x59A78BFA);
+  static const violet8B5CF6 = Color(0xFF8B5CF6);
 
   // red: errors
   static const redFEE2E2 = Color(0xFFFEE2E2);

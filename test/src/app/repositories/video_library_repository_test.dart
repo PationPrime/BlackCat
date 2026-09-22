@@ -320,6 +320,107 @@ void main() {
     },
   );
 
+  test(
+    'удаление: файл, запись библиотеки и превью исчезают, возвращаются загрузки этого файла',
+    () async {
+      final file = await harness.addFile(
+        'a.mp4',
+        modified: DateTime(2026, 9, 1),
+      );
+      final other = await harness.addFile(
+        'b.mp4',
+        modified: DateTime(2026, 9, 2),
+      );
+      final downloadThumbnail = File(p.join(harness.root.path, 'thumb.jpg'));
+
+      await downloadThumbnail.writeAsBytes([1, 2, 3]);
+
+      DownloadTaskDto task(String id, String filePath) => DownloadTaskDto(
+        id: id,
+        videoId: 'video-$id',
+        videoUrl: 'https://www.youtube.com/watch?v=video-$id',
+        title: 'Видео $id',
+        qualityId: '1080',
+        qualityKind: QualityKind.video,
+        status: DownloadTaskStatus.done,
+        section: DownloadTaskSection.finished,
+        filePath: filePath,
+        thumbnailPath: downloadThumbnail.path,
+        createdAt: DateTime(2026, 9, 1),
+        updatedAt: DateTime(2026, 9, 1),
+      );
+
+      await harness.downloadsProvider.saveTasks([
+        /// Windows paths match whatever the letter case
+        task('task-a', p.join(harness.folder, 'A.mp4')),
+        task('task-b', other.path),
+      ]);
+
+      final video = (await harness.sync()).firstWhere(
+        (video) => video.path == file.path,
+      );
+
+      expect(video.thumbnailPath, isNotNull);
+
+      final response = await harness.repository.deleteVideo(video);
+
+      expect(response.failure, isNull);
+      expect(response.requireData, ['task-a']);
+      expect(await file.exists(), isFalse);
+      expect(await File(video.thumbnailPath!).exists(), isFalse);
+      expect(await other.exists(), isTrue);
+      expect(
+        [
+          for (final stored in await harness.libraryProvider.getVideos())
+            stored.path,
+        ],
+        [other.path],
+      );
+    },
+  );
+
+  test('файл уже пропал — видео всё равно удаляется из библиотеки', () async {
+    final file = await harness.addFile('a.mp4', modified: DateTime(2026, 9, 1));
+    final video = (await harness.sync()).single;
+
+    await file.delete();
+
+    final response = await harness.repository.deleteVideo(video);
+
+    expect(response.failure, isNull);
+    expect(await harness.libraryProvider.getVideos(), isEmpty);
+  });
+
+  test('занятый файл не удаляется, и видео остаётся в библиотеке', () async {
+    await harness.addFile('a.mp4', modified: DateTime(2026, 9, 1));
+
+    final lockedRepository = VideoLibraryRepository(
+      libraryVideoTableProvider: harness.libraryProvider,
+      downloadTaskTableProvider: harness.downloadsProvider,
+      localVideoLibraryDataSource: _LockedFilesDataSource(
+        LocalVideoLibraryDataSourceImpl(
+          fileSystemService: _TempFileSystemService(harness.root.path),
+        ),
+      ),
+      videoMetadataService: harness.metadata,
+      caseSensitivePaths: false,
+    );
+    final video = (await lockedRepository.syncVideos(
+      harness.folder,
+    )).requireData.single;
+
+    final response = await lockedRepository.deleteVideo(video);
+
+    expect(response.failure?.code, const PlayerErrorCodes().delete);
+    expect(
+      response.failure?.message,
+      'Не удалось удалить видео: The file is used by another process. '
+      'Если файл открыт в другой программе, закройте её и попробуйте ещё раз.',
+    );
+    expect(await File(video.path).exists(), isTrue);
+    expect(await harness.libraryProvider.getVideos(), hasLength(1));
+  });
+
   test('в Linux пути с разным регистром — разные видео', () async {
     final linuxRepository = VideoLibraryRepository(
       libraryVideoTableProvider: harness.libraryProvider,
@@ -336,6 +437,47 @@ void main() {
 
     expect({for (final video in videos) video.id}, hasLength(2));
   });
+}
+
+/// The disk where another app keeps every file open: they are not deleted
+final class _LockedFilesDataSource implements LocalVideoLibraryDataSource {
+  final LocalVideoLibraryDataSource _disk;
+
+  _LockedFilesDataSource(this._disk);
+
+  @override
+  Future<bool> folderExists(String folder) => _disk.folderExists(folder);
+
+  @override
+  Future<List<LocalVideoFileModel>> getVideoFiles(String folder) =>
+      _disk.getVideoFiles(folder);
+
+  @override
+  Stream<void> watchFolder(String folder) => _disk.watchFolder(folder);
+
+  @override
+  Future<bool> fileExists(String path) => _disk.fileExists(path);
+
+  @override
+  Future<void> copyFile(String from, String to) => _disk.copyFile(from, to);
+
+  @override
+  Future<void> deleteFile(String path) async => throw FileSystemException(
+    'Cannot delete file',
+    path,
+    const OSError('The file is used by another process', 32),
+  );
+
+  @override
+  Future<String> thumbnailPath(
+    String videoId, {
+    required String version,
+    required String extension,
+  }) => _disk.thumbnailPath(videoId, version: version, extension: extension);
+
+  @override
+  Future<void> deleteThumbnailsExcept(Set<String> keepPaths) =>
+      _disk.deleteThumbnailsExcept(keepPaths);
 }
 
 /// A folder with the given files, without the disk
@@ -361,6 +503,9 @@ final class _NamesDataSource implements LocalVideoLibraryDataSource {
 
   @override
   Future<void> copyFile(String from, String to) async {}
+
+  @override
+  Future<void> deleteFile(String path) async {}
 
   @override
   Future<String> thumbnailPath(

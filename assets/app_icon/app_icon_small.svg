@@ -7,8 +7,8 @@
     </clipPath>
   </defs>
 
-  <!-- AppColors.green80EF80 -->
-  <rect width="1024" height="1024" rx="230" fill="#80EF80"/>
+  <!-- AppColors.violetA78BFA -->
+  <rect width="1024" height="1024" rx="230" fill="#A78BFA"/>
 
   <g clip-path="url(#tile)">
     <g transform="translate(700 700) rotate(-45) scale(1.5)">
@@ -23,8 +23,8 @@
         C -140 266 -270 206 -292 70 Z"/>
 
       <!-- Eyes -->
-      <ellipse cx="-122" cy="-46" rx="86" ry="78" transform="rotate(-10 -122 -46)" fill="#80EF80"/>
-      <ellipse cx="122" cy="-46" rx="86" ry="78" transform="rotate(10 122 -46)" fill="#80EF80"/>
+      <ellipse cx="-122" cy="-46" rx="86" ry="78" transform="rotate(-10 -122 -46)" fill="#A78BFA"/>
+      <ellipse cx="122" cy="-46" rx="86" ry="78" transform="rotate(10 122 -46)" fill="#A78BFA"/>
       <ellipse cx="-114" cy="-38" rx="38" ry="44" fill="#0C0A09"/>
       <ellipse cx="114" cy="-38" rx="38" ry="44" fill="#0C0A09"/>
     </g>

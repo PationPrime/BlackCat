@@ -1,19 +1,19 @@
 <!-- BlackCat app icon: a black cat peeks in diagonally from the bottom-right
-     corner of the accent green tile. Source of the platform icons from 48 px -->
+     corner of the accent violet tile. Source of the platform icons from 48 px -->
 <svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
   <defs>
     <clipPath id="tile">
       <rect width="1024" height="1024" rx="230"/>
     </clipPath>
     <radialGradient id="iris" cx="50%" cy="62%" r="62%">
-      <stop offset="0" stop-color="#E4FFC2"/>
-      <stop offset="0.55" stop-color="#A8F79A"/>
-      <stop offset="1" stop-color="#80EF80"/>
+      <stop offset="0" stop-color="#EDE9FE"/>
+      <stop offset="0.55" stop-color="#C4B5FD"/>
+      <stop offset="1" stop-color="#A78BFA"/>
     </radialGradient>
   </defs>
 
-  <!-- AppColors.green80EF80 -->
-  <rect width="1024" height="1024" rx="230" fill="#80EF80"/>
+  <!-- AppColors.violetA78BFA -->
+  <rect width="1024" height="1024" rx="230" fill="#A78BFA"/>
 
   <g clip-path="url(#tile)">
     <!-- The head is drawn upright around (0, 0) and turned to the corner -->

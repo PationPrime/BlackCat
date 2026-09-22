@@ -19,6 +19,22 @@ class PlayerErrorHandler extends ErrorHandler<PlayerErrorCodes> {
             stackTrace: stackTrace,
           ),
         PlayerException(:final code, :final cause)
+            when code == errorCodes.delete =>
+          PlayerFailure(
+            code: code,
+            message: LocaleKeys.app_errors_player_delete.tr(
+              namedArgs: {
+                /// The system reason without the long exception text
+                'error': switch (cause) {
+                  FileSystemException(:final osError?) => osError.message,
+                  FileSystemException(:final message) => message,
+                  _ => '${cause ?? ''}',
+                }.trim(),
+              },
+            ),
+            stackTrace: stackTrace,
+          ),
+        PlayerException(:final code, :final cause)
             when code == errorCodes.playback =>
           PlayerFailure(
             code: code,

@@ -696,4 +696,104 @@ void main() {
 
     await app.close();
   });
+
+  group('удаление видео', () {
+    /// The finished download of video a in the download list
+    Future<TestApp> pumpWithDownload(WidgetTester tester) async {
+      final app = TestApp();
+
+      app.queueRepository.restoreResult = (
+        failure: null,
+        data: [
+          DownloadTaskModel(
+            id: 'task-a',
+            video: testVideo('a'),
+            quality: testQuality,
+            status: DownloadTaskStatus.done,
+            section: DownloadTaskSection.finished,
+            filePath: '$_downloads\\a.mp4',
+            createdAt: DateTime(2026, 9, 1),
+            updatedAt: DateTime(2026, 9, 1),
+          ),
+        ],
+      );
+      app.videoLibraryRepository.downloadsOfVideo['a'] = ['task-a'];
+
+      await app.queueController.restoreQueue();
+      await app.pumpPage(tester, const PlayerScreen(), size: _window);
+
+      return app;
+    }
+
+    Finder deleteButtonOf(String title) => find.descendant(
+      of: find.ancestor(
+        of: find.text(title),
+        matching: find.byType(LibraryVideoCard),
+      ),
+      matching: find.byTooltip('Удалить'),
+    );
+
+    testWidgets('после подтверждения видео пропадает из плеера и из загрузок', (
+      tester,
+    ) async {
+      final app = await pumpWithDownload(tester);
+
+      expect(app.queueController.state.finished, hasLength(1));
+
+      await tester.tap(deleteButtonOf('Ролик a'));
+      await app.settle(tester);
+
+      expect(find.text('Удалить видео?'), findsOneWidget);
+      expect(
+        find.textContaining('«Ролик a» будет удалено с устройства'),
+        findsOneWidget,
+      );
+
+      await tester.tap(find.text('Удалить'));
+      await app.settle(tester);
+
+      expect(app.videoLibraryRepository.deletedVideos, ['a']);
+      expect(find.text('Ролик a'), findsNothing);
+      expect(find.byType(LibraryVideoCard), findsOneWidget);
+      expect(app.queueController.state.finished, isEmpty);
+      expect(app.queueRepository.removedTaskIds, ['task-a']);
+
+      await app.close();
+    });
+
+    testWidgets('отмена ничего не удаляет', (tester) async {
+      final app = await pumpWithDownload(tester);
+
+      await tester.tap(deleteButtonOf('Ролик a'));
+      await app.settle(tester);
+      await tester.tap(find.text('Отмена'));
+      await app.settle(tester);
+
+      expect(app.videoLibraryRepository.deletedVideos, isEmpty);
+      expect(find.byType(LibraryVideoCard), findsNWidgets(2));
+      expect(app.queueController.state.finished, hasLength(1));
+
+      await app.close();
+    });
+
+    testWidgets(
+      'занятый файл: видео остаётся, в загрузках тоже, ошибка на странице',
+      (tester) async {
+        final app = await pumpWithDownload(tester);
+
+        app.videoLibraryRepository.lockedVideos.add('a');
+
+        await tester.tap(deleteButtonOf('Ролик a'));
+        await app.settle(tester);
+        await tester.tap(find.text('Удалить'));
+        await app.settle(tester);
+
+        expect(find.text('Ролик a'), findsOneWidget);
+        expect(app.queueController.state.finished, hasLength(1));
+        expect(find.textContaining('Не удалось удалить видео'), findsOneWidget);
+
+        await app.close();
+      },
+    );
+  });
 }

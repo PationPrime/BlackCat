@@ -21,6 +21,11 @@ abstract interface class LocalVideoLibraryDataSource {
   /// Copies [from] to [to], replacing an existing file
   Future<void> copyFile(String from, String to);
 
+  /// Deletes the file for good; a missing file is already deleted.
+  /// Throws [FileSystemException] when the system keeps it, e.g. another
+  /// app has it open
+  Future<void> deleteFile(String path);
+
   /// Path of a library thumbnail. [version] tells apart thumbnails of
   /// a replaced file, so the screen does not show the cached old one
   Future<String> thumbnailPath(
@@ -87,6 +92,15 @@ final class LocalVideoLibraryDataSourceImpl
   @override
   Future<void> copyFile(String from, String to) =>
       _fileSystemService.copyFile(from, to);
+
+  @override
+  Future<void> deleteFile(String path) async {
+    final file = File(path);
+
+    if (await file.exists()) {
+      await file.delete();
+    }
+  }
 
   Future<Directory> _thumbnailsRoot() async => Directory(
     await _fileSystemService.localAppFolder(
