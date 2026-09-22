@@ -4,7 +4,7 @@ import '../../api/api.dart';
 import '../../constants/constants.dart';
 import '../../dto/dto.dart';
 
-/// BlackCat on GitHub: the repository and its latest release
+/// PeekyCat on GitHub: the repository and its latest release
 abstract interface class RemoteProjectStatsDataSource {
   /// Stars of the repository
   Future<int> getStars();

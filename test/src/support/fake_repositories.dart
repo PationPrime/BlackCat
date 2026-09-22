@@ -1,12 +1,12 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:black_cat/src/app/errors/errors.dart';
-import 'package:black_cat/src/app/failure/failure.dart';
-import 'package:black_cat/src/app/models/models.dart';
-import 'package:black_cat/src/app/operation_result/operation_result.dart';
-import 'package:black_cat/src/app/repositories/repositories.dart';
-import 'package:black_cat/src/app/tools/tools.dart';
+import 'package:peeky_cat/src/app/errors/errors.dart';
+import 'package:peeky_cat/src/app/failure/failure.dart';
+import 'package:peeky_cat/src/app/models/models.dart';
+import 'package:peeky_cat/src/app/operation_result/operation_result.dart';
+import 'package:peeky_cat/src/app/repositories/repositories.dart';
+import 'package:peeky_cat/src/app/tools/tools.dart';
 
 /// A download call controlled by the test: reports streams and progress,
 /// completes with success or an error. Stopping via `cancellation`

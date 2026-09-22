@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
-import 'package:black_cat/src/app/tools/tools.dart';
+import 'package:peeky_cat/src/app/tools/tools.dart';
 
 import '../../support/test_localization.dart';
 

@@ -1,13 +1,13 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:black_cat/src/app/design_system/design_system.dart';
-import 'package:black_cat/src/app/localization/lang/locale_keys.g.dart';
-import 'package:black_cat/src/app/models/models.dart';
-import 'package:black_cat/src/app/tools/tools.dart';
-import 'package:black_cat/src/app/widgets/widgets.dart';
-import 'package:black_cat/src/generated/assets/assets.gen.dart';
+import 'package:peeky_cat/src/app/design_system/design_system.dart';
+import 'package:peeky_cat/src/app/localization/lang/locale_keys.g.dart';
+import 'package:peeky_cat/src/app/models/models.dart';
+import 'package:peeky_cat/src/app/tools/tools.dart';
+import 'package:peeky_cat/src/app/widgets/widgets.dart';
+import 'package:peeky_cat/src/generated/assets/assets.gen.dart';
 
-/// BlackCat on GitHub: the stars, which open the repository, and downloads
+/// PeekyCat on GitHub: the stars, which open the repository, and downloads
 /// of the latest release for macOS and Windows. A number GitHub did not tell
 /// is a dash
 class ProjectStatsPanel extends StatelessWidget {
@@ -29,7 +29,11 @@ class ProjectStatsPanel extends StatelessWidget {
   Widget build(BuildContext context) {
     final tiles = [
       _ProjectStatTile(
-        icon: Icon(Icons.star_rounded, size: 22, color: context.color.accent),
+        icon: Assets.icons.iconStar.svg(
+          color: context.color.accent,
+          height: 18,
+          width: 18,
+        ),
         value: AppFormatters.count(stats?.stars),
         label: LocaleKeys.app_donations_github_stars.tr(),
         tooltip: LocaleKeys.app_donations_github_open_repository.tr(),
@@ -168,12 +172,12 @@ class _ProjectStatTile extends StatelessWidget {
         ),
         if (onPressed != null) ...[
           const SizedBox(width: 8),
-          Icon(
-            Icons.open_in_new_rounded,
-            size: 16,
+          Assets.icons.iconLink.svg(
             color: highlighted
                 ? context.color.accent
                 : context.color.textTertiary,
+            height: 15,
+            width: 15,
           ),
         ],
       ],

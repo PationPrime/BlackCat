@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:black_cat/src/app/tools/tools.dart';
+import 'package:peeky_cat/src/app/tools/tools.dart';
 
 const _targetUrl = 'https://www.youtube.com/watch?v=kgA8JPY2lIA';
 

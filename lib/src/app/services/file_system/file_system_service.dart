@@ -7,9 +7,14 @@ import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
 import '../../constants/constants.dart';
+import 'old_app_data.dart';
 
 abstract interface class FileSystemService {
-  /// `%LOCALAPPDATA%\BlackCat\<name>`: WebView2 profiles, cache
+  /// Moves what the app left under its old name into the folders of the
+  /// new one, once, before anything reads them
+  Future<void> migrateOldAppData();
+
+  /// `%LOCALAPPDATA%\PeekyCat\<name>`: WebView2 profiles, cache
   Future<String> localAppFolder(String name);
 
   /// Folder for settings and cookies in `%APPDATA%`
@@ -81,6 +86,24 @@ abstract interface class FileSystemService {
 
 class FileSystemServiceImpl implements FileSystemService {
   static final _forbiddenCharactersPattern = RegExp(r'[<>:"/\\|?*\x00-\x1F]');
+
+  @override
+  Future<void> migrateOldAppData() async {
+    final localAppData = Platform.environment['LOCALAPPDATA'];
+
+    if (localAppData != null) {
+      await OldAppData.move(
+        from: p.join(localAppData, OldAppData.localAppFolder),
+        to: p.join(localAppData, StorageConstants.localAppFolder),
+      );
+    }
+
+    final support = await supportFolder();
+
+    if (OldAppData.supportFolderNextTo(support) case final oldSupport?) {
+      await OldAppData.move(from: oldSupport, to: support);
+    }
+  }
 
   @override
   Future<String> localAppFolder(String name) async {

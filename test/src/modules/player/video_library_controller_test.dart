@@ -1,10 +1,10 @@
 import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:black_cat/src/app/errors/errors.dart';
-import 'package:black_cat/src/app/models/models.dart';
-import 'package:black_cat/src/app/shared_controllers/shared_controllers.dart';
-import 'package:black_cat/src/modules/player/controllers/controllers.dart';
+import 'package:peeky_cat/src/app/errors/errors.dart';
+import 'package:peeky_cat/src/app/models/models.dart';
+import 'package:peeky_cat/src/app/shared_controllers/shared_controllers.dart';
+import 'package:peeky_cat/src/modules/player/controllers/controllers.dart';
 
 import '../../support/fake_repositories.dart';
 import '../../support/test_localization.dart';

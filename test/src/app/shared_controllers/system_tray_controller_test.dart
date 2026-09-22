@@ -1,9 +1,9 @@
 import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:black_cat/src/app/models/models.dart';
-import 'package:black_cat/src/app/shared_controllers/shared_controllers.dart';
-import 'package:black_cat/src/app/tools/tools.dart';
+import 'package:peeky_cat/src/app/models/models.dart';
+import 'package:peeky_cat/src/app/shared_controllers/shared_controllers.dart';
+import 'package:peeky_cat/src/app/tools/tools.dart';
 
 import '../../support/fake_services.dart';
 import '../../support/test_localization.dart';
@@ -77,11 +77,11 @@ void main() {
 
       expect(harness.trayService.lastMenuLabels, [
         'Нет активной загрузки',
-        'Открыть BlackCat',
+        'Открыть PeekyCat',
         'Свернуть в трей',
         'Выйти',
       ]);
-      expect(harness.trayService.toolTips.last, 'BlackCat');
+      expect(harness.trayService.toolTips.last, 'PeekyCat');
     },
   );
 
@@ -110,7 +110,7 @@ void main() {
       ]);
       expect(
         harness.trayService.toolTips.last,
-        'BlackCat\nОбзор\nСкачивание 42%',
+        'PeekyCat\nОбзор\nСкачивание 42%',
       );
 
       final menusCount = harness.trayService.menus.length;

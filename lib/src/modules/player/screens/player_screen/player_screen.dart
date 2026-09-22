@@ -4,15 +4,16 @@ import 'package:auto_route/auto_route.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:black_cat/src/app/design_system/design_system.dart';
-import 'package:black_cat/src/app/localization/lang/locale_keys.g.dart';
-import 'package:black_cat/src/app/models/models.dart';
-import 'package:black_cat/src/app/repositories/repositories.dart';
-import 'package:black_cat/src/app/services/services.dart';
-import 'package:black_cat/src/app/shared_controllers/shared_controllers.dart';
-import 'package:black_cat/src/app/widgets/widgets.dart';
-import 'package:black_cat/src/modules/downloads/controllers/controllers.dart';
+import 'package:peeky_cat/src/app/design_system/design_system.dart';
+import 'package:peeky_cat/src/app/localization/lang/locale_keys.g.dart';
+import 'package:peeky_cat/src/app/models/models.dart';
+import 'package:peeky_cat/src/app/repositories/repositories.dart';
+import 'package:peeky_cat/src/app/services/services.dart';
+import 'package:peeky_cat/src/app/shared_controllers/shared_controllers.dart';
+import 'package:peeky_cat/src/app/widgets/widgets.dart';
+import 'package:peeky_cat/src/modules/downloads/controllers/controllers.dart';
 
+import '../../../../generated/assets/assets.gen.dart';
 import '../../components/components.dart';
 import '../../controllers/controllers.dart';
 
@@ -56,7 +57,7 @@ class PlayerScreen extends StatelessWidget implements AutoRouteWrapper {
             mainAxisSize: MainAxisSize.min,
             children: [
               AppIconButton(
-                icon: Icons.refresh_rounded,
+                svgPictureIconPath: Assets.icons.iconArrowRefresh.path,
                 tooltip: LocaleKeys.app_player_refresh.tr(),
                 onPressed: folder == null
                     ? null

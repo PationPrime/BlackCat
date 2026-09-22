@@ -88,11 +88,13 @@ class _LibraryVideoThumbnail extends StatelessWidget {
                               ),
                             ),
                           ),
-                          child: Icon(
-                            Icons.play_arrow_rounded,
-                            size: 34,
-                            color: context.color.onPlayer,
-                            semanticLabel: LocaleKeys.app_player_play.tr(),
+                          child: Center(
+                            child: Assets.icons.iconPlay.svg(
+                              color: context.color.onPlayer,
+                              width: 24,
+                              height: 24,
+                              semanticsLabel: LocaleKeys.app_player_play.tr(),
+                            ),
                           ),
                         ),
                       ),

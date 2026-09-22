@@ -51,6 +51,16 @@ abstract base class AppColors {
   static const violetA78BFAAlpha35 = Color(0x59A78BFA);
   static const violet8B5CF6 = Color(0xFF8B5CF6);
 
+  // lava lamp of the background: the brand violets with Tailwind
+  // violet and blue around them
+  static const violetC4B5FD = Color(0xFFC4B5FD);
+  static const violet6D28D9 = Color(0xFF6D28D9);
+  static const violet5B21B6 = Color(0xFF5B21B6);
+  static const blue93C5FD = Color(0xFF93C5FD);
+  static const blue3B82F6 = Color(0xFF3B82F6);
+  static const white70 = Color(0xB3FFFFFF);
+  static const black8 = Color(0x14000000);
+
   // red: errors
   static const redFEE2E2 = Color(0xFFFEE2E2);
   static const redFECACA = Color(0xFFFECACA);

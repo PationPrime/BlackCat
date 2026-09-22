@@ -1,9 +1,11 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:black_cat/src/app/design_system/design_system.dart';
-import 'package:black_cat/src/app/localization/lang/locale_keys.g.dart';
-import 'package:black_cat/src/app/models/models.dart';
-import 'package:black_cat/src/app/widgets/widgets.dart';
+import 'package:peeky_cat/src/app/design_system/design_system.dart';
+import 'package:peeky_cat/src/app/localization/lang/locale_keys.g.dart';
+import 'package:peeky_cat/src/app/models/models.dart';
+import 'package:peeky_cat/src/app/widgets/widgets.dart';
+
+import '../../../../generated/assets/assets.gen.dart';
 
 /// Download folder: path, choosing another folder, returning to Downloads
 class DownloadDirectoryCard extends StatelessWidget {
@@ -49,17 +51,18 @@ class DownloadDirectoryCard extends StatelessWidget {
             border: Border.all(color: context.color.border),
           ),
           child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Icon(
-                Icons.folder_outlined,
-                size: 18,
+              Assets.icons.iconDownloadFolder.svg(
                 color: context.color.iconPrimary,
+                width: 18,
+                height: 18,
               ),
               const SizedBox(width: 10),
               Expanded(
                 child: SelectableText(
                   downloadDirectory?.path ?? '',
-                  maxLines: 2,
+                  maxLines: 1,
                   style: context.text.captionRegular.copyWith(
                     color: context.color.textPrimary,
                   ),

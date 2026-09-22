@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:black_cat/src/app/models/models.dart';
-import 'package:black_cat/src/app/shared_controllers/shared_controllers.dart';
-import 'package:black_cat/src/app/widgets/widgets.dart';
+import 'package:peeky_cat/src/app/models/models.dart';
+import 'package:peeky_cat/src/app/shared_controllers/shared_controllers.dart';
+import 'package:peeky_cat/src/app/widgets/widgets.dart';
 
 import '../dependencies_fallback_dialog/dependencies_fallback_dialog.dart';
 import '../dependencies_install_dialog/dependencies_install_dialog.dart';

@@ -16,7 +16,7 @@ class CodegenLoader extends AssetLoader {
 
   static const Map<String, dynamic> _en_US = {
     "app": {
-      "title": "BlackCat",
+      "title": "PeekyCat",
       "common": {
         "file_size": {
           "bytes": "{value} B",
@@ -48,7 +48,7 @@ class CodegenLoader extends AssetLoader {
         "google_dialog": {
           "title": "Google sign-in: only as a last resort",
           "open_source":
-              "BlackCat is an open-source app. It isn't registered in the Google Cloud Console and hasn't been verified by Google, so Google treats its sign-in window as unverified.",
+              "PeekyCat is an open-source app. It isn't registered in the Google Cloud Console and hasn't been verified by Google, so Google treats its sign-in window as unverified.",
           "risks":
               "Your account password is typed right into the app window. Google may block such a sign-in, ask for extra verification or flag your account activity as suspicious.",
           "cookies":
@@ -64,7 +64,7 @@ class CodegenLoader extends AssetLoader {
         "close": "Close",
       },
       "tray": {
-        "open": "Open BlackCat",
+        "open": "Open PeekyCat",
         "hide": "Minimize to tray",
         "quit": "Quit",
         "no_active_download": "No active download",
@@ -178,7 +178,7 @@ class CodegenLoader extends AssetLoader {
           "title": "YouTube cookies",
           "recommended_badge": "Recommended",
           "description":
-              "The recommended way to sign in to YouTube. The app takes cookies from a browser where you're already signed in: your password never goes into BlackCat, and YouTube sees a regular sign-in from your browser. Both yt-dlp and the built-in downloader use them.",
+              "The recommended way to sign in to YouTube. The app takes cookies from a browser where you're already signed in: your password never goes into PeekyCat, and YouTube sees a regular sign-in from your browser. Both yt-dlp and the built-in downloader use them.",
           "steps_title": "How to get and add cookies",
           "step_1":
               "Install a browser extension that exports cookies in the Netscape format: “Get cookies.txt LOCALLY” for Chrome, Edge, Yandex Browser and other Chromium browsers, or “cookies.txt” for Firefox. Allow it to run in private windows.",
@@ -212,7 +212,7 @@ class CodegenLoader extends AssetLoader {
           "success": "Cookies imported: signed in to YouTube.",
           "google_title": "Sign in with a Google account",
           "google_description":
-              "Only as a last resort. BlackCat is an open-source app that isn't registered in the Google Cloud Console, so Google treats its sign-in window as unverified: the sign-in may be blocked or need extra verification, and your password is typed right into the app window.",
+              "Only as a last resort. PeekyCat is an open-source app that isn't registered in the Google Cloud Console, so Google treats its sign-in window as unverified: the sign-in may be blocked or need extra verification, and your password is typed right into the app window.",
           "google_sign_in": "Sign in with Google…",
         },
         "subtitle": "Download folder, interface language and YouTube cookies.",
@@ -220,7 +220,7 @@ class CodegenLoader extends AssetLoader {
       "donations": {
         "title": "Support the project",
         "subtitle": "If the app helps you, you can support its development.",
-        "hero_title": "Thank you for using BlackCat!",
+        "hero_title": "Thank you for using PeekyCat!",
         "hero_description":
             "Your support helps update the app and add new features faster",
         "platforms_title": "Ways to support",
@@ -231,7 +231,7 @@ class CodegenLoader extends AssetLoader {
         "open_failed": "Couldn't open the link {url}",
         "thank_you": "Thank you for your support!",
         "github": {
-          "title": "BlackCat on GitHub",
+          "title": "PeekyCat on GitHub",
           "stars": "GitHub stars",
           "open_repository": "Open the repository on GitHub",
           "downloads_macos": "macOS downloads",
@@ -544,7 +544,7 @@ class CodegenLoader extends AssetLoader {
   };
   static const Map<String, dynamic> _ru_RU = {
     "app": {
-      "title": "BlackCat",
+      "title": "PeekyCat",
       "common": {
         "file_size": {
           "bytes": "{value} Б",
@@ -576,7 +576,7 @@ class CodegenLoader extends AssetLoader {
         "google_dialog": {
           "title": "Вход через Google — только в крайнем случае",
           "open_source":
-              "BlackCat — приложение с открытым исходным кодом. Оно не зарегистрировано в Google Cloud Console и не проходило проверку Google, поэтому для Google его окно входа — непроверенное.",
+              "PeekyCat — приложение с открытым исходным кодом. Оно не зарегистрировано в Google Cloud Console и не проходило проверку Google, поэтому для Google его окно входа — непроверенное.",
           "risks":
               "Пароль от аккаунта вводится прямо в окне приложения. Google может отклонить такой вход, попросить дополнительные подтверждения или посчитать активность аккаунта подозрительной.",
           "cookies":
@@ -592,7 +592,7 @@ class CodegenLoader extends AssetLoader {
         "close": "Закрыть",
       },
       "tray": {
-        "open": "Открыть BlackCat",
+        "open": "Открыть PeekyCat",
         "hide": "Свернуть в трей",
         "quit": "Выйти",
         "no_active_download": "Нет активной загрузки",
@@ -706,7 +706,7 @@ class CodegenLoader extends AssetLoader {
           "title": "Cookies YouTube",
           "recommended_badge": "Рекомендуется",
           "description":
-              "Рекомендуемый способ войти в YouTube. Приложение берёт cookies из браузера, в котором вы уже вошли: пароль не вводится в BlackCat, а YouTube видит обычный вход из вашего браузера. Cookies используют и yt-dlp, и встроенный загрузчик.",
+              "Рекомендуемый способ войти в YouTube. Приложение берёт cookies из браузера, в котором вы уже вошли: пароль не вводится в PeekyCat, а YouTube видит обычный вход из вашего браузера. Cookies используют и yt-dlp, и встроенный загрузчик.",
           "steps_title": "Как получить и добавить cookies",
           "step_1":
               "Установите в браузер расширение для экспорта cookies в формате Netscape: «Get cookies.txt LOCALLY» для Chrome, Edge, Яндекс Браузера и других браузеров на Chromium или «cookies.txt» для Firefox. Разрешите ему работать в приватных окнах.",
@@ -740,7 +740,7 @@ class CodegenLoader extends AssetLoader {
           "success": "Cookies импортированы: вход в YouTube выполнен.",
           "google_title": "Вход через аккаунт Google",
           "google_description":
-              "Только в крайнем случае. BlackCat — приложение с открытым исходным кодом без регистрации в Google Cloud Console, поэтому Google считает его окно входа непроверенным: вход могут отклонить или попросить дополнительные подтверждения, а пароль вводится прямо в окне приложения.",
+              "Только в крайнем случае. PeekyCat — приложение с открытым исходным кодом без регистрации в Google Cloud Console, поэтому Google считает его окно входа непроверенным: вход могут отклонить или попросить дополнительные подтверждения, а пароль вводится прямо в окне приложения.",
           "google_sign_in": "Войти через Google…",
         },
         "subtitle": "Папка для загрузок, язык интерфейса и cookies YouTube.",
@@ -749,7 +749,7 @@ class CodegenLoader extends AssetLoader {
         "title": "Поддержать проект",
         "subtitle":
             "Если приложение вам помогает, вы можете поддержать его развитие.",
-        "hero_title": "Спасибо, что пользуетесь BlackCat!",
+        "hero_title": "Спасибо, что пользуетесь PeekyCat!",
         "hero_description":
             "Поддержка помогает быстрее обновлять приложение и добавлять новые возможности",
         "platforms_title": "Способы поддержки",
@@ -760,7 +760,7 @@ class CodegenLoader extends AssetLoader {
         "open_failed": "Не удалось открыть ссылку {url}",
         "thank_you": "Спасибо за поддержку!",
         "github": {
-          "title": "BlackCat на GitHub",
+          "title": "PeekyCat на GitHub",
           "stars": "Звёзды на GitHub",
           "open_repository": "Открыть репозиторий на GitHub",
           "downloads_macos": "Скачиваний для macOS",

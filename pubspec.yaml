@@ -1,4 +1,4 @@
-name: black_cat
+name: peeky_cat
 description: ""
 publish_to: 'none'
 version: 0.1.0+1
@@ -59,6 +59,8 @@ flutter_gen:
 
 flutter:
   uses-material-design: true
+  shaders:
+    - shaders/lava_lamp.frag
   assets:
     - assets/app_icon/
     - assets/icons/

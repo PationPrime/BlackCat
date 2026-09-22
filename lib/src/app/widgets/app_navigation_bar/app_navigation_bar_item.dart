@@ -65,7 +65,12 @@ class _AppNavigationBarItem extends StatelessWidget {
                   children: [
                     /// Fills the round button: the badge sits on its edge
                     Center(
-                      child: Icon(data.icon, size: 22, color: contentColor),
+                      child: SvgPicture.asset(
+                        data.svgPictureFilePath,
+                        height: 22,
+                        width: 22,
+                        color: contentColor,
+                      ),
                     ),
                     if (badge != null)
                       Positioned(
@@ -77,7 +82,12 @@ class _AppNavigationBarItem extends StatelessWidget {
                 )
               : Row(
                   children: [
-                    Icon(data.icon, size: 20, color: contentColor),
+                    SvgPicture.asset(
+                      data.svgPictureFilePath,
+                      height: 20,
+                      width: 20,
+                      color: contentColor,
+                    ),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(

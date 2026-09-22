@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:black_cat/src/app/design_system/design_system.dart';
-import 'package:black_cat/src/app/widgets/widgets.dart';
+import 'package:peeky_cat/src/app/design_system/design_system.dart';
+import 'package:peeky_cat/src/app/widgets/widgets.dart';
 
 /// Video sites over the home pages: the chosen site is an accent pill,
 /// as in the navigation bar

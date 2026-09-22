@@ -2,6 +2,7 @@ import 'dart:ui' show lerpDouble;
 
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 
 import '../../design_system/design_system.dart';
 import '../app_buttons/app_buttons.dart';

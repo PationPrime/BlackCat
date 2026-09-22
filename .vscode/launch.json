@@ -5,18 +5,18 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "black_cat",
+            "name": "peeky_cat",
             "request": "launch",
             "type": "dart"
         },
         {
-            "name": "black_cat (profile mode)",
+            "name": "peeky_cat (profile mode)",
             "request": "launch",
             "type": "dart",
             "flutterMode": "profile"
         },
         {
-            "name": "black_cat (release mode)",
+            "name": "peeky_cat (release mode)",
             "request": "launch",
             "type": "dart",
             "flutterMode": "release"

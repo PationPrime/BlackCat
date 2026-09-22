@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:black_cat/src/app/models/models.dart';
-import 'package:black_cat/src/app/tools/tools.dart';
+import 'package:peeky_cat/src/app/models/models.dart';
+import 'package:peeky_cat/src/app/tools/tools.dart';
 
 const _id = '19bfb665a164217084d9a5b4d8a9e734';
 

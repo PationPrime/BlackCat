@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:black_cat/src/app/errors/errors.dart';
-import 'package:black_cat/src/app/models/models.dart';
-import 'package:black_cat/src/app/widgets/widgets.dart';
-import 'package:black_cat/src/modules/downloads/module.dart';
+import 'package:peeky_cat/src/app/errors/errors.dart';
+import 'package:peeky_cat/src/app/models/models.dart';
+import 'package:peeky_cat/src/app/widgets/widgets.dart';
+import 'package:peeky_cat/src/modules/downloads/module.dart';
 
 import '../../support/test_app.dart';
 import '../../support/test_localization.dart';

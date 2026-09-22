@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 
 import '../../../design_system/design_system.dart';
 import '../app_pressable/app_pressable.dart';
@@ -6,7 +7,7 @@ import '../app_pressable/app_pressable.dart';
 /// Icon button with a tooltip. Highlighted on hover,
 /// a disabled button is semi-transparent
 class AppIconButton extends StatelessWidget {
-  final IconData icon;
+  final String svgPictureIconPath;
 
   /// Hover tooltip and label for the screen reader
   final String tooltip;
@@ -23,7 +24,7 @@ class AppIconButton extends StatelessWidget {
 
   const AppIconButton({
     super.key,
-    required this.icon,
+    required this.svgPictureIconPath,
     required this.tooltip,
     this.onPressed,
     this.iconColor,
@@ -52,11 +53,13 @@ class AppIconButton extends StatelessWidget {
                 : context.color.transparent,
             borderRadius: BorderRadius.circular(8),
           ),
-          child: Icon(
-            icon,
-            size: iconSize,
-            color: iconColor ?? context.color.iconPrimary,
-            semanticLabel: tooltip,
+          child: Center(
+            child: SvgPicture.asset(
+              svgPictureIconPath,
+              color: iconColor ?? context.color.iconPrimary,
+              width: iconSize,
+              height: iconSize,
+            ),
           ),
         ),
       ),

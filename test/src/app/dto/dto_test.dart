@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:black_cat/src/app/data_sources/data_sources.dart';
-import 'package:black_cat/src/app/dto/dto.dart';
+import 'package:peeky_cat/src/app/data_sources/data_sources.dart';
+import 'package:peeky_cat/src/app/dto/dto.dart';
 
 void main() {
   group('EmbedConfigDto', () {

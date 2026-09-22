@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:black_cat/src/app/widgets/widgets.dart';
-import 'package:black_cat/src/modules/home/module.dart';
+import 'package:peeky_cat/src/app/widgets/widgets.dart';
+import 'package:peeky_cat/src/modules/home/module.dart';
 
 import '../../support/test_app.dart';
 import '../../support/test_localization.dart';

@@ -30,7 +30,7 @@ final class YtDlpVideoRepository implements YtDlpVideoRepositoryInterface {
   static const _infoFileName = 'yt-dlp-info.json';
   static const _cookiesFileName = 'yt-dlp-cookies.txt';
 
-  /// Folder in `%LOCALAPPDATA%\BlackCat` for cookies of searches
+  /// Folder in `%LOCALAPPDATA%\PeekyCat` for cookies of searches
   static const _searchFolder = 'yt-dlp';
 
   static const _progressInterval = Duration(milliseconds: 250);

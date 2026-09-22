@@ -2,12 +2,12 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path/path.dart' as p;
-import 'package:black_cat/src/app/data_sources/data_sources.dart';
-import 'package:black_cat/src/app/errors/errors.dart';
-import 'package:black_cat/src/app/models/models.dart';
-import 'package:black_cat/src/app/repositories/repositories.dart';
-import 'package:black_cat/src/app/services/services.dart';
-import 'package:black_cat/src/app/tools/tools.dart';
+import 'package:peeky_cat/src/app/data_sources/data_sources.dart';
+import 'package:peeky_cat/src/app/errors/errors.dart';
+import 'package:peeky_cat/src/app/models/models.dart';
+import 'package:peeky_cat/src/app/repositories/repositories.dart';
+import 'package:peeky_cat/src/app/services/services.dart';
+import 'package:peeky_cat/src/app/tools/tools.dart';
 
 import '../../support/test_localization.dart';
 

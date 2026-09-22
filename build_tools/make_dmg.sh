@@ -2,7 +2,7 @@
 #
 # Packs the macOS release build into a .dmg named after the version in
 # Info.plist and the architecture the binary was actually built for, e.g.
-# BlackCat_0.1.0.1_aarch64.dmg.
+# PeekyCat_0.1.0.1_aarch64.dmg.
 #
 #   tool/make_dmg.sh                              a dmg for this Mac
 #   tool/make_dmg.sh --skip-build                 packs what is already built

@@ -6,9 +6,6 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
   /// Screen background
   final Color background;
 
-  /// Glow in the screen header
-  final Color backgroundGlow;
-
   /// Input fields and panels over the background
   final Color surface;
 
@@ -111,11 +108,24 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
   /// Player menus: the playback speed
   final Color playerMenu;
 
+  /// Lava lamp of the background: the glow around the lava, the lava,
+  /// where it is thick and where it is the thickest
+  final Color lavaHaze;
+  final Color lavaBody;
+  final Color lavaCore;
+  final Color lavaDeep;
+
+  /// Veil over the lava lamp, as a card over the background: dim text
+  /// on the background stays readable
+  final Color lavaVeil;
+
+  /// Grain over the lava lamp: its alpha is how dark the darkest speck is
+  final Color lavaGrain;
+
   final Color transparent;
 
   const AppThemeColors({
     required this.background,
-    required this.backgroundGlow,
     required this.surface,
     required this.card,
     required this.dialog,
@@ -158,13 +168,18 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
     required this.playerTrack,
     required this.playerHover,
     required this.playerMenu,
+    required this.lavaHaze,
+    required this.lavaBody,
+    required this.lavaCore,
+    required this.lavaDeep,
+    required this.lavaVeil,
+    required this.lavaGrain,
     required this.transparent,
   });
 
   @override
   AppThemeColors copyWith({
     Color? background,
-    Color? backgroundGlow,
     Color? surface,
     Color? card,
     Color? dialog,
@@ -207,10 +222,15 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
     Color? playerTrack,
     Color? playerHover,
     Color? playerMenu,
+    Color? lavaHaze,
+    Color? lavaBody,
+    Color? lavaCore,
+    Color? lavaDeep,
+    Color? lavaVeil,
+    Color? lavaGrain,
     Color? transparent,
   }) => AppThemeColors(
     background: background ?? this.background,
-    backgroundGlow: backgroundGlow ?? this.backgroundGlow,
     surface: surface ?? this.surface,
     card: card ?? this.card,
     dialog: dialog ?? this.dialog,
@@ -253,6 +273,12 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
     playerTrack: playerTrack ?? this.playerTrack,
     playerHover: playerHover ?? this.playerHover,
     playerMenu: playerMenu ?? this.playerMenu,
+    lavaHaze: lavaHaze ?? this.lavaHaze,
+    lavaBody: lavaBody ?? this.lavaBody,
+    lavaCore: lavaCore ?? this.lavaCore,
+    lavaDeep: lavaDeep ?? this.lavaDeep,
+    lavaVeil: lavaVeil ?? this.lavaVeil,
+    lavaGrain: lavaGrain ?? this.lavaGrain,
     transparent: transparent ?? this.transparent,
   );
 
@@ -267,7 +293,6 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
 
     return AppThemeColors(
       background: Color.lerp(background, other.background, t)!,
-      backgroundGlow: Color.lerp(backgroundGlow, other.backgroundGlow, t)!,
       surface: Color.lerp(surface, other.surface, t)!,
       card: Color.lerp(card, other.card, t)!,
       dialog: Color.lerp(dialog, other.dialog, t)!,
@@ -334,13 +359,18 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
       playerTrack: Color.lerp(playerTrack, other.playerTrack, t)!,
       playerHover: Color.lerp(playerHover, other.playerHover, t)!,
       playerMenu: Color.lerp(playerMenu, other.playerMenu, t)!,
+      lavaHaze: Color.lerp(lavaHaze, other.lavaHaze, t)!,
+      lavaBody: Color.lerp(lavaBody, other.lavaBody, t)!,
+      lavaCore: Color.lerp(lavaCore, other.lavaCore, t)!,
+      lavaDeep: Color.lerp(lavaDeep, other.lavaDeep, t)!,
+      lavaVeil: Color.lerp(lavaVeil, other.lavaVeil, t)!,
+      lavaGrain: Color.lerp(lavaGrain, other.lavaGrain, t)!,
       transparent: Color.lerp(transparent, other.transparent, t)!,
     );
   }
 
   static const light = AppThemeColors(
     background: AppColors.stoneFAFAF9,
-    backgroundGlow: AppColors.violetA78BFAAlpha12,
     surface: AppColors.white,
     card: AppColors.white,
     dialog: AppColors.white,
@@ -383,12 +413,17 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
     playerTrack: AppColors.white20,
     playerHover: AppColors.white10,
     playerMenu: AppColors.gray282828Alpha90,
+    lavaHaze: AppColors.violetC4B5FD,
+    lavaBody: AppColors.violetA78BFA,
+    lavaCore: AppColors.blue93C5FD,
+    lavaDeep: AppColors.violet8B5CF6,
+    lavaVeil: AppColors.white70,
+    lavaGrain: AppColors.black8,
     transparent: AppColors.transparent,
   );
 
   static const dark = AppThemeColors(
     background: AppColors.stone0C0A09,
-    backgroundGlow: AppColors.violetA78BFAAlpha16,
     surface: AppColors.stone1C1917,
     card: AppColors.stone1C1917Alpha70,
     dialog: AppColors.stone1C1917,
@@ -431,6 +466,12 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
     playerTrack: AppColors.white20,
     playerHover: AppColors.white10,
     playerMenu: AppColors.gray282828Alpha90,
+    lavaHaze: AppColors.violet5B21B6,
+    lavaBody: AppColors.violet8B5CF6,
+    lavaCore: AppColors.blue3B82F6,
+    lavaDeep: AppColors.violet6D28D9,
+    lavaVeil: AppColors.stone1C1917Alpha70,
+    lavaGrain: AppColors.black30,
     transparent: AppColors.transparent,
   );
 }

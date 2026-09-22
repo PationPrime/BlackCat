@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:black_cat/src/app/errors/errors.dart';
-import 'package:black_cat/src/app/models/models.dart';
-import 'package:black_cat/src/app/shared_controllers/shared_controllers.dart';
-import 'package:black_cat/src/app/widgets/widgets.dart';
-import 'package:black_cat/src/modules/modules.dart';
+import 'package:peeky_cat/src/app/errors/errors.dart';
+import 'package:peeky_cat/src/app/models/models.dart';
+import 'package:peeky_cat/src/app/shared_controllers/shared_controllers.dart';
+import 'package:peeky_cat/src/app/widgets/widgets.dart';
+import 'package:peeky_cat/src/modules/modules.dart';
 
 import '../../support/fake_repositories.dart';
 import '../../support/test_app.dart';
@@ -50,7 +50,7 @@ void main() {
         tester.getSize(_navigationBar).width,
         AppNavigationBar.expandedWidth,
       );
-      expect(_inNavigationBar('BlackCat'), findsOneWidget);
+      expect(_inNavigationBar('PeekyCat'), findsOneWidget);
       expect(
         find.descendant(of: _navigationBar, matching: find.byType(AppIconLogo)),
         findsOneWidget,
@@ -267,6 +267,44 @@ void main() {
     },
   );
 
+  testWidgets(
+    'фон — одна лава под всеми страницами, под видео на весь экран она замирает',
+    (tester) async {
+      final app = TestApp();
+      final background = find.byType(AppLavaBackground);
+
+      await app.pumpApp(tester);
+
+      expect(background, findsOneWidget);
+      expect(
+        tester.getRect(background),
+        const Rect.fromLTRB(AppNavigationBar.expandedWidth, 0, 1200, 900),
+      );
+      expect(tester.widget<AppLavaBackground>(background).animate, isTrue);
+
+      await tester.tap(_inNavigationBar('Настройки'));
+      await app.settle(tester);
+
+      expect(background, findsOneWidget);
+      expect(
+        find.ancestor(of: find.byType(SettingsScreen), matching: background),
+        findsNothing,
+      );
+
+      await app.appWindowController.setFullScreen(true);
+      await app.settle(tester);
+
+      expect(tester.widget<AppLavaBackground>(background).animate, isFalse);
+
+      await app.appWindowController.setFullScreen(false);
+      await app.settle(tester);
+
+      expect(tester.widget<AppLavaBackground>(background).animate, isTrue);
+
+      await app.close();
+    },
+  );
+
   testWidgets('низ страницы прокручивается из-под нижней панели', (
     tester,
   ) async {
@@ -367,7 +405,7 @@ void main() {
     /// Without the app name the icon names it in a tooltip
     expect(
       find.descendant(
-        of: find.byTooltip('BlackCat'),
+        of: find.byTooltip('PeekyCat'),
         matching: find.byType(AppIconLogo),
       ),
       findsOneWidget,

@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:black_cat/src/app/models/models.dart';
-import 'package:black_cat/src/app/shared_controllers/shared_controllers.dart';
+import 'package:peeky_cat/src/app/models/models.dart';
+import 'package:peeky_cat/src/app/shared_controllers/shared_controllers.dart';
 
 void main() {
   test('по умолчанию открыта главная, selectTab переключает страницы', () {

@@ -5,15 +5,15 @@ import 'package:drift/drift.dart' show DatabaseConnection;
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path/path.dart' as p;
-import 'package:black_cat/src/app/constants/constants.dart';
-import 'package:black_cat/src/app/data_sources/data_sources.dart';
-import 'package:black_cat/src/app/models/models.dart';
-import 'package:black_cat/src/app/operation_result/operation_result.dart';
-import 'package:black_cat/src/app/repositories/repositories.dart';
-import 'package:black_cat/src/app/services/services.dart';
-import 'package:black_cat/src/app/storage/database/database.dart';
-import 'package:black_cat/src/app/storage/database/providers/providers.dart';
-import 'package:black_cat/src/app/tools/tools.dart';
+import 'package:peeky_cat/src/app/constants/constants.dart';
+import 'package:peeky_cat/src/app/data_sources/data_sources.dart';
+import 'package:peeky_cat/src/app/models/models.dart';
+import 'package:peeky_cat/src/app/operation_result/operation_result.dart';
+import 'package:peeky_cat/src/app/repositories/repositories.dart';
+import 'package:peeky_cat/src/app/services/services.dart';
+import 'package:peeky_cat/src/app/storage/database/database.dart';
+import 'package:peeky_cat/src/app/storage/database/providers/providers.dart';
+import 'package:peeky_cat/src/app/tools/tools.dart';
 
 import '../../support/slice_state.dart';
 

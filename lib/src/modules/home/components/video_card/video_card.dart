@@ -1,10 +1,10 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:black_cat/src/app/design_system/design_system.dart';
-import 'package:black_cat/src/app/localization/lang/locale_keys.g.dart';
-import 'package:black_cat/src/app/models/models.dart';
-import 'package:black_cat/src/app/tools/tools.dart';
-import 'package:black_cat/src/app/widgets/widgets.dart';
+import 'package:peeky_cat/src/app/design_system/design_system.dart';
+import 'package:peeky_cat/src/app/localization/lang/locale_keys.g.dart';
+import 'package:peeky_cat/src/app/models/models.dart';
+import 'package:peeky_cat/src/app/tools/tools.dart';
+import 'package:peeky_cat/src/app/widgets/widgets.dart';
 
 /// Found video card: thumbnail, title, channel, duration, views.
 /// Below them: [children], quality selection and download

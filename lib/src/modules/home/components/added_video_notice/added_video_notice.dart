@@ -1,8 +1,10 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:black_cat/src/app/design_system/design_system.dart';
-import 'package:black_cat/src/app/localization/lang/locale_keys.g.dart';
-import 'package:black_cat/src/app/widgets/widgets.dart';
+import 'package:peeky_cat/src/app/design_system/design_system.dart';
+import 'package:peeky_cat/src/app/localization/lang/locale_keys.g.dart';
+import 'package:peeky_cat/src/app/widgets/widgets.dart';
+
+import '../../../../generated/assets/assets.gen.dart';
 
 /// Confirmation that the video went to the downloads, with a way to open them
 class AddedVideoNotice extends StatelessWidget {
@@ -26,7 +28,11 @@ class AddedVideoNotice extends StatelessWidget {
     ),
     child: Row(
       children: [
-        Icon(Icons.check_circle_rounded, size: 18, color: context.color.accent),
+        Assets.icons.iconCircleCheck.svg(
+          width: 18,
+          height: 18,
+          color: context.color.accent,
+        ),
         const SizedBox(width: 10),
         Expanded(
           child: Semantics(
@@ -48,7 +54,7 @@ class AddedVideoNotice extends StatelessWidget {
         ),
         const SizedBox(width: 4),
         AppIconButton(
-          icon: Icons.close_rounded,
+          svgPictureIconPath: Assets.icons.iconCloseSm.path,
           tooltip: LocaleKeys.app_downloader_buttons_hide.tr(),
           onPressed: onDismissPressed,
         ),

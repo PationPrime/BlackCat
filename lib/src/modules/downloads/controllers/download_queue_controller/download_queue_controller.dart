@@ -3,15 +3,15 @@ import 'dart:math' as math;
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:black_cat/src/app/constants/constants.dart';
-import 'package:black_cat/src/app/errors/errors.dart';
-import 'package:black_cat/src/app/failure/failure.dart';
-import 'package:black_cat/src/app/logger/app_logger.dart';
-import 'package:black_cat/src/app/models/models.dart';
-import 'package:black_cat/src/app/operation_result/operation_result.dart';
-import 'package:black_cat/src/app/repositories/repositories.dart';
-import 'package:black_cat/src/app/shared_controllers/shared_controllers.dart';
-import 'package:black_cat/src/app/tools/tools.dart';
+import 'package:peeky_cat/src/app/constants/constants.dart';
+import 'package:peeky_cat/src/app/errors/errors.dart';
+import 'package:peeky_cat/src/app/failure/failure.dart';
+import 'package:peeky_cat/src/app/logger/app_logger.dart';
+import 'package:peeky_cat/src/app/models/models.dart';
+import 'package:peeky_cat/src/app/operation_result/operation_result.dart';
+import 'package:peeky_cat/src/app/repositories/repositories.dart';
+import 'package:peeky_cat/src/app/shared_controllers/shared_controllers.dart';
+import 'package:peeky_cat/src/app/tools/tools.dart';
 
 part 'download_queue_state.dart';
 part 'download_run.dart';

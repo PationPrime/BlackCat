@@ -2,7 +2,7 @@ part of 'video_player_dialog.dart';
 
 /// Player buttons: white icons without a frame, as on YouTube
 class _VideoPlayerButton extends StatelessWidget {
-  final IconData icon;
+  final String icon;
   final String tooltip;
   final VoidCallback? onPressed;
   final double iconSize;
@@ -16,7 +16,7 @@ class _VideoPlayerButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => AppIconButton(
-    icon: icon,
+    svgPictureIconPath: icon,
     tooltip: tooltip,
     onPressed: onPressed,
     iconColor: context.color.onPlayer,
@@ -59,10 +59,10 @@ class _VideoPlayerTopBar extends StatelessWidget {
           const SizedBox(width: 12),
           ExcludeFocus(
             child: _VideoPlayerButton(
-              icon: Icons.close_rounded,
+              icon: Assets.icons.iconCloseSm.path,
               tooltip: LocaleKeys.app_player_controls_close.tr(),
               onPressed: onClosePressed,
-              iconSize: 26,
+              iconSize: 15,
             ),
           ),
         ],
@@ -105,16 +105,17 @@ class _VideoPlayerControls extends StatelessWidget {
   static String _time(Duration duration) =>
       AppFormatters.duration(duration.inSeconds) ?? '0:00';
 
-  (IconData, String) get _playButton => playback.isCompleted
-      ? (Icons.replay_rounded, LocaleKeys.app_player_controls_replay.tr())
+  (String, String) get _playButton => playback.isCompleted
+      ? (
+          Assets.icons.iconArrowReload.path,
+          LocaleKeys.app_player_controls_replay.tr(),
+        )
       : playback.isPlaying
-      ? (Icons.pause_rounded, LocaleKeys.app_player_controls_pause.tr())
-      : (Icons.play_arrow_rounded, LocaleKeys.app_player_controls_play.tr());
+      ? (Assets.icons.iconPause.path, LocaleKeys.app_player_controls_pause.tr())
+      : (Assets.icons.iconPlay.path, LocaleKeys.app_player_controls_play.tr());
 
   @override
   Widget build(BuildContext context) {
-    final (playIcon, playTooltip) = _playButton;
-
     /// The controls take no keyboard focus: the space bar and the letters
     /// always reach the player
     return ExcludeFocus(
@@ -129,7 +130,7 @@ class _VideoPlayerControls extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.fromLTRB(12, 40, 12, 8),
           child: Column(
-            mainAxisSize: MainAxisSize.min,
+            // mainAxisSize: MainAxisSize.min,
             children: [
               _VideoProgressBar(
                 position: playback.position,
@@ -142,29 +143,32 @@ class _VideoPlayerControls extends StatelessWidget {
               Row(
                 children: [
                   _VideoPlayerButton(
-                    icon: playIcon,
-                    tooltip: playTooltip,
+                    icon: _playButton.$1,
+                    tooltip: _playButton.$2,
                     onPressed: onTogglePlayPressed,
-                    iconSize: 32,
+                    iconSize: 15,
                   ),
                   _VideoPlayerButton(
-                    icon: Icons.replay_10_rounded,
+                    icon: Assets.icons.iconArrowUndoLeft.path,
                     tooltip: LocaleKeys.app_player_controls_rewind.tr(),
                     onPressed: onRewindPressed,
+                    iconSize: 15,
                   ),
                   _VideoPlayerButton(
-                    icon: Icons.forward_10_rounded,
+                    icon: Assets.icons.iconArrowUndoRight.path,
                     tooltip: LocaleKeys.app_player_controls_forward.tr(),
                     onPressed: onForwardPressed,
+                    iconSize: 15,
                   ),
                   _VideoVolumeControl(
                     volume: playback.volume,
                     isMuted: playback.isMuted,
                     onVolumeChanged: onVolumeChanged,
                     onMuteToggled: onMuteToggled,
+                    iconSize: 15,
                   ),
                   const SizedBox(width: 8),
-                  Flexible(
+                  Expanded(
                     child: Text(
                       '${_time(playback.position)} / ${_time(playback.duration)}',
                       maxLines: 1,
@@ -172,11 +176,11 @@ class _VideoPlayerControls extends StatelessWidget {
                       softWrap: false,
                       style: context.text.captionMedium.copyWith(
                         color: context.color.onPlayer,
+                        fontSize: 12,
                         fontFeatures: const [FontFeature.tabularFigures()],
                       ),
                     ),
                   ),
-                  const Spacer(),
                   _VideoSpeedButton(
                     rate: playback.rate,
                     onRateChanged: onRateChanged,
@@ -184,13 +188,13 @@ class _VideoPlayerControls extends StatelessWidget {
                   ),
                   _VideoPlayerButton(
                     icon: isFullScreen
-                        ? Icons.fullscreen_exit_rounded
-                        : Icons.fullscreen_rounded,
+                        ? Assets.icons.iconPlayerShrink.path
+                        : Assets.icons.iconPlayerExpand.path,
                     tooltip: isFullScreen
                         ? LocaleKeys.app_player_controls_exit_full_screen.tr()
                         : LocaleKeys.app_player_controls_full_screen.tr(),
                     onPressed: onToggleFullScreenPressed,
-                    iconSize: 30,
+                    iconSize: 15,
                   ),
                 ],
               ),

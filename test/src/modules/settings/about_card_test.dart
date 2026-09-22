@@ -1,8 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:black_cat/src/app/errors/errors.dart';
-import 'package:black_cat/src/app/models/models.dart';
-import 'package:black_cat/src/app/widgets/widgets.dart';
-import 'package:black_cat/src/modules/settings/module.dart';
+import 'package:peeky_cat/src/app/errors/errors.dart';
+import 'package:peeky_cat/src/app/models/models.dart';
+import 'package:peeky_cat/src/app/widgets/widgets.dart';
+import 'package:peeky_cat/src/modules/settings/module.dart';
 
 import '../../support/test_app.dart';
 import '../../support/test_localization.dart';
@@ -24,7 +24,7 @@ void main() {
       findsOneWidget,
     );
     expect(
-      find.descendant(of: card, matching: find.text('BlackCat')),
+      find.descendant(of: card, matching: find.text('PeekyCat')),
       findsOneWidget,
     );
     expect(

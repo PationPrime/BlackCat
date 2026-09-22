@@ -6,10 +6,10 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:equatable/equatable.dart';
 import 'package:files_downloader/files_downloader.dart';
 import 'package:path/path.dart' as p;
-import 'package:black_cat/src/app/constants/constants.dart';
-import 'package:black_cat/src/app/localization/lang/locale_keys.g.dart';
-import 'package:black_cat/src/app/logger/app_logger.dart';
-import 'package:black_cat/src/app/services/services.dart';
+import 'package:peeky_cat/src/app/constants/constants.dart';
+import 'package:peeky_cat/src/app/localization/lang/locale_keys.g.dart';
+import 'package:peeky_cat/src/app/logger/app_logger.dart';
+import 'package:peeky_cat/src/app/services/services.dart';
 
 part 'direct_download_state.dart';
 

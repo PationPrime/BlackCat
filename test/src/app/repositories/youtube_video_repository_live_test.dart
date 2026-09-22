@@ -10,14 +10,14 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path/path.dart' as p;
-import 'package:black_cat/src/app/api/api.dart';
-import 'package:black_cat/src/app/data_sources/data_sources.dart';
-import 'package:black_cat/src/app/models/models.dart';
-import 'package:black_cat/src/app/operation_result/operation_result.dart';
-import 'package:black_cat/src/app/repositories/repositories.dart';
-import 'package:black_cat/src/app/services/services.dart';
-import 'package:black_cat/src/app/session/session_store.dart';
-import 'package:black_cat/src/app/tools/tools.dart';
+import 'package:peeky_cat/src/app/api/api.dart';
+import 'package:peeky_cat/src/app/data_sources/data_sources.dart';
+import 'package:peeky_cat/src/app/models/models.dart';
+import 'package:peeky_cat/src/app/operation_result/operation_result.dart';
+import 'package:peeky_cat/src/app/repositories/repositories.dart';
+import 'package:peeky_cat/src/app/services/services.dart';
+import 'package:peeky_cat/src/app/session/session_store.dart';
+import 'package:peeky_cat/src/app/tools/tools.dart';
 
 import '../../support/node_js_engine_service.dart';
 import '../../support/test_localization.dart';
@@ -36,7 +36,7 @@ class _TestFileSystemService extends FileSystemServiceImpl {
   /// Real app sign-in cookies (path_provider is unavailable in tests)
   @override
   Future<String> supportFolder() async =>
-      p.join(Platform.environment['APPDATA']!, 'com.BlackCat', 'black_cat');
+      p.join(Platform.environment['APPDATA']!, 'com.peekycat', 'PeekyCat');
 
   @override
   Future<String> defaultDownloadsFolder() async =>

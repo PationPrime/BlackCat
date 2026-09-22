@@ -3,8 +3,8 @@ import 'dart:math' as math;
 import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:black_cat/src/app/services/services.dart';
-import 'package:black_cat/src/modules/home/controllers/controllers.dart';
+import 'package:peeky_cat/src/app/services/services.dart';
+import 'package:peeky_cat/src/modules/home/controllers/controllers.dart';
 
 import '../../support/test_localization.dart';
 

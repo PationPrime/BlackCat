@@ -266,7 +266,7 @@ final class AppModule {
         _appRouter = AppRouter();
 
         runApp(
-          BlackCataRunnerApp(
+          PeekyCatRunnerApp(
             appThemeType: const AppDarkTheme(),
             appRouter: _appRouter,
             fileSystemService: _fileSystemService,
@@ -295,7 +295,7 @@ final class AppModule {
       },
       (error, stackTrace) {
         _appLogger.logError(
-          'Internal BlackCat error: $error',
+          'Internal PeekyCat error: $error',
           stackTrace: stackTrace,
         );
       },
@@ -310,6 +310,10 @@ final class AppModule {
       /// libmpv of the player is loaded before any video opens
       MediaKit.ensureInitialized();
       await initializeDateFormatting();
+
+      /// The data of the old app name moves over before the database
+      /// and the cookies are read
+      await FileSystemServiceImpl().migrateOldAppData();
       await _initializeDriftDatabase();
     } catch (error, stackTrace) {
       Error.throwWithStackTrace(

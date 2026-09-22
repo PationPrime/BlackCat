@@ -1,9 +1,9 @@
 import 'dart:async';
 
 import 'package:flutter/widgets.dart';
-import 'package:black_cat/src/app/errors/errors.dart';
-import 'package:black_cat/src/app/models/models.dart';
-import 'package:black_cat/src/app/services/services.dart';
+import 'package:peeky_cat/src/app/errors/errors.dart';
+import 'package:peeky_cat/src/app/models/models.dart';
+import 'package:peeky_cat/src/app/services/services.dart';
 
 const windowsFrame = AppWindowFrameModel(
   isCustom: true,
