@@ -1,5 +1,7 @@
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:black_cat/src/app/failure/failure.dart';
 import 'package:black_cat/src/app/widgets/widgets.dart';
 import 'package:black_cat/src/modules/donations/module.dart';
 
@@ -144,6 +146,107 @@ void main() {
     await app.close();
   });
 
+  testWidgets('BlackCat на GitHub: звёзды и скачивания последней версии', (
+    tester,
+  ) async {
+    final app = TestApp();
+
+    await app.pumpPage(
+      tester,
+      const DonationsScreen(),
+      size: const Size(1200, 1400),
+    );
+
+    final panel = find.byType(ProjectStatsPanel);
+
+    Finder inPanel(String text) =>
+        find.descendant(of: panel, matching: find.text(text));
+
+    expect(find.text('BLACKCAT НА GITHUB'), findsOneWidget);
+    expect(app.projectStatsRepository.requests, 1);
+
+    for (final (label, value) in [
+      ('Звёзды на GitHub', '1'),
+      ('Скачиваний для macOS', '3'),
+      ('Скачиваний для Windows', '2'),
+    ]) {
+      final tile = find
+          .ancestor(
+            of: inPanel(label),
+            matching: find.byType(AnimatedContainer),
+          )
+          .first;
+
+      expect(
+        find.descendant(of: tile, matching: find.text(value)),
+        findsOneWidget,
+        reason: '$value belongs to $label',
+      );
+    }
+
+    expect(inPanel('Скачивания последней версии v0.1.0'), findsOneWidget);
+
+    /// The stats go before the ways to support
+    expect(
+      tester.getTopLeft(panel).dy,
+      lessThan(tester.getTopLeft(find.text('СПОСОБЫ ПОДДЕРЖКИ')).dy),
+    );
+
+    await app.close();
+  });
+
+  testWidgets('счётчик звёзд открывает репозиторий на GitHub', (tester) async {
+    final app = TestApp();
+
+    await app.pumpPage(
+      tester,
+      const DonationsScreen(),
+      size: const Size(1200, 1400),
+    );
+
+    expect(find.byTooltip('Открыть репозиторий на GitHub'), findsOneWidget);
+
+    await tester.tap(find.text('Звёзды на GitHub'));
+    await app.settle(tester);
+
+    expect(app.urlLauncher.opened, ['https://github.com/PationPrime/BlackCat']);
+
+    /// Downloads are numbers only
+    await tester.tap(find.text('Скачиваний для macOS'));
+    await app.settle(tester);
+
+    expect(app.urlLauncher.opened, hasLength(1));
+
+    await app.close();
+  });
+
+  testWidgets('GitHub не ответил — вместо чисел прочерки', (tester) async {
+    final app = TestApp();
+
+    app.projectStatsRepository.result = (
+      failure: const UnknownFailure(message: 'offline'),
+      data: null,
+    );
+
+    await app.pumpPage(
+      tester,
+      const DonationsScreen(),
+      size: const Size(1200, 1400),
+    );
+
+    expect(
+      find.descendant(
+        of: find.byType(ProjectStatsPanel),
+        matching: find.text('—'),
+      ),
+      findsNWidgets(3),
+    );
+    expect(find.textContaining('Скачивания последней версии'), findsNothing);
+    expect(find.byType(AppFailureBanner), findsNothing);
+
+    await app.close();
+  });
+
   testWidgets(
     'в узкой колонке карточки идут друг под другом без переполнения',
     (tester) async {
@@ -156,7 +259,16 @@ void main() {
       );
 
       final cards = find.byType(DonationPlatformCard);
+      final stats = find.descendant(
+        of: find.byType(ProjectStatsPanel),
+        matching: find.byType(Tooltip),
+      );
 
+      /// The GitHub numbers too
+      expect(
+        tester.getTopLeft(stats).dy,
+        lessThan(tester.getTopLeft(find.text('Скачиваний для macOS')).dy),
+      );
       expect(
         tester.getTopLeft(cards.at(0)).dy,
         lessThan(tester.getTopLeft(cards.at(1)).dy),

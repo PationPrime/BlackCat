@@ -276,6 +276,11 @@ final class AppModule {
             settingsRepository: _settingsRepository,
             downloadQueueRepository: _downloadQueueRepository,
             videoLibraryRepository: _videoLibraryRepository,
+            projectStatsRepository: ProjectStatsRepository(
+              remoteProjectStatsDataSource: RemoteProjectStatsDataSourceImpl(
+                apiProvider: _apiProvider,
+              ),
+            ),
             videoPlayerService: _videoPlayerService,
             authorizationController: _authorizationController,
             settingsController: _settingsController,

@@ -217,7 +217,7 @@ class CodegenLoader extends AssetLoader {
         "subtitle": "If the app helps you, you can support its development.",
         "hero_title": "Thank you for using BlackCat!",
         "hero_description":
-            "Your support helps update the app faster when YouTube changes something and add new features.",
+            "Your support helps update the app and add new features faster",
         "platforms_title": "Ways to support",
         "open": "Open",
         "copy_link": "Copy link",
@@ -225,6 +225,14 @@ class CodegenLoader extends AssetLoader {
         "qr_hint": "Scan with your phone camera",
         "open_failed": "Couldn't open the link {url}",
         "thank_you": "Thank you for your support!",
+        "github": {
+          "title": "BlackCat on GitHub",
+          "stars": "GitHub stars",
+          "open_repository": "Open the repository on GitHub",
+          "downloads_macos": "macOS downloads",
+          "downloads_windows": "Windows downloads",
+          "latest_version": "Downloads of the latest version {version}",
+        },
         "platforms": {
           "donation_alerts": "One-time donation with a message",
           "donate_pay": "One-time donation",
@@ -723,7 +731,7 @@ class CodegenLoader extends AssetLoader {
             "Если приложение вам помогает, вы можете поддержать его развитие.",
         "hero_title": "Спасибо, что пользуетесь BlackCat!",
         "hero_description":
-            "Поддержка помогает быстрее обновлять приложение, когда YouTube что-то меняет, и добавлять новые возможности.",
+            "Поддержка помогает быстрее обновлять приложение и добавлять новые возможности",
         "platforms_title": "Способы поддержки",
         "open": "Открыть",
         "copy_link": "Скопировать ссылку",
@@ -731,6 +739,14 @@ class CodegenLoader extends AssetLoader {
         "qr_hint": "Отсканируйте камерой телефона",
         "open_failed": "Не удалось открыть ссылку {url}",
         "thank_you": "Спасибо за поддержку!",
+        "github": {
+          "title": "BlackCat на GitHub",
+          "stars": "Звёзды на GitHub",
+          "open_repository": "Открыть репозиторий на GitHub",
+          "downloads_macos": "Скачиваний для macOS",
+          "downloads_windows": "Скачиваний для Windows",
+          "latest_version": "Скачивания последней версии {version}",
+        },
         "platforms": {
           "donation_alerts": "Разовый донат с сообщением",
           "donate_pay": "Разовый донат",

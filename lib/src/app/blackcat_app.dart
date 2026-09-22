@@ -22,6 +22,7 @@ class BlackCatApp extends StatelessWidget {
   final SettingsRepositoryInterface settingsRepository;
   final DownloadQueueRepositoryInterface downloadQueueRepository;
   final VideoLibraryRepositoryInterface videoLibraryRepository;
+  final ProjectStatsRepositoryInterface projectStatsRepository;
   final VideoPlayerService videoPlayerService;
   final AuthorizationController authorizationController;
   final SettingsController settingsController;
@@ -45,6 +46,7 @@ class BlackCatApp extends StatelessWidget {
     required this.settingsRepository,
     required this.downloadQueueRepository,
     required this.videoLibraryRepository,
+    required this.projectStatsRepository,
     required this.videoPlayerService,
     required this.authorizationController,
     required this.settingsController,
@@ -79,6 +81,9 @@ class BlackCatApp extends StatelessWidget {
       ),
       RepositoryProvider<VideoLibraryRepositoryInterface>.value(
         value: videoLibraryRepository,
+      ),
+      RepositoryProvider<ProjectStatsRepositoryInterface>.value(
+        value: projectStatsRepository,
       ),
       RepositoryProvider<VideoPlayerService>.value(value: videoPlayerService),
     ],

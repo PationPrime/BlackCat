@@ -246,6 +246,17 @@ abstract class LocaleKeys {
   static const app_donations_qr_hint = 'app.donations.qr_hint';
   static const app_donations_open_failed = 'app.donations.open_failed';
   static const app_donations_thank_you = 'app.donations.thank_you';
+  static const app_donations_github_title = 'app.donations.github.title';
+  static const app_donations_github_stars = 'app.donations.github.stars';
+  static const app_donations_github_open_repository =
+      'app.donations.github.open_repository';
+  static const app_donations_github_downloads_macos =
+      'app.donations.github.downloads_macos';
+  static const app_donations_github_downloads_windows =
+      'app.donations.github.downloads_windows';
+  static const app_donations_github_latest_version =
+      'app.donations.github.latest_version';
+  static const app_donations_github = 'app.donations.github';
   static const app_donations_platforms_donation_alerts =
       'app.donations.platforms.donation_alerts';
   static const app_donations_platforms_donate_pay =
