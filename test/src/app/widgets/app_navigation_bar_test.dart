@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:peeky_cat/src/app/design_system/design_system.dart';
 import 'package:peeky_cat/src/app/widgets/widgets.dart';
@@ -66,6 +67,14 @@ double _pillTop(WidgetTester tester) => tester
 Color? _titleColor(WidgetTester tester, String title) =>
     tester.widget<Text>(find.text(title)).style?.color;
 
+/// The button icon: an svg file of its own for every button
+Finder _icon(String assetPath) => find.byWidgetPredicate(
+  (widget) =>
+      widget is SvgPicture &&
+      widget.bytesLoader is SvgAssetLoader &&
+      (widget.bytesLoader as SvgAssetLoader).assetName == assetPath,
+);
+
 void main() {
   testWidgets(
     'таблетка выбора плавно переезжает к нажатой кнопке, цвета меняются по пути',
@@ -120,12 +129,14 @@ void main() {
       tester.getSize(find.byType(AppNavigationBar)).width,
       AppNavigationBar.compactWidth,
     );
+    final downloads = _icon(Assets.icons.iconNavbarDownload.path);
+
     expect(find.text('Загрузки'), findsNothing);
-    expect(find.byIcon(Icons.download_rounded), findsOneWidget);
+    expect(downloads, findsOneWidget);
     expect(find.byTooltip('Загрузки'), findsOneWidget);
     expect(find.text('3'), findsOneWidget);
 
-    await tester.tap(find.byIcon(Icons.download_rounded));
+    await tester.tap(downloads);
     await tester.pumpAndSettle();
 
     expect(bar.selected, [1]);

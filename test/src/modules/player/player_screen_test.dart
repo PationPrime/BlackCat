@@ -272,7 +272,7 @@ void main() {
       );
 
       /// No big button in the middle until the space bar is pressed
-      expect(find.byIcon(Icons.pause_rounded), findsOneWidget);
+      expect(find.byIcon(Icons.pause_rounded), findsNothing);
 
       await _press(tester, LogicalKeyboardKey.space);
       await tester.pump(const Duration(milliseconds: 50));
