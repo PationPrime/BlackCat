@@ -9,15 +9,28 @@ import 'package:black_cat/src/app/constants/constants.dart';
 import 'package:black_cat/src/app/design_system/design_system.dart';
 import 'package:black_cat/src/app/localization/lang/locale_keys.g.dart';
 import 'package:black_cat/src/app/models/models.dart';
+import 'package:black_cat/src/app/repositories/repositories.dart';
 import 'package:black_cat/src/app/services/services.dart';
 import 'package:black_cat/src/app/widgets/widgets.dart';
 
 import '../../components/components.dart';
+import '../../controllers/controllers.dart';
 
-/// Ways to support the developer: the same services as in rconite
+/// Ways to support the developer: the same services as in rconite, and
+/// BlackCat on GitHub
 @RoutePage()
-class DonationsScreen extends StatefulWidget {
+class DonationsScreen extends StatefulWidget implements AutoRouteWrapper {
   const DonationsScreen({super.key});
+
+  @override
+  Widget wrappedRoute(BuildContext context) =>
+      BlocProvider<ProjectStatsController>(
+        create: (context) => ProjectStatsController(
+          projectStatsRepository: context
+              .read<ProjectStatsRepositoryInterface>(),
+        )..load(),
+        child: this,
+      );
 
   @override
   State<DonationsScreen> createState() => _DonationsScreenState();
@@ -34,14 +47,12 @@ class _DonationsScreenState extends State<DonationsScreen> {
   /// A link the system could not open
   String? _failedUrl;
 
-  Future<void> _open(DonationPlatformModel platform) async {
-    final opened = await context.read<UrlLauncherService>().openUrl(
-      platform.url,
-    );
+  Future<void> _open(String url) async {
+    final opened = await context.read<UrlLauncherService>().openUrl(url);
 
     if (!mounted) return;
 
-    setState(() => _failedUrl = opened ? null : platform.url);
+    setState(() => _failedUrl = opened ? null : url);
   }
 
   void _copy(DonationPlatformModel platform) =>
@@ -83,7 +94,7 @@ class _DonationsScreenState extends State<DonationsScreen> {
                       final platform? => DonationPlatformCard(
                         platform: platform,
                         description: _descriptionOf(platform),
-                        onOpenPressed: () => _open(platform),
+                        onOpenPressed: () => _open(platform.url),
                         onCopyPressed: () => _copy(platform),
                       ),
                       null => const SizedBox.shrink(),
@@ -141,6 +152,19 @@ class _DonationsScreenState extends State<DonationsScreen> {
                       ],
                     ),
                   ],
+                  const SizedBox(height: 32),
+                  Text(
+                    LocaleKeys.app_donations_github_title.tr().toUpperCase(),
+                    style: context.text.overlineRegular,
+                  ),
+                  const SizedBox(height: 12),
+                  BlocBuilder<ProjectStatsController, ProjectStatsState>(
+                    builder: (context, state) => ProjectStatsPanel(
+                      stats: state.stats,
+                      onStarsPressed: () =>
+                          _open(ProjectConstants.repositoryUrl),
+                    ),
+                  ),
                   const SizedBox(height: 32),
                   Text(
                     LocaleKeys.app_donations_platforms_title.tr().toUpperCase(),

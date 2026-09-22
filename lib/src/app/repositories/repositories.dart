@@ -5,6 +5,8 @@ export 'dependencies_repository/dependencies_repository.dart';
 export 'dependencies_repository/dependencies_repository_interface.dart';
 export 'download_queue_repository/download_queue_repository.dart';
 export 'download_queue_repository/download_queue_repository_interface.dart';
+export 'project_stats_repository/project_stats_repository.dart';
+export 'project_stats_repository/project_stats_repository_interface.dart';
 export 'settings_repository/settings_repository.dart';
 export 'settings_repository/settings_repository_interface.dart';
 export 'video_library_repository/video_library_repository.dart';

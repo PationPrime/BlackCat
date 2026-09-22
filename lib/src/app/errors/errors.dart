@@ -5,5 +5,6 @@ export 'dependency_errors/dependency_errors.dart';
 export 'download_queue_errors/download_queue_errors.dart';
 export 'error_handler/error_handler.dart';
 export 'player_errors/player_errors.dart';
+export 'project_stats_errors/project_stats_errors.dart';
 export 'settings_errors/settings_errors.dart';
 export 'video_errors/video_errors.dart';

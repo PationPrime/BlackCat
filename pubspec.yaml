@@ -40,6 +40,7 @@ dependencies:
   url_launcher: ^6.3.2
   win32: ^6.4.0
   window_manager: ^0.5.2
+  flutter_svg: ^2.3.0
 
 dev_dependencies:
   flutter_test:
@@ -48,10 +49,17 @@ dev_dependencies:
   auto_route_generator: ^10.6.0
   build_runner: ^2.15.1
   drift_dev: 2.34.5
+  flutter_gen_runner: ^5.15.0
+
+flutter_gen:
+  output: lib/src/generated/assets/
+  integrations:
+    flutter_svg: true
 
 flutter:
   uses-material-design: true
   assets:
+    - assets/icons/
     - assets/lang/
     - assets/tray/
     - assets/donations/

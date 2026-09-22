@@ -20,6 +20,7 @@ class BlackCataRunnerApp extends StatelessWidget {
   final SettingsRepositoryInterface settingsRepository;
   final DownloadQueueRepositoryInterface downloadQueueRepository;
   final VideoLibraryRepositoryInterface videoLibraryRepository;
+  final ProjectStatsRepositoryInterface projectStatsRepository;
   final VideoPlayerService videoPlayerService;
   final AuthorizationController authorizationController;
   final SettingsController settingsController;
@@ -43,6 +44,7 @@ class BlackCataRunnerApp extends StatelessWidget {
     required this.settingsRepository,
     required this.downloadQueueRepository,
     required this.videoLibraryRepository,
+    required this.projectStatsRepository,
     required this.videoPlayerService,
     required this.authorizationController,
     required this.settingsController,
@@ -65,6 +67,7 @@ class BlackCataRunnerApp extends StatelessWidget {
     settingsRepository: settingsRepository,
     downloadQueueRepository: downloadQueueRepository,
     videoLibraryRepository: videoLibraryRepository,
+    projectStatsRepository: projectStatsRepository,
     videoPlayerService: videoPlayerService,
     authorizationController: authorizationController,
     settingsController: settingsController,

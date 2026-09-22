@@ -4,6 +4,7 @@ export 'dependency/remote_dependency_data_source.dart';
 export 'download_state/local_download_state_data_source.dart';
 export 'instagram/remote_instagram_data_source.dart';
 export 'media_stream/remote_media_stream_data_source.dart';
+export 'project_stats/remote_project_stats_data_source.dart';
 export 'rutube/remote_rutube_data_source.dart';
 export 'settings/local_settings_data_source.dart';
 export 'thumbnail/remote_thumbnail_data_source.dart';

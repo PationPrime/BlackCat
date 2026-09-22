@@ -49,6 +49,7 @@ final class TestApp {
   final authenticationRepository = FakeAuthenticationRepository();
   final urlLauncher = FakeUrlLauncher();
   final videoLibraryRepository = FakeVideoLibraryRepository();
+  final projectStatsRepository = FakeProjectStatsRepository();
   final videoPlayerService = FakeVideoPlayerService();
   final appWindowService = FakeAppWindowService();
 
@@ -105,6 +106,9 @@ final class TestApp {
       ),
       RepositoryProvider<VideoLibraryRepositoryInterface>.value(
         value: videoLibraryRepository,
+      ),
+      RepositoryProvider<ProjectStatsRepositoryInterface>.value(
+        value: projectStatsRepository,
       ),
       RepositoryProvider<VideoPlayerService>.value(value: videoPlayerService),
     ],

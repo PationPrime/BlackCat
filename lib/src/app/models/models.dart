@@ -11,6 +11,7 @@ export 'download_progress_model/download_progress_model.dart';
 export 'download_task_model/download_task_model.dart';
 export 'downloaded_file_model/downloaded_file_model.dart';
 export 'library_video_model/library_video_model.dart';
+export 'project_stats_model/project_stats_model.dart';
 export 'quality_model/quality_model.dart';
 export 'system_tray_model/system_tray_menu_item_model.dart';
 export 'video_info_model/video_info_model.dart';

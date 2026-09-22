@@ -321,6 +321,35 @@ class FakeSettingsRepository implements SettingsRepositoryInterface {
   }
 }
 
+/// Stats of the latest release v0.1.0: a star, three downloads for macOS
+/// and two for Windows
+const testProjectStats = ProjectStatsModel(
+  stars: 1,
+  version: 'v0.1.0',
+  downloads: {ReleasePlatformModel.macos: 3, ReleasePlatformModel.windows: 2},
+);
+
+class FakeProjectStatsRepository implements ProjectStatsRepositoryInterface {
+  OperationResult<ProjectStatsModel> result;
+  var requests = 0;
+
+  FakeProjectStatsRepository({
+    this.result = (failure: null, data: testProjectStats),
+  });
+
+  @override
+  ErrorHandler get errorHandler => const ProjectStatsErrorHandler();
+
+  @override
+  Future<OperationResult<ProjectStatsModel>> getStats({
+    bool refresh = false,
+  }) async {
+    requests++;
+
+    return result;
+  }
+}
+
 class FakeAuthenticationRepository
     implements AuthenticationRepositoryInterface {
   OperationResult<AccountSessionModel?> restoreResult;

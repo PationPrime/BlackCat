@@ -185,6 +185,14 @@
       "qr_hint": "Scan with your phone camera",
       "open_failed": "Couldn't open the link {url}",
       "thank_you": "Thank you for your support!",
+      "github": {
+        "title": "BlackCat on GitHub",
+        "stars": "GitHub stars",
+        "open_repository": "Open the repository on GitHub",
+        "downloads_macos": "macOS downloads",
+        "downloads_windows": "Windows downloads",
+        "latest_version": "Downloads of the latest version {version}"
+      },
       "platforms": {
         "donation_alerts": "One-time donation with a message",
         "donate_pay": "One-time donation",

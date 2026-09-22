@@ -10,6 +10,7 @@ export 'instagram_url_parser.dart';
 export 'mp4_probe.dart';
 export 'netscape_cookies.dart';
 export 'quality_selector.dart';
+export 'release_asset_platform.dart';
 export 'rutube_qualities.dart';
 export 'rutube_url_parser.dart';
 export 'sapisid_authorization.dart';
