@@ -187,6 +187,22 @@ class TikTokDownloadRoute extends PageRouteInfo<void> {
 }
 
 /// generated route for
+/// [XDownloadScreen]
+class XDownloadRoute extends PageRouteInfo<void> {
+  const XDownloadRoute({List<PageRouteInfo>? children})
+    : super(XDownloadRoute.name, initialChildren: children);
+
+  static const String name = 'XDownloadRoute';
+
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      return WrappedRoute(child: const XDownloadScreen());
+    },
+  );
+}
+
+/// generated route for
 /// [YouTubeDownloadScreen]
 class YouTubeDownloadRoute extends PageRouteInfo<void> {
   const YouTubeDownloadRoute({List<PageRouteInfo>? children})

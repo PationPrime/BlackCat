@@ -17,6 +17,8 @@ export 'video_repository/source_video_repository.dart';
 export 'video_repository/tiktok_video_repository.dart';
 export 'video_repository/tiktok_yt_dlp_video_repository.dart';
 export 'video_repository/video_repository_interface.dart';
+export 'video_repository/x_video_repository.dart';
+export 'video_repository/x_yt_dlp_video_repository.dart';
 export 'video_repository/youtube_video_repository.dart';
 export 'video_repository/yt_dlp_video_repository.dart';
 export 'video_repository/yt_dlp_video_repository_interface.dart';

@@ -669,7 +669,7 @@ void main() {
     ]);
     expect(
       unsupported.failure?.message,
-      'Это не ссылка на видео YouTube, RuTube, TikTok или Instagram.',
+      'Это не ссылка на видео YouTube, RuTube, TikTok, Instagram или X.',
     );
   });
 }

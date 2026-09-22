@@ -68,6 +68,17 @@ final class VideoErrorCodes extends ErrorCodes {
   final String instagramNoConnection;
   final String instagramInterrupted;
 
+  final String notXUrl;
+
+  /// X does not show the post: removed, protected or shown only after login
+  final String xUnavailable;
+
+  /// An X post without a video
+  final String xNoVideo;
+  final String xHttpStatus;
+  final String xNoConnection;
+  final String xInterrupted;
+
   /// The video segments are encrypted
   final String streamProtected;
 
@@ -121,6 +132,12 @@ final class VideoErrorCodes extends ErrorCodes {
     this.instagramHttpStatus = 'instagram_http_status',
     this.instagramNoConnection = 'instagram_no_connection',
     this.instagramInterrupted = 'instagram_interrupted',
+    this.notXUrl = 'not_x_url',
+    this.xUnavailable = 'x_unavailable',
+    this.xNoVideo = 'x_no_video',
+    this.xHttpStatus = 'x_http_status',
+    this.xNoConnection = 'x_no_connection',
+    this.xInterrupted = 'x_interrupted',
     this.streamProtected = 'stream_protected',
     this.streamFormat = 'stream_format',
     this.rateLimited = '429',

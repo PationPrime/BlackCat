@@ -24,6 +24,7 @@ const _rutubeUrl = 'https://rutube.ru/shorts/7fe803e5db2951c0a6097232efc4a439/';
 const _tiktokUrl =
     'https://www.tiktok.com/@bmw/video/7664657841843719457?is_from_webapp=1';
 const _instagramUrl = 'https://www.instagram.com/reel/DZT71H-BJuK/?hl=en';
+const _xUrl = 'https://x.com/PlayStation/status/2102042791807263094/video/1';
 
 const _signInFailure = VideoFailure(
   code: 'bot_check',
@@ -503,6 +504,40 @@ void main() {
       expect(app.ytDlpVideoRepository.requestedUrls, [_instagramUrl]);
       expect(find.byType(VideoCard), findsOneWidget);
       expect(find.text('Это не ссылка на видео Instagram.'), findsNothing);
+
+      await app.close();
+    },
+  );
+
+  testWidgets(
+    'вкладка X ищет видео постов X, ссылки других сайтов не принимает',
+    (tester) async {
+      final app = TestApp(
+        ytDlpVideoRepository: FakeYtDlpVideoRepository(
+          infoResults: [(failure: null, data: testVideoInfo)],
+        ),
+      );
+
+      await app.pumpPage(tester, const XDownloadScreen());
+      await app.dependenciesController.check();
+
+      expect(find.text('X'), findsOneWidget);
+      expect(find.text('https://x.com/user/status/...'), findsOneWidget);
+
+      await tester.enterText(_searchField, _instagramUrl);
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      await app.settle(tester);
+
+      expect(find.text('Это не ссылка на пост X (Twitter).'), findsOneWidget);
+      expect(app.ytDlpVideoRepository.requestedUrls, isEmpty);
+
+      await tester.enterText(_searchField, _xUrl);
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      await app.settle(tester);
+
+      expect(app.ytDlpVideoRepository.requestedUrls, [_xUrl]);
+      expect(find.byType(VideoCard), findsOneWidget);
+      expect(find.text('Это не ссылка на пост X (Twitter).'), findsNothing);
 
       await app.close();
     },

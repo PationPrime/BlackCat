@@ -324,6 +324,16 @@ abstract class LocaleKeys {
       'app.errors.video.instagram_no_connection';
   static const app_errors_video_instagram_interrupted =
       'app.errors.video.instagram_interrupted';
+  static const app_errors_video_not_x_url = 'app.errors.video.not_x_url';
+  static const app_errors_video_x_unavailable =
+      'app.errors.video.x_unavailable';
+  static const app_errors_video_x_no_video = 'app.errors.video.x_no_video';
+  static const app_errors_video_x_http_status =
+      'app.errors.video.x_http_status';
+  static const app_errors_video_x_no_connection =
+      'app.errors.video.x_no_connection';
+  static const app_errors_video_x_interrupted =
+      'app.errors.video.x_interrupted';
   static const app_errors_video_stream_protected =
       'app.errors.video.stream_protected';
   static const app_errors_video_stream_format =
@@ -481,6 +491,7 @@ abstract class LocaleKeys {
   static const app_home_tabs_rutube = 'app.home.tabs.rutube';
   static const app_home_tabs_tiktok = 'app.home.tabs.tiktok';
   static const app_home_tabs_instagram = 'app.home.tabs.instagram';
+  static const app_home_tabs_x = 'app.home.tabs.x';
   static const app_home_tabs = 'app.home.tabs';
   static const app_home_youtube_title = 'app.home.youtube.title';
   static const app_home_youtube_subtitle = 'app.home.youtube.subtitle';
@@ -497,6 +508,10 @@ abstract class LocaleKeys {
   static const app_home_instagram_subtitle = 'app.home.instagram.subtitle';
   static const app_home_instagram_url_hint = 'app.home.instagram.url_hint';
   static const app_home_instagram = 'app.home.instagram';
+  static const app_home_x_title = 'app.home.x.title';
+  static const app_home_x_subtitle = 'app.home.x.subtitle';
+  static const app_home_x_url_hint = 'app.home.x.url_hint';
+  static const app_home_x = 'app.home.x';
   static const app_home_added = 'app.home.added';
   static const app_home_open_downloads = 'app.home.open_downloads';
   static const app_home_clear = 'app.home.clear';

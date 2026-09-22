@@ -74,6 +74,12 @@ class VideoErrorHandler extends ErrorHandler<VideoErrorCodes> {
         LocaleKeys.app_errors_video_instagram_no_connection,
       'instagram_interrupted' =>
         LocaleKeys.app_errors_video_instagram_interrupted,
+      'not_x_url' => LocaleKeys.app_errors_video_not_x_url,
+      'x_unavailable' => LocaleKeys.app_errors_video_x_unavailable,
+      'x_no_video' => LocaleKeys.app_errors_video_x_no_video,
+      'x_http_status' => LocaleKeys.app_errors_video_x_http_status,
+      'x_no_connection' => LocaleKeys.app_errors_video_x_no_connection,
+      'x_interrupted' => LocaleKeys.app_errors_video_x_interrupted,
       'stream_protected' => LocaleKeys.app_errors_video_stream_protected,
       'stream_format' => LocaleKeys.app_errors_video_stream_format,
       '403' => LocaleKeys.app_errors_network_forbidden,

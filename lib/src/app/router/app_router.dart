@@ -48,6 +48,7 @@ class AppRouter extends RootStackRouter {
                       path: RoutePaths.instagram,
                       page: InstagramDownloadRoute.page,
                     ),
+                    AutoRoute(path: RoutePaths.x, page: XDownloadRoute.page),
                     AutoRoute(
                       path: RoutePaths.rutube,
                       page: RuTubeDownloadRoute.page,

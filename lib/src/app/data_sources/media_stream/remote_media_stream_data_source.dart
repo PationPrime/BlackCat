@@ -194,6 +194,11 @@ Exception mediaDownloadExceptionOf(
       codes.instagramNoConnection,
       codes.instagramInterrupted,
     ),
+    VideoSourceModel.x => (
+      codes.xHttpStatus,
+      codes.xNoConnection,
+      codes.xInterrupted,
+    ),
   };
 
   return switch (error) {

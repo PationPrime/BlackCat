@@ -14,6 +14,7 @@ class HomeScreen extends StatelessWidget {
     LocaleKeys.app_home_tabs_youtube,
     LocaleKeys.app_home_tabs_tiktok,
     LocaleKeys.app_home_tabs_instagram,
+    LocaleKeys.app_home_tabs_x,
     LocaleKeys.app_home_tabs_rutube,
   ];
 
